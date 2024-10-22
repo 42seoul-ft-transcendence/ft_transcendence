@@ -3,6 +3,5 @@ venv/
 .env
 db.sqlite3
 *.conf
-*.txt
 **/__pycache__
 *.pyc
