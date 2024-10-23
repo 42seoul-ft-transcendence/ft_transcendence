@@ -1,0 +1,12 @@
+services:
+  backend:
+    build:
+      context: ./backend/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./backend:/code
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=1
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
