@@ -1,4 +1,5 @@
 .idea/
+postgres/
 venv/
 .env
 db.sqlite3
