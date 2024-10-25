@@ -3,7 +3,30 @@ services:
     build:
       context: ./backend/
       dockerfile: Dockerfile.dev
+    env_file:
+      - .env
+    restart: always
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./backend:/code
     ports:
       - "8000:8000"
+    depends_on:
+      - db
+  
+  frontend:
+    build:
+      context: ./frontend/
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+    ports:
+      - "8080:80"
+
+  db:
+    image: postgres:13
+    env_file:
+      - .env
+    volumes:
+      - ./backend/postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
