@@ -153,3 +153,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # 기존 User 대신 CustomUser 모델 사용하도록 설정
 AUTH_USER_MODEL = 'authentication_app.CustomUser'
+
+# 42 OAuth 설정
+CLIENT_ID = os.environ.get('FT_UID')
+CLIENT_SECRET = os.environ.get('FT_SECRET')
+REDIRECT_URI = os.environ.get('REDIRECT_URI')
