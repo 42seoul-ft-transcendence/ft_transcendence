@@ -158,3 +158,7 @@ AUTH_USER_MODEL = 'authentication_app.CustomUser'
 CLIENT_ID = os.environ.get('FT_UID')
 CLIENT_SECRET = os.environ.get('FT_SECRET')
 REDIRECT_URI = os.environ.get('REDIRECT_URI')
+
+# 개발 환경 이메일 설정 (콘솔로 출력)
+# TODO: 실제 이메일로 전송되도록 추후에 수정 요망
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

@@ -3,40 +3,14 @@ from django.conf import settings
 from django.shortcuts import redirect
 from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
-from rest_framework import generics, status, permissions
+from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import authenticate
-from .serializers import RegisterSerializer, LoginSerializer, UserSerializer
+from django.core.mail import send_mail
+import pyotp
+
 
 User = get_user_model()
-
-class RegisterView(generics.CreateAPIView):
-    serializer_class = RegisterSerializer
-    permission_classes = [permissions.AllowAny]
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        return Response({
-            "user": UserSerializer(user, context=self.get_serializer_context()).data,
-            "message": "User registered successfully."
-        }, status=status.HTTP_201_CREATED)
-
-class LoginView(generics.GenericAPIView):
-    serializer_class = LoginSerializer
-    permission_classes = [permissions.AllowAny]
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            "refresh": str(refresh),
-            "access": str(refresh.access_token),
-        }, status=status.HTTP_200_OK)
 
 
 class FortyTwoOAuthRedirect(APIView):
@@ -44,33 +18,32 @@ class FortyTwoOAuthRedirect(APIView):
 
     def get(self, request):
         # 42 로그인 페이지로 리다이렉트
-        url = f"https://api.intra.42.fr/oauth/authorize?client_id={settings.CLIENT_ID}&redirect_uri={settings.REDIRECT_URI}&response_type=code"
+        url = (
+            f"https://api.intra.42.fr/oauth/authorize?"
+            f"client_id={settings.CLIENT_ID}&redirect_uri={settings.REDIRECT_URI}&response_type=code"
+        )
         return redirect(url)
-
 
 class FortyTwoOAuthCallback(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request):
-        # 콜백에서 받은 코드
         code = request.GET.get("code")
         if not code:
-            return Response({"error": "No code provided"}, status=400)
+            return Response({"error": "No code provided"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 토큰 요청
+        # 42 API에서 access token 요청
         token_response = requests.post("https://api.intra.42.fr/oauth/token", data={
             "grant_type": "authorization_code",
             "client_id": settings.CLIENT_ID,
             "client_secret": settings.CLIENT_SECRET,
             "code": code,
             "redirect_uri": settings.REDIRECT_URI,
-        }, headers={"Content-Type": "application/x-www-form-urlencoded"})
+        }, headers={"Content-Type": "application/x-www-form-urlencoded"}).json()
 
-        token_data = token_response.json()
-
-        access_token = token_data.get("access_token")
+        access_token = token_response.get("access_token")
         if not access_token:
-            return Response({"error": "Failed to obtain access token", "details": token_data}, status=400)
+            return Response({"error": "Failed to obtain access token"}, status=status.HTTP_400_BAD_REQUEST)
 
         # 사용자 정보 요청
         user_data_response = requests.get(
@@ -78,18 +51,103 @@ class FortyTwoOAuthCallback(APIView):
             headers={"Authorization": f"Bearer {access_token}"}
         ).json()
 
-        # 사용자 정보 저장 및 로그인 처리
-        username = user_data_response.get("login")
-        email = user_data_response.get("email")
+        user_data = {
+            'username': user_data_response.get("login"),
+            'email': user_data_response.get("email"),
+            'first_name': user_data_response.get("first_name"),
+            'last_name': user_data_response.get("last_name"),
+            'avatar': user_data_response.get("image", {}).get("link"),
+        }
 
         # 사용자 생성 또는 조회
-        user, created = User.objects.get_or_create(username=username, defaults={"email": email})
+        user, created = User.objects.get_or_create(
+            username=user_data.get("username"),
+            defaults=user_data
+        )
 
-        # JWT 토큰 발급
+        if not created:
+            for field, value in user_data.items():
+                setattr(user, field, value)
+            user.save()
+
+        # refresh = RefreshToken.for_user(user)
+        # access = refresh.access_token
+        # print(access)
+
+        # 2FA 확인 및 처리
+        if user.two_factor:
+            # OTP 코드 전송
+            totp = pyotp.TOTP(user.otp_secret)
+            otp_code = totp.now()
+            send_mail(
+                'Your 2FA Code',
+                f'Your verification code is {otp_code}',
+                'noreply@student.42seoul.kr',
+                [user.email],
+                fail_silently=False,
+            )
+            return Response({
+                "message": "2FA code sent to your email. Please verify to complete login.",
+                "username": user.username
+            }, status=status.HTTP_200_OK)
+
+        # 2FA가 비활성화된 경우에만 JWT 발급
         refresh = RefreshToken.for_user(user)
         return Response({
             "refresh": str(refresh),
             "access": str(refresh.access_token),
             "username": user.username,
             "email": user.email,
+            "avatar": user.avatar,
         })
+
+
+# 2FA 코드 검증 및 JWT 발급
+class Verify2FACodeView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        username = request.data.get("username")
+        otp_code = request.data.get("otp_code")
+
+        if not otp_code or not username:
+            return Response({"error": "Username and OTP code required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # 사용자 조회
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        # OTP 코드 검증
+        totp = pyotp.TOTP(user.otp_secret)
+        if not totp.verify(otp_code):
+            return Response({"error": "Invalid OTP code."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # OTP 검증 성공 시 JWT 발급
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        }, status=status.HTTP_200_OK)
+
+
+# 2FA 활성화/비활성화 토글
+class Toggle2FAView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        enable_2fa = request.data.get("enable_2fa", True)
+
+        if enable_2fa:
+            user.two_factor = True
+            if not user.otp_secret:
+                user.otp_secret = pyotp.random_base32()
+            message = "2FA enabled successfully."
+        else:
+            user.two_factor = False
+            message = "2FA disabled successfully."
+
+        user.save()
+        return Response({"message": message}, status=status.HTTP_200_OK)
