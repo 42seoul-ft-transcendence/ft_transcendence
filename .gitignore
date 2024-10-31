@@ -1,7 +1,10 @@
 .idea/
 venv/
+.venv*/
 .env
 db.sqlite3
 *.conf
 **/__pycache__
 *.pyc
+.DS_Store
+
