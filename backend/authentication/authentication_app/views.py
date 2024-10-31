@@ -30,7 +30,7 @@ class FortyTwoOAuthCallback(APIView):
     def get(self, request):
         code = request.GET.get("code")
         if not code:
-            return Response({"error": "No code provided"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "No code provided"}, status=status.HTTP_401_UNAUTHORIZED)
 
         # 42 API에서 access token 요청
         token_response = requests.post("https://api.intra.42.fr/oauth/token", data={
@@ -43,7 +43,7 @@ class FortyTwoOAuthCallback(APIView):
 
         access_token = token_response.get("access_token")
         if not access_token:
-            return Response({"error": "Failed to obtain access token"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Failed to obtain access token"}, status=status.HTTP_401_UNAUTHORIZED)
 
         # 사용자 정보 요청
         user_data_response = requests.get(
@@ -69,10 +69,6 @@ class FortyTwoOAuthCallback(APIView):
             for field, value in user_data.items():
                 setattr(user, field, value)
             user.save()
-
-        # refresh = RefreshToken.for_user(user)
-        # access = refresh.access_token
-        # print(access)
 
         # 2FA 확인 및 처리
         if user.two_factor:
@@ -111,18 +107,18 @@ class Verify2FACodeView(APIView):
         otp_code = request.data.get("otp_code")
 
         if not otp_code or not username:
-            return Response({"error": "Username and OTP code required."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Username and OTP code required."}, status=status.HTTP_401_UNAUTHORIZED)
 
         # 사용자 조회
         try:
             user = User.objects.get(username=username)
         except User.DoesNotExist:
-            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "User not found."}, status=status.HTTP_401_UNAUTHORIZED)
 
         # OTP 코드 검증
         totp = pyotp.TOTP(user.otp_secret)
         if not totp.verify(otp_code):
-            return Response({"error": "Invalid OTP code."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Invalid OTP code."}, status=status.HTTP_401_UNAUTHORIZED)
 
         # OTP 검증 성공 시 JWT 발급
         refresh = RefreshToken.for_user(user)
