@@ -10,7 +10,7 @@ class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
-    display_name = models.CharField(max_length=50, default=lambda: "", blank=True)
+    display_name = models.CharField(max_length=50, blank=True)
     # TODO: edit default URL
     avatar = models.URLField(default="https://example.com/default-avatar.png", blank=False, null=False)
     two_factor = models.BooleanField(default=False)
@@ -18,3 +18,8 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return f'User {self.username}: [ email: {self.email} ]'
+
+    def save(self, *args, **kwargs):
+        if not self.display_name:
+            self.display_name = self.username  # Or any other logic
+        super().save(*args, **kwargs)
