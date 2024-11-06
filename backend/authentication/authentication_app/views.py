@@ -6,7 +6,9 @@ from rest_framework.views import APIView
 from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.exceptions import AuthenticationFailed
 from django.core.mail import send_mail
+import jwt
 import pyotp
 
 
@@ -96,6 +98,36 @@ class FortyTwoOAuthCallback(APIView):
             "email": user.email,
             "avatar": user.avatar,
         })
+
+
+class VerifyToken(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        print(request.headers)
+        print(request.data)
+        token = request.headers.get('Authorization')
+        if not token:
+            raise AuthenticationFailed('Authorization token required')
+
+        token = token.split()[1]
+
+        try:
+            decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+            user_id = decoded_token['user_id']
+
+            try:
+                user = User.objects.get(id=user_id)
+            except User.DoesNotExist:
+                raise AuthenticationFailed('User not found')
+
+            user_data = {"user_id": user.id, "username": user.username}
+            return Response(user_data, status=status.HTTP_200_OK)
+
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed('Token expired')
+        except jwt.InvalidTokenError:
+            raise AuthenticationFailed('Invalid token')
 
 
 # 2FA 코드 검증 및 JWT 발급
