@@ -60,12 +60,15 @@ REST_FRAMEWORK = {
     ),
 }
 
-# JWT 설정
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
+    'SIGNING_KEY': SECRET_KEY,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'id',
+    'ALGORITHM': 'HS256',
 }
 
 MIDDLEWARE = [
@@ -149,7 +152,6 @@ STATIC_URL = 'static/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # 기존 User 대신 CustomUser 모델 사용하도록 설정
 AUTH_USER_MODEL = 'authentication_app.CustomUser'
