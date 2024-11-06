@@ -16,6 +16,7 @@ class FriendRequestView(APIView):
     def post(self, request):
         user_id = request.user.id
 
+        # receiver_user_id 있는지 확인
         receiver_user_id = request.data.get("receiver_id")
         if not receiver_user_id:
             return Response({"error": "Receiver ID is required."}, status=status.HTTP_400_BAD_REQUEST)
@@ -31,6 +32,19 @@ class FriendRequestView(APIView):
                 {"error": "You cannot send a friend request to yourself."},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+        # receiver_id의 존재 여부 확인
+        try:
+            auth_response = requests.get(
+                f"{settings.AUTH_SERVICE_URL}/api/auth/user/{receiver_user_id}/",
+                headers={"Authorization": request.headers.get("Authorization")},
+                timeout=5  # 타임아웃 설정
+            )
+            if auth_response.status_code != 200:
+                return Response({"error": "Receiver user does not exist."}, status=status.HTTP_404_NOT_FOUND)
+        except requests.exceptions.RequestException as e:
+            return Response({"error": "Failed to verify receiver user."},
+                                status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
         # 이미 친구 요청이 있는지 확인
         if Friendship.objects.filter(
@@ -61,19 +75,33 @@ class FriendAcceptView(APIView):
     def post(self, request):
         user_id = request.user.id
 
-        requester_id = request.data.get("requester_id")
-        if not requester_id:
+        receiver_id = request.data.get("receiver_id")
+        if not receiver_id:
             return Response({"error": "Requester ID is required."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            requester_id = int(requester_id)
+            receiver_id = int(receiver_id)
         except ValueError:
             return Response({"error": "Requester ID must be an integer."}, status=status.HTTP_400_BAD_REQUEST)
 
+        # receiver_id의 존재 여부 확인
+        try:
+            auth_response = requests.get(
+                f"{settings.AUTH_SERVICE_URL}/api/auth/user/{receiver_id}/",
+                headers={"Authorization": request.headers.get("Authorization")},
+                timeout=5  # 타임아웃 설정
+            )
+            if auth_response.status_code != 200:
+                return Response({"error": "Receiver user does not exist."}, status=status.HTTP_404_NOT_FOUND)
+        except requests.exceptions.RequestException as e:
+            return Response({"error": "Failed to verify receiver user."},
+                                status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
         try:
             friendship = Friendship.objects.get(
-                requester_id=requester_id,
-                receiver_id=user_id,
+                requester_id=user_id,
+                receiver_id=receiver_id,
                 status="pending"
             )
             friendship.status = "accepted"
@@ -91,19 +119,19 @@ class FriendRejectView(APIView):
     def post(self, request):
         user_id = request.user.id
 
-        requester_id = request.data.get("requester_id")
-        if not requester_id:
+        receiver_id = request.data.get("receiver_id")
+        if not receiver_id:
             return Response({"error": "Requester ID is required."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            requester_id = int(requester_id)
+            receiver_id = int(receiver_id)
         except ValueError:
             return Response({"error": "Requester ID must be an integer."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             friendship = Friendship.objects.get(
-                requester_id=requester_id,
-                receiver_id=user_id,
+                requester_id=user_id,
+                receiver_id=receiver_id,
                 status="pending"
             )
             friendship.status = "rejected"
