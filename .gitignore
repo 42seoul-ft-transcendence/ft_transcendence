@@ -5,3 +5,7 @@ db.sqlite3
 *.conf
 **/__pycache__
 *.pyc
+
+node_modules
+package*
+.vscode
