@@ -1,31 +1,21 @@
 import Component from '../core/Component.js';
 
 export default class Navbar extends Component {
-    template() {
-        return /* html */ `
-		<nav class="navbar navbar-expand-lg navbar-light bg-light">
+	template() {
+		return /* html */ `
+		<nav class="navbar navbar-expand bg-primary navbar-dark fixed-top px-4 py-3">
 			<div class="container-fluid">
-				<a class="navbar-brand fw-bold" href="#/login">Pong</a>
-				<div class="collapse navbar-collapse" id="navbarNav">
-					<ul class="navbar-nav">
-						<li class="nav-item">
-							<a class="nav-link" href="#/chat">Chat</a>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link" href="#/game">Game</a>
-						</li>
-					</ul>
-				</div>
-				<ul class="navbar-nav">
-          <li class="nav-item">
-              <a class="nav-link" href="#/">Logout</a>
-          </li>
-        </ul>
-				<div class="d-flex align-items-center">
-						<img src="https://via.placeholder.com/40" alt="User Avatar" class="avatar" onclick="onAvatarClick()">
-				</div>
+				<a class="navbar-brand" href="#">PONG</a>
+				<ul class="navbar-nav ms-auto">
+					<li class="nav-item">
+						<div class="icon">
+							<!-- 프로필 이미지 -->
+							<img src="https://via.placeholder.com/40" alt="Profile Icon">
+						</div>
+					</li>
+				</ul>
 			</div>
 		</nav>
 	`;
-    }
+	}
 }

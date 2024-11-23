@@ -1,5 +1,6 @@
 .idea/
 venv/
+.venv*/
 .env
 db.sqlite3
 *.conf
@@ -9,3 +10,6 @@ db.sqlite3
 node_modules
 package*
 .vscode
+
+.DS_Store
+

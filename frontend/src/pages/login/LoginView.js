@@ -1,15 +1,14 @@
 import Component from "../../core/Component.js";
-import Modal from "../../components/Modal.js";
 
 export default class Login extends Component {
-	setup() {
-		this.state = {
-			modalInstance: null,
-		}
-	}
+  setup() {
+    this.state = {
+      modalInstance: null,
+    };
+  }
 
-	template() {
-		return /* html */ `
+  template() {
+    return /* html */ `
 			<div class="container w-75 text-center p-5 bg-white rounded-3 shadow-lg">
 				<p class="h1">Login</p>
 				<div class="mb-4 text-start">
@@ -37,48 +36,38 @@ export default class Login extends Component {
 			<div class="modal fade" id="registrationModal" tabindex="-1" aria-labelledby="registrationModalLabel" aria-hidden="true">
 			</div>
 		`;
-	}
+  }
 
-	mounted() {
-		new Modal(this.$target.querySelector('#registrationModal'));
-		if (!this.state.modalInstance)
-			this.state.modalInstance = new bootstrap.Modal(this.$target.querySelector('#registrationModal'));
-	}
+  mounted() {
+    new Modal(this.$target.querySelector("#registrationModal"));
+    if (!this.state.modalInstance)
+      this.state.modalInstance = new bootstrap.Modal(
+        this.$target.querySelector("#registrationModal"),
+      );
+  }
 
-	setEvent() {
-		this.addEvent('click', '#openModalBtn', () => {
-			this.state.modalInstance.show();
-		})
+  setEvent() {
+    this.addEvent("click", "#openModalBtn", () => {
+      this.state.modalInstance.show();
+    });
 
-		this.addEvent('submit', '#registrationForm', (event) => {
-			event.preventDefault();
+    this.addEvent("submit", "#registrationForm", (event) => {
+      event.preventDefault();
 
-			const formData = new FormData(event.target);
+      const formData = new FormData(event.target);
 
-			const data = {
-				email: formData.get('email'),
-				username: formData.get('username'),
-				password: formData.get('password'),
-				confirmPassword: formData.get('confirmPassword')
-			};
+      const data = {
+        email: formData.get("email"),
+        username: formData.get("username"),
+        password: formData.get("password"),
+        confirmPassword: formData.get("confirmPassword"),
+      };
 
-			this.state.modalInstance.hide();
-		})
+      this.state.modalInstance.hide();
+    });
 
-		this.addEvent('click', '#loginBtn', () => {
-			window.location.hash = "#/home";
-		})
-	}
+    this.addEvent("click", "#loginBtn", () => {
+      window.location.hash = "#/home";
+    });
+  }
 }
-
-
-
-
-
-
-
-
-
-
-
-

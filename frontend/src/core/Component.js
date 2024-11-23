@@ -9,8 +9,8 @@ export default class Component {
     this.setEvent();
     this.render();
   }
-  setup() { }
-  mounted() { }
+  setup() {}
+  mounted() {}
 
   template() {
     return "";
@@ -27,12 +27,19 @@ export default class Component {
     this.render();
   }
 
-  setEvent() { }
+  setEvent() {}
 
   addEvent(eventType, selector, callback) {
     this.$target.addEventListener(eventType, (event) => {
       if (!event.target.closest(selector)) return false;
       callback(event);
     });
+  }
+
+  addElement(selector) {
+    const $elem = document.createElement(selector);
+
+    this.$target.append($elem);
+    return $elem;
   }
 }
