@@ -6,9 +6,10 @@ export default class Component {
     this.$target = $target;
     this.props = props;
     this.setup();
-    this.setEvent();
     this.render();
+    this.setEvent();
   }
+
   setup() {}
   mounted() {}
 
@@ -30,10 +31,17 @@ export default class Component {
   setEvent() {}
 
   addEvent(eventType, selector, callback) {
-    this.$target.addEventListener(eventType, (event) => {
-      if (!event.target.closest(selector)) return false;
+    const children = [...this.$target.querySelectorAll(selector)];
+    const isTarget = (target) =>
+      children.includes(target) || target.closest(selector);
+
+    this.$target.removeEventListener(eventType, this.eventHandler);
+
+    this.eventHandler = (event) => {
+      if (!isTarget(event.target)) return false;
       callback(event);
-    });
+    };
+    this.$target.addEventListener(eventType, this.eventHandler);
   }
 
   addElement(selector) {
@@ -41,5 +49,10 @@ export default class Component {
 
     this.$target.append($elem);
     return $elem;
+  }
+
+  updateProps(newProps) {
+    this.props = { ...this.props, ...newProps };
+    this.render();
   }
 }
