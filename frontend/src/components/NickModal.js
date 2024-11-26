@@ -56,6 +56,7 @@ export default class NickModal extends Component {
     const nickname = $nicknameInput.value.trim();
     const $error = this.$target.querySelector("#errorMessage");
 
+    console.log("hi");
     if (nickname == "") {
       $nicknameInput.classList.add("is-invalid");
       $error.style.display = "block";
@@ -72,7 +73,7 @@ export default class NickModal extends Component {
       playerName.push(nickname);
       this.props.handleNickModalClick(shuffleArray(playerName));
       bootstrap.Modal.getOrCreateInstance(this.$target).hide();
-      // this.$target.remove();
+      this.$target.remove();
       window.location.hash = "#/tournament";
     }
   }

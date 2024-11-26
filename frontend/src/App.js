@@ -52,7 +52,6 @@ export default class App extends Component {
   }
 
   handleNickModalClick(playerNames) {
-    console.log(playerNames);
     this.setState({ playerNames, gameMode: "tournament" });
   }
 }

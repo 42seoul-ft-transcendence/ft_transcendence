@@ -22,13 +22,13 @@ const generateParticipantJson = (playerName) => {
   return playerName.map((name, index) => {
     return {
       id: index,
-      tournament_id: 0,
       name: name,
+      tournament_id: 0,
     };
   });
 };
 
-const generateMatchJSON = (participantJson) => {
+const generateMatchJson = (participantJson) => {
   let tournaments = [];
   let round_id = 0;
   let id = 0; // 각 경기의 고유 ID
@@ -80,7 +80,7 @@ const insertParticipant = (tournamentJson, participantJson) => {
 export {
   insertParticipant,
   shuffleArray,
-  generateMatchJSON,
+  generateMatchJson,
   generateParticipantJson,
   stage,
 };

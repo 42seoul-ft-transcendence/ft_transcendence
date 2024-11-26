@@ -10,6 +10,15 @@ export default class Home extends Component {
       totalPlayer: 0,
       userName: [],
     };
+    if ((this.$nickModal = document.querySelector("#nicknameModal")))
+      this.$nickModal.remove();
+    if ((this.$tournamentModal = document.querySelector("#tournamentModal")))
+      this.$tournamentModal.remove();
+    this.$tournamentModal = document.createElement("div");
+    this.$tournamentModal.setAttribute("id", "tournamentModal");
+    this.$nickModal = document.createElement("div");
+    this.$nickModal.setAttribute("id", "nicknameModal");
+    document.body.append(this.$nickModal, this.$tournamentModal);
   }
 
   template() {
@@ -22,44 +31,38 @@ export default class Home extends Component {
   }
 
   mounted() {
-    // let $nickModal = document.querySelector(
-    //   '[aria-labelledby="nicknameModalLabel"]',
-    // );
-    let $tournamentModal = document.querySelector(
-      '[aria-labelledby="tournamentModalLabel"]',
+    this.pongInstance = this.initComponent(
+      this.pongInstance,
+      Pong,
+      "#boardCtn",
+      {
+        gameMode: "",
+      },
+    );
+    this.selectModeInstance = this.initComponent(
+      this.selectModeInstance,
+      SelectMode,
+      "#selectModeCtn",
     );
 
-    if (!this.nickModalInstance) {
-      let $nickModal = document.createElement("div");
-      document.body.append($nickModal);
-      this.nickModalInstance = new NickModal($nickModal, {
+    this.tournamentModalInstance = this.initComponent(
+      this.tournamentModalInstance,
+      TournamentModal,
+      "#tournamentModal",
+      {
+        handleTotalPlayerClick: this.handleTotalPlayerClick.bind(this),
+      },
+    );
+
+    this.nickModalInstance = this.initComponent(
+      this.nickModalInstance,
+      NickModal,
+      "#nicknameModal",
+      {
         totalPlayer: this.state.totalPlayer,
         handleNickModalClick: this.props.handleNickModalClick,
-      });
-    } else
-      this.nickModalInstance.updateProps({
-        totalPlayer: this.state.totalPlayer,
-      });
-
-    if (!$tournamentModal) {
-      $tournamentModal = document.createElement("div");
-      document.body.append($tournamentModal);
-    }
-    new Pong(document.querySelector("#boardCtn"), {
-      gameMode: "",
-    });
-    new SelectMode(document.querySelector("#selectModeCtn"));
-
-    $tournamentModal &&
-      new TournamentModal($tournamentModal, {
-        handleTotalPlayerClick: this.handleTotalPlayerClick.bind(this),
-      });
-
-    // $nickModal &&
-    //   new NickModal($nickModal, {
-    //     totalPlayer: this.state.totalPlayer,
-    //     handleNickModalClick: this.props.handleNickModalClick,
-    //   });
+      },
+    );
   }
 
   setEvent() {

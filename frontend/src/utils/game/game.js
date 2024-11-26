@@ -85,21 +85,13 @@ class Board {
 
     this.context.fillStyle = "skyblue";
     for (let i = 10; i < this.height; i += 25)
-      this.context.fillRect(this.width / 2 - 10, i, 5, 5);
+      this.context.fillRect(this.width / 2, i, 5, 5);
   }
 
   clear() {
     this.context.clearRect(0, 0, this.width, this.height);
   }
 }
-
-const movePlayer = (e) => {
-  if (e.code == "KeyW") player1.velocityY = -3;
-  else if (e.code == "KeyS") player1.velocityY = 3;
-
-  if (e.code == "ArrowUp") player2.velocityY = -3;
-  else if (e.code == "ArrowDown") player2.velocityY = 3;
-};
 
 const detectCollision = (ball, player) => {
   return (
@@ -110,4 +102,4 @@ const detectCollision = (ball, player) => {
   ); //a's bottom left corner passes b's top left corner
 };
 
-export { Board, Player, Ball, movePlayer };
+export { Board, Player, Ball };
