@@ -69,10 +69,10 @@ export default class Pong extends Component {
     ball.draw();
 
     if (ball.x < 0) {
-      this.state.player1Score++;
+      this.state.player2Score++;
       ball.init();
     } else if (ball.x + ball.width > board.width) {
-      this.state.player2Score++;
+      this.state.player1Score++;
       ball.init();
     }
   }
