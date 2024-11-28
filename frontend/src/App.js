@@ -6,6 +6,9 @@ import Home from "./pages/HomeView.js";
 import Game from "./pages/GameView.js";
 import Tournament from "./pages/TournamentView.js";
 import Navbar from "./components/Navbar.js";
+import HistoryView from "./pages/profile/HistoryView.js";
+import FriendView from "./pages/profile/FriendView.js";
+import SettingView from "./pages/profile/SettingView.js";
 
 export default class App extends Component {
   setup() {
@@ -48,6 +51,21 @@ export default class App extends Component {
       });
     });
 
+    router.addRoute("#/profile/history", () => {
+      new Navbar(this.$target.querySelector("#nav"));
+      new HistoryView(this.$target.querySelector("#body"));
+    });
+
+    router.addRoute("#/profile/friends", () => {
+      new Navbar(this.$target.querySelector("#nav"));
+      new FriendView(this.$target.querySelector("#body"));
+    });
+
+    router.addRoute("#/profile/setting", () => {
+      new Navbar(this.$target.querySelector("#nav"));
+      new SettingView(this.$target.querySelector("#body"));
+    });
+    
     router.start();
   }
 
