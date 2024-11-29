@@ -7,7 +7,6 @@ export default class NickModal extends Component {
     this.$target.setAttribute("tabindex", "-1");
     this.$target.setAttribute("aria-labelledby", "nicknameModalLabel");
     this.$target.setAttribute("aria-hidden", "true");
-    this.$target.setAttribute("id", "nicknameModal");
 
     this.state = {
       playerName: [],
@@ -56,7 +55,6 @@ export default class NickModal extends Component {
     const nickname = $nicknameInput.value.trim();
     const $error = this.$target.querySelector("#errorMessage");
 
-    console.log("hi");
     if (nickname == "") {
       $nicknameInput.classList.add("is-invalid");
       $error.style.display = "block";
@@ -71,7 +69,7 @@ export default class NickModal extends Component {
       this.setState({ currentPlayer, playerName });
     } else if (currentPlayer == totalPlayer) {
       playerName.push(nickname);
-      this.props.handleNickModalClick(shuffleArray(playerName));
+      this.props.handleNickModalClick(playerName);
       bootstrap.Modal.getOrCreateInstance(this.$target).hide();
       this.$target.remove();
       window.location.hash = "#/tournament";

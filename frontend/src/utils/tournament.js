@@ -18,7 +18,6 @@ const shuffleArray = (array) => {
 };
 
 const generateParticipantJson = (playerName) => {
-  console.log(playerName);
   return playerName.map((name, index) => {
     return {
       id: index,
@@ -50,9 +49,11 @@ const generateMatchJson = (participantJson) => {
         status: 0,
         opponent1: {
           id: null,
+          // position: 0,
         },
         opponent2: {
           id: null,
+          // position: 0,
         },
       });
     }
@@ -64,17 +65,21 @@ const generateMatchJson = (participantJson) => {
   return tournaments;
 };
 
-const insertParticipant = (tournamentJson, participantJson) => {
+const insertParticipant = (matchJson, participantJson) => {
   const matchCount = Math.floor(participantJson.length / 2);
   let i;
 
   for (i = 0; i < matchCount; i++) {
-    tournamentJson[i].opponent1.id = 2 * i;
-    tournamentJson[i].opponent2.id = 2 * i + 1;
+    matchJson[i].opponent1.id = 2 * i;
+    matchJson[i].opponent1.position = 2 * i + 1;
+    matchJson[i].opponent2.id = 2 * i + 1;
+    matchJson[i].opponent2.position = 2 * i + 2;
   }
 
-  if (participantJson.length % 2 != 0)
-    tournamentJson[matchCount].opponent1.id = 2 * i;
+  if (participantJson.length % 2 != 0) {
+    matchJson[matchCount].opponent1.id = 2 * i;
+    matchJson[i].opponent1.position = 2 * i + 1;
+  }
 };
 
 export {

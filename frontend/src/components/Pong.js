@@ -13,12 +13,16 @@ export default class Pong extends Component {
       player2: new game.Player(board.width - 10, board.height / 2, board),
       ball: new game.Ball(board.width / 2, board.height / 2, 10, 10, 3, board),
       animationFrameId: null,
+      // matches: this.props.matches,
+      opponent1: this.props.opponent1,
+      opponent2: this.props.opponent2,
     };
   }
 
   template() {
     return /* html */ `
-      <canvas id="board">
+      <canvas id="board"></canvas>
+			<button class="btn btn-light fw-bold text-decoration-underline fs-3 py-3 w-75 border-info border-4">Next Game</button>
     `;
   }
 
@@ -54,14 +58,26 @@ export default class Pong extends Component {
       let winWidth;
 
       if (this.state.animationFrameId) {
-        if (this.state.player1Score == 3) winWidth = board.width / 5 - 20;
-        else winWidth = (board.width * 4) / 5 - 60;
+        let { opponent1, opponent2 } = this.state;
+        if (this.state.player1Score == 3) {
+          winWidth = board.width / 5 - 20;
+          opponent1["result"] = "win";
+          opponent2["result"] = "loss";
+        } else {
+          winWidth = (board.width * 4) / 5 - 60;
+          opponent2["result"] = "win";
+          opponent1["result"] = "loss";
+        }
 
         board.context.fillStyle = "White";
         board.context.fillText("WIN", winWidth, 125);
 
         cancelAnimationFrame(this.state.animationFrameId);
         this.state.animationFrameId = null;
+        opponent1["score"] = this.state.player1Score;
+        opponent2["score"] = this.state.player2Score;
+        this.props.handlePongNextGameClick(opponent1, opponent2);
+        window.location.hash = "#/tournament";
       }
     }
 

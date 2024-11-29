@@ -7,11 +7,17 @@ import Game from "./pages/GameView.js";
 import Tournament from "./pages/TournamentView.js";
 import Navbar from "./components/Navbar.js";
 
+import * as brackets from "/frontend/src/utils/tournament.js";
+
 export default class App extends Component {
   setup() {
     this.state = {
       gameMode: "",
-      playerNames: [],
+      matches: [],
+      participants: [],
+      matchGame: null,
+      opponent1: null,
+      opponent2: null,
     };
   }
 
@@ -38,13 +44,24 @@ export default class App extends Component {
 
     router.addRoute("#/game", () => {
       new Navbar(this.$target.querySelector("#nav"));
-      new Game(this.$target.querySelector("#body"));
+      new Game(this.$target.querySelector("#body"), {
+        gameMode: this.state.gameMode,
+        // matches: this.state.matches,
+        opponent1: this.state.opponent1,
+        opponent2: this.state.opponent2,
+        // matchGame: this.state.matchGame,
+        handlePongNextGameClick: this.handlePongNextGameClick.bind(this),
+      });
     });
 
     router.addRoute("#/tournament", () => {
       new Navbar(this.$target.querySelector("#nav"));
       new Tournament(this.$target.querySelector("#body"), {
         playerNames: this.state.playerNames,
+        participants: this.state.participants,
+        matches: this.state.matches,
+        handleTournamentGameStartClick:
+          this.handleTournamentGameStartClick.bind(this),
       });
     });
 
@@ -52,6 +69,30 @@ export default class App extends Component {
   }
 
   handleNickModalClick(playerNames) {
-    this.setState({ playerNames, gameMode: "tournament" });
+    playerNames = brackets.shuffleArray(playerNames);
+    let matches = brackets.generateMatchJson(playerNames);
+    let participants = brackets.generateParticipantJson(playerNames);
+
+    brackets.insertParticipant(matches, participants);
+
+    this.setState({
+      matches: matches,
+      participants: participants,
+      gameMode: "tournament",
+    });
+  }
+
+  handleTournamentGameStartClick(match) {
+    this.setState({
+      matchGame: match,
+      opponent1: match.opponent1,
+      opponent2: match.opponent2,
+    });
+  }
+
+  handlePongNextGameClick(opponent1, opponent2) {
+    this.state.matchGame.opponent1 = opponent1;
+    this.state.matchGame.opponent2 = opponent2;
+    this.setState({ matches: this.state.matchGame });
   }
 }
