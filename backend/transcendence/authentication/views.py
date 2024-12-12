@@ -10,6 +10,7 @@ from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from .utils import generate_jwt, decode_jwt
+from transcendence.redis_utils import set_user_login, set_user_logout
 
 User = get_user_model()
 
@@ -18,6 +19,17 @@ from django.shortcuts import render
 class LoginPageView(View):
     def get(self, request):
         return render(request, 'authentication.html')
+
+class LogoutView(View):
+    def get(self, request):
+        user = request.user
+        set_user_logout(user.username)
+
+        response = JsonResponse({'message': 'Logout successful'})
+        response.delete_cookie("access_token")
+        response.delete_cookie("refresh_token")
+
+        return response
 
 
 class OauthRedirect(View):
@@ -72,6 +84,9 @@ class OauthCallbackView(View):
                 secure=True,
                 samesite="Lax",
             )
+
+            # websocket
+            set_user_login(user.username)
             return response
 
         except Exception as e:

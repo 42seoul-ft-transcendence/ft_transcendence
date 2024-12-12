@@ -3,12 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login and Logout</title>
+    <script>
+        // 로그아웃 요청 함수
+        async function handleLogout() {
+            try {
+                const response = await fetch('/login/logout/', {
+                    method: 'GET',
+                    credentials: 'include', // 쿠키를 포함하여 요청
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    }
+                });
+
+                if (response.ok) {
+                    alert('Logout successful!');
+                    document.getElementById('user-status').innerText = 'Logged out';
+                } else {
+                    alert('Logout failed.');
+                }
+            } catch (error) {
+                console.error('Error during logout:', error);
+            }
+        }
+
+        // CSRF 토큰 가져오기
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
 </head>
 <body>
-    <h1>Login Page</h1>
+    <h1>Login and Logout Test</h1>
+
+    <div>
+        <strong>Status:</strong> <span id="user-status">Logged out</span>
+    </div>
+
+    <!-- 로그인 버튼 -->
     <form method="get" action="/login/oauth/redirect/">
         <button type="submit">Login with 42 OAuth</button>
     </form>
+
+    <!-- 로그아웃 버튼 -->
+    <button onclick="handleLogout()">Logout</button>
 </body>
 </html>

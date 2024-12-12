@@ -1,8 +1,10 @@
 from django.urls import path
-from .views import OauthRedirect, OauthCallbackView, RefreshTokenView, Verify2FAView, Toggle2FAView, LoginPageView
+from .views import OauthRedirect, OauthCallbackView, RefreshTokenView, Verify2FAView, Toggle2FAView, LoginPageView, \
+    LogoutView
 
 urlpatterns = [
     path("", LoginPageView.as_view(), name="login"),
+    path("logout/", LogoutView.as_view(), name="logout"),
     path("oauth/redirect/", OauthRedirect.as_view(), name="oauth_redirect"),
     path("oauth/callback/", OauthCallbackView.as_view(), name="oauth_callback"),
     path("verify-2fa", Verify2FAView.as_view(), name="verify_2fa"),

@@ -41,8 +41,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
     'authentication',
     'friendship',
+    'game',
 ]
 
 MIDDLEWARE = [
@@ -142,3 +144,16 @@ AUTH_USER_MODEL = 'authentication.User'
 JWT_SECRET_KEY = SECRET_KEY
 JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(hours=12)
 JWT_REFRESH_TOKEN_EXPIRES = datetime.timedelta(days=7)
+
+# WebSocket
+ASGI_APPLICATION = 'transcendence.asgi.application'
+
+# 채널 레이어 설정 (Redis 사용)
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],  # Redis 서버 주소
+        },
+    },
+}
