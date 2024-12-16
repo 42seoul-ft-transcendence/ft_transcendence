@@ -23,9 +23,9 @@ export default class Home extends Component {
 
   template() {
     return /* html */ `
-      <div id='bodyCtn'>
-        <div id="selectModeCtn" class="position-absolute top-50 start-50 translate-middle" ></div>
+      <div id='bodyCtn' class="vh-100 d-flex align-items-center justify-content-center">
         <div id="boardCtn"></div>
+        <div id="selectModeCtn" class="position-absolute top-50 start-50 translate-middle" ></div>
       </div>
     `;
   }

@@ -16,14 +16,15 @@ export default class Pong extends Component {
       // matches: this.props.matches,
       opponent1: this.props.opponent1,
       opponent2: this.props.opponent2,
+      finish: false,
     };
   }
 
   template() {
     return /* html */ `
       <canvas id="board"></canvas>
-			<button class="btn btn-light fw-bold text-decoration-underline fs-3 py-3 w-75 border-info border-4">Next Game</button>
     `;
+    // <button class="btn btn-light fw-bold text-decoration-underline fs-3 py-3 w-75 border-info border-4">Next Game</button>
   }
 
   mounted() {
@@ -43,9 +44,9 @@ export default class Pong extends Component {
   }
 
   update() {
-    let { board, player1, player2, ball } = this.state;
+    let { board, player1, player2, ball, finish } = this.state;
 
-    this.state.animationFrameId = requestAnimationFrame(this.update.bind(this));
+    if (finish) return;
 
     board.clear();
     board.draw(this.state.player1Score, this.state.player2Score);
@@ -54,6 +55,7 @@ export default class Pong extends Component {
 
     player2.update();
     player2.draw();
+
     if (this.state.player1Score == 3 || this.state.player2Score == 3) {
       let winWidth;
 
@@ -72,25 +74,28 @@ export default class Pong extends Component {
         board.context.fillStyle = "White";
         board.context.fillText("WIN", winWidth, 125);
 
+        console.log("??");
+
         cancelAnimationFrame(this.state.animationFrameId);
-        this.state.animationFrameId = null;
+        this.state.finish = true;
         opponent1["score"] = this.state.player1Score;
         opponent2["score"] = this.state.player2Score;
-        this.props.handlePongNextGameClick(opponent1, opponent2);
-        window.location.hash = "#/tournament";
+        // this.props.handlePongNextGameClick(opponent1, opponent2);
+        // window.location.hash = "#/tournament";
       }
     }
-
     ball.update(player1, player2);
     ball.draw();
 
     if (ball.x < 0) {
+      ball.init();
       this.state.player2Score++;
-      ball.init();
     } else if (ball.x + ball.width > board.width) {
-      this.state.player1Score++;
       ball.init();
+      this.state.player1Score++;
     }
+
+    this.state.animationFrameId = requestAnimationFrame(this.update.bind(this));
   }
 
   setEvent() {

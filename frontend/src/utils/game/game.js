@@ -31,6 +31,7 @@ class Ball {
     this.velocityX = (Math.random() > 0.5 ? 1 : -1) * velocity; // 속도는 동일, 방향만 랜덤
     this.velocityY = (Math.random() > 0.5 ? 1 : -1) * velocity; // 속도는 동일, 방향만 랜
     this.board = board;
+    this.isResetting = false;
   }
 
   init() {

@@ -4,7 +4,9 @@ import Pong from "/frontend/src/components/Pong.js";
 export default class Game extends Component {
   template() {
     return /* html */ `
-			<div id="gameCtn"></div>
+    <div class="vh-100 d-flex align-items-center justify-content-center">
+			<div id="gameCtn" ></div>
+    </div>
 		`;
   }
 

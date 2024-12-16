@@ -82,7 +82,7 @@ export default class App extends Component {
       new Navbar(this.$target.querySelector("#nav"));
       new SettingView(this.$target.querySelector("#body"));
     });
-    
+
     router.start();
   }
 

@@ -13,11 +13,13 @@ export default class Tournament extends Component {
 
   template() {
     return /* html */ `
-  		<div class="brackets-viewer"></div>
+    <div class="vh-100 d-flex justify-content-center align-items-center">
+  		<div class="container brackets-viewer"></div>
       <div id="gameStartBtn">
-				<button id="gameStartBtn"class="btn btn-light fw-bold text-decoration-underline
+      <button id="gameStartBtn"class="btn btn-light fw-bold text-decoration-underline
         fs-3 py-3 w-75 border-info border-4">Start Game</button>
       </div>
+    </div>
   	`;
   }
 
