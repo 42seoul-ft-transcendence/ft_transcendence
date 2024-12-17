@@ -2,18 +2,76 @@ import Component from "/frontend/src/core/Component.js";
 import ProfileNav from "/frontend/src/components/ProfileNav.js";
 import FriendCard from "/frontend/src/components/FriendCard.js";
 
+const data = {
+	"users": [
+		{
+			"id": 1,
+			"profileImage": "https://ui-avatars.com/api/?name=John+Doe&size=150",
+			"nickname": "Champion01",
+			"username": "john_doe",
+			"winLossRecord": {
+				"wins": 10,
+				"losses": 3
+			}
+		},
+		{
+			"id": 2,
+			"profileImage": "https://via.placeholder.com/150",
+			"nickname": "ProGamer77",
+			"username": "jane_smith",
+			"winLossRecord": {
+				"wins": 8,
+				"losses": 5
+			}
+		},
+		{
+			"id": 3,
+			"profileImage": "https://via.placeholder.com/150",
+			"nickname": "NoobMaster69",
+			"username": "max_king",
+			"winLossRecord": {
+				"wins": 3,
+				"losses": 9
+			}
+		},
+		{
+			"id": 4,
+			"profileImage": "https://via.placeholder.com/150",
+			"nickname": "LegendX",
+			"username": "sara_connor",
+			"winLossRecord": {
+				"wins": 12,
+				"losses": 0
+			}
+		},
+		{
+			"id": 5,
+			"profileImage": "https://via.placeholder.com/150",
+			"nickname": "AcePlayer",
+			"username": "tony_stark",
+			"winLossRecord": {
+				"wins": 7,
+				"losses": 2
+			}
+		}
+	]
+};
+
+
 export default class FriendView extends Component {
 	setup() {
 		this.state = {
-			friendCount: 4
+			friendCount: data.users.length,
+			friendData: data.users,
 		}
 	}
 
 	template() {
 		const { friendCount } = this.state;
+
 		let temp = /* html */`
 			<div class="container nav-section"></div>
-			<div class="container mt-4" id="friendSection">
+			<div class="container friends" id="friendSection">
 				<h3 class="mb-4">Friends List</h3>
 				<div class="row gy-4">
 		`;
@@ -28,10 +86,13 @@ export default class FriendView extends Component {
 	}
 
 	mounted() {
-		const { friendCount } = this.state;
+		const { friendData } = this.state;
 
 		new ProfileNav(this.$target.querySelector('.nav-section'));
-		for (let i = 0; i < friendCount; ++i)
-			new FriendCard(this.$target.querySelector(`#friendCard${i}`));
+		// for (let i = 0; i < friendCount; ++i)
+		// 	new FriendCard(this.$target.querySelector(`#friendCard${i}`));
+		friendData.forEach((list, index) => {
+			new FriendCard(this.$target.querySelector(`#friendCard${index}`), list);
+		});
 	}
 }

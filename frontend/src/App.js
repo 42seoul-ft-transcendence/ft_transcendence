@@ -12,6 +12,21 @@ import SettingView from "./pages/profile/SettingView.js";
 
 import * as brackets from "/frontend/src/utils/tournament.js";
 
+const data = {
+  "users": [
+    {
+      "id": 1,
+      "profileImage": "https://robohash.org/JohnDoe.png?size=150x150",
+      "nickname": "Champion01",
+      "username": "john_doe",
+      "winLossRecord": {
+        "wins": 10,
+        "losses": 3
+      }
+    }
+  ]
+};
+
 export default class App extends Component {
   setup() {
     this.state = {
@@ -21,7 +36,9 @@ export default class App extends Component {
       matchGame: null,
       opponent1: null,
       opponent2: null,
+      profile: data.users[0]
     };
+
   }
 
   template() {
@@ -33,9 +50,9 @@ export default class App extends Component {
 
   mounted() {
     const router = new Router();
-
+    const { profile } = this.state;
     router.addRoute("#/", () => {
-      new Navbar(this.$target.querySelector("#nav"));
+      new Navbar(this.$target.querySelector("#nav"), profile);
       new Home(this.$target.querySelector("#body"), {
         handleNickModalClick: this.handleNickModalClick.bind(this),
       });
@@ -46,7 +63,7 @@ export default class App extends Component {
     });
 
     router.addRoute("#/game", () => {
-      new Navbar(this.$target.querySelector("#nav"));
+      new Navbar(this.$target.querySelector("#nav"), profile);
       new Game(this.$target.querySelector("#body"), {
         gameMode: this.state.gameMode,
         // matches: this.state.matches,
@@ -58,7 +75,7 @@ export default class App extends Component {
     });
 
     router.addRoute("#/tournament", () => {
-      new Navbar(this.$target.querySelector("#nav"));
+      new Navbar(this.$target.querySelector("#nav"), profile);
       new Tournament(this.$target.querySelector("#body"), {
         playerNames: this.state.playerNames,
         participants: this.state.participants,
@@ -69,17 +86,17 @@ export default class App extends Component {
     });
 
     router.addRoute("#/profile/history", () => {
-      new Navbar(this.$target.querySelector("#nav"));
+      new Navbar(this.$target.querySelector("#nav"), profile);
       new HistoryView(this.$target.querySelector("#body"));
     });
 
     router.addRoute("#/profile/friends", () => {
-      new Navbar(this.$target.querySelector("#nav"));
+      new Navbar(this.$target.querySelector("#nav"), profile);
       new FriendView(this.$target.querySelector("#body"));
     });
 
     router.addRoute("#/profile/setting", () => {
-      new Navbar(this.$target.querySelector("#nav"));
+      new Navbar(this.$target.querySelector("#nav"), profile);
       new SettingView(this.$target.querySelector("#body"));
     });
 
