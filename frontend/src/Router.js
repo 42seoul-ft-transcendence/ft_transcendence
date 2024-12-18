@@ -26,7 +26,10 @@ export default class Router extends Component {
   }
 
   start() {
-    window.addEventListener("hashchange", () => this.checkRoutes());
+    // window.addEventListener("hashchange", () => this.checkRoutes());
+    window.onhashchange = () => {
+      this.checkRoutes();
+    };
 
     if (!window.location.hash) {
       window.location.hash = "#/";

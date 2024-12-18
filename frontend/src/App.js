@@ -41,6 +41,12 @@ export default class App extends Component {
     };
   }
 
+  template() {
+    return /* html */ `
+      <div id="test"></div>
+    `;
+  }
+
   mounted() {
     const { profile } = this.state;
     const router = new Router();
@@ -129,7 +135,7 @@ export default class App extends Component {
   }
 
   handlePongNextGameClick(opponent1, opponent2) {
-    let { matches, matchGame, gameCnt, participants } = this.state;
+    let { matches, matchGame, gameCnt } = this.state;
 
     console.log(matches);
 
@@ -138,8 +144,6 @@ export default class App extends Component {
         matchGame.round_id + 1 === match.round_id &&
         (match.opponent1.id === null || match.opponent2.id === null),
     );
-
-    console.log(nextMatchIdx);
 
     matchGame.opponent1 = opponent1;
     matchGame.opponent2 = opponent2;
@@ -156,7 +160,6 @@ export default class App extends Component {
       matches[nextMatchIdx].empty = false;
     }
 
-    console.log(matches);
     this.setState({ matches });
   }
 }

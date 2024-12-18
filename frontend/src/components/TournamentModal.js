@@ -40,7 +40,6 @@ export default class TournamentModal extends Component {
       const totalNum = parseInt(
         this.$target.querySelector("#playerCount").value,
       );
-      this.$target.remove();
       this.props.handleTotalPlayerClick(totalNum);
     });
   }

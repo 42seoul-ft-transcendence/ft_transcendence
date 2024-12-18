@@ -31,38 +31,43 @@ export default class Home extends Component {
   }
 
   mounted() {
-    this.pongInstance = this.initComponent(
-      this.pongInstance,
-      Pong,
-      "#boardCtn",
-      {
-        gameMode: "",
-      },
-    );
-    this.selectModeInstance = this.initComponent(
-      this.selectModeInstance,
-      SelectMode,
-      "#selectModeCtn",
-    );
+    new Pong(document.querySelector("#boardCtn"), { gameMode: "" });
 
-    this.tournamentModalInstance = this.initComponent(
-      this.tournamentModalInstance,
-      TournamentModal,
-      "#tournamentModal",
-      {
-        handleTotalPlayerClick: this.handleTotalPlayerClick.bind(this),
-      },
-    );
+    new SelectMode(document.querySelector("#selectModeCtn"));
 
-    this.nickModalInstance = this.initComponent(
-      this.nickModalInstance,
-      NickModal,
-      "#nicknameModal",
-      {
-        totalPlayer: this.state.totalPlayer,
-        handleNickModalClick: this.props.handleNickModalClick,
-      },
-    );
+    new TournamentModal(document.querySelector("#tournamentModal"), {
+      handleTotalPlayerClick: this.handleTotalPlayerClick.bind(this),
+    });
+
+    new NickModal(document.querySelector("#nicknameModal"), {
+      totalPlayer: this.state.totalPlayer,
+      handleNickModalClick: this.props.handleNickModalClick,
+    });
+
+    // this.selectModeInstance = this.initComponent(
+    //   this.selectModeInstance,
+    //   SelectMode,
+    //   "#selectModeCtn",
+    // );
+
+    // this.tournamentModalInstance = this.initComponent(
+    //   this.tournamentModalInstance,
+    //   TournamentModal,
+    //   "#tournamentModal",
+    //   {
+    //     handleTotalPlayerClick: this.handleTotalPlayerClick.bind(this),
+    //   },
+    // );
+
+    // this.nickModalInstance = this.initComponent(
+    //   this.nickModalInstance,
+    //   NickModal,
+    //   "#nicknameModal",
+    //   {
+    //     totalPlayer: this.state.totalPlayer,
+    //     handleNickModalClick: this.props.handleNickModalClick,
+    //   },
+    // );
   }
 
   setEvent() {
@@ -74,6 +79,6 @@ export default class Home extends Component {
   }
 
   handleTotalPlayerClick(number) {
-    this.setState({ totalPlayer: number });
+    this.setState({ totalPlayer: number, userName: [] });
   }
 }

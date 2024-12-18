@@ -40,12 +40,17 @@ export default class NickModal extends Component {
 		`;
   }
 
+  mounted() {
+    this.$target.querySelector("#nextPlayerButton").onclick =
+      this.handleNextPlayerButtonClick.bind(this);
+  }
+
   setEvent() {
-    this.addEvent(
-      "click",
-      "#nextPlayerButton",
-      this.handleNextPlayerButtonClick.bind(this),
-    );
+    // this.addEvent(
+    //   "click",
+    //   "#nextPlayerButton",
+    //   this.handleNextPlayerButtonClick.bind(this),
+    // );
   }
 
   handleNextPlayerButtonClick(e) {
