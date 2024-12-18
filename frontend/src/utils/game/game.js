@@ -96,10 +96,10 @@ class Board {
 
 const detectCollision = (ball, player) => {
   return (
-    ball.x <= player.x + player.width && //a's top left corner doesn't reach b's top right corner
-    ball.x + ball.width >= player.x && //a's top right corner passes b's top left corner
-    ball.y <= player.y + player.height && //a's top left corner doesn't reach b's bottom left corner
-    ball.y + ball.height >= player.y
+    ball.x < player.x + player.width && //a's top left corner doesn't reach b's top right corner
+    ball.x + ball.width > player.x && //a's top right corner passes b's top left corner
+    ball.y < player.y + player.height && //a's top left corner doesn't reach b's bottom left corner
+    ball.y + ball.height > player.y
   ); //a's bottom left corner passes b's top left corner
 };
 

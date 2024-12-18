@@ -15,6 +15,7 @@ import * as brackets from "/frontend/src/utils/tournament.js";
 export default class App extends Component {
   setup() {
     this.state = {
+      gameCnt: 0,
       gameMode: "",
       matches: [],
       participants: [],
@@ -24,19 +25,20 @@ export default class App extends Component {
     };
   }
 
-  template() {
-    return /* html */ `
-      <div id='nav'></div>
-      <div id='body'></div>
-    `;
-  }
-
   mounted() {
     const router = new Router();
 
+    const $nav = document.createElement("div");
+    const $body = document.createElement("div");
+
+    $nav.setAttribute("id", "nav");
+    $body.setAttribute("id", "body");
+
+    this.$target.append($nav, $body);
+
     router.addRoute("#/", () => {
-      new Navbar(this.$target.querySelector("#nav"));
-      new Home(this.$target.querySelector("#body"), {
+      new Navbar($nav);
+      new Home($body, {
         handleNickModalClick: this.handleNickModalClick.bind(this),
       });
     });
@@ -46,8 +48,8 @@ export default class App extends Component {
     });
 
     router.addRoute("#/game", () => {
-      new Navbar(this.$target.querySelector("#nav"));
-      new Game(this.$target.querySelector("#body"), {
+      new Navbar($nav);
+      new Game($body, {
         gameMode: this.state.gameMode,
         // matches: this.state.matches,
         opponent1: this.state.opponent1,
@@ -58,8 +60,8 @@ export default class App extends Component {
     });
 
     router.addRoute("#/tournament", () => {
-      new Navbar(this.$target.querySelector("#nav"));
-      new Tournament(this.$target.querySelector("#body"), {
+      new Navbar($nav);
+      new Tournament($body, {
         playerNames: this.state.playerNames,
         participants: this.state.participants,
         matches: this.state.matches,
@@ -69,18 +71,18 @@ export default class App extends Component {
     });
 
     router.addRoute("#/profile/history", () => {
-      new Navbar(this.$target.querySelector("#nav"));
-      new HistoryView(this.$target.querySelector("#body"));
+      new Navbar($nav);
+      new HistoryView($body);
     });
 
     router.addRoute("#/profile/friends", () => {
-      new Navbar(this.$target.querySelector("#nav"));
-      new FriendView(this.$target.querySelector("#body"));
+      new Navbar($nav);
+      new FriendView($body);
     });
 
     router.addRoute("#/profile/setting", () => {
-      new Navbar(this.$target.querySelector("#nav"));
-      new SettingView(this.$target.querySelector("#body"));
+      new Navbar($nav);
+      new SettingView($body);
     });
 
     router.start();
@@ -100,8 +102,9 @@ export default class App extends Component {
     });
   }
 
-  handleTournamentGameStartClick(match) {
+  handleTournamentGameStartClick(match, index) {
     this.setState({
+      gameCnt: index,
       matchGame: match,
       opponent1: match.opponent1,
       opponent2: match.opponent2,
@@ -109,8 +112,34 @@ export default class App extends Component {
   }
 
   handlePongNextGameClick(opponent1, opponent2) {
-    this.state.matchGame.opponent1 = opponent1;
-    this.state.matchGame.opponent2 = opponent2;
-    this.setState({ matches: this.state.matchGame });
+    let { matches, matchGame, gameCnt, participants } = this.state;
+
+    console.log(matches);
+
+    const nextMatchIdx = matches.findIndex(
+      (match) =>
+        matchGame.round_id + 1 === match.round_id &&
+        (match.opponent1.id === null || match.opponent2.id === null),
+    );
+
+    console.log(nextMatchIdx);
+
+    matchGame.opponent1 = opponent1;
+    matchGame.opponent2 = opponent2;
+
+    matches[gameCnt] = matchGame;
+    if (nextMatchIdx != -1) {
+      if (matches[nextMatchIdx].opponent1.id === null) {
+        matches[nextMatchIdx].opponent1.id =
+          opponent1.score > opponent2.score ? opponent1.id : opponent2.id;
+      } else {
+        matches[nextMatchIdx].opponent2.id =
+          opponent1.score > opponent2.score ? opponent1.id : opponent2.id;
+      }
+      matches[nextMatchIdx].empty = false;
+    }
+
+    console.log(matches);
+    this.setState({ matches });
   }
 }

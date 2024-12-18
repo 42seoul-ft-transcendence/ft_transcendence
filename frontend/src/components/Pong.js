@@ -10,7 +10,7 @@ export default class Pong extends Component {
       player2Score: 0,
       board: board,
       player1: new game.Player(10, board.height / 2, board),
-      player2: new game.Player(board.width - 10, board.height / 2, board),
+      player2: new game.Player(board.width - 20, board.height / 2, board),
       ball: new game.Ball(board.width / 2, board.height / 2, 10, 10, 3, board),
       animationFrameId: null,
       // matches: this.props.matches,
@@ -23,8 +23,10 @@ export default class Pong extends Component {
   template() {
     return /* html */ `
       <canvas id="board"></canvas>
+      <div class="container d-none">
+        <button id="nextBtn" class="btn btn-light fw-bold text-decoration-underline fs-3 py-3 w-75 border-info border-4">Next Game</button>
+      </div>
     `;
-    // <button class="btn btn-light fw-bold text-decoration-underline fs-3 py-3 w-75 border-info border-4">Next Game</button>
   }
 
   mounted() {
@@ -37,10 +39,12 @@ export default class Pong extends Component {
 
     board.draw(player1Score, player2Score);
 
-    if (this.props.gameMode != "")
+    if (this.props.gameMode != "") {
+      if (this.props.opponent2.id == null) this.state.player1Score = 3;
       this.state.animationFrameId = requestAnimationFrame(
         this.update.bind(this),
       );
+    }
   }
 
   update() {
@@ -61,6 +65,8 @@ export default class Pong extends Component {
 
       if (this.state.animationFrameId) {
         let { opponent1, opponent2 } = this.state;
+
+        this.state.finish = true;
         if (this.state.player1Score == 3) {
           winWidth = board.width / 5 - 20;
           opponent1["result"] = "win";
@@ -74,14 +80,14 @@ export default class Pong extends Component {
         board.context.fillStyle = "White";
         board.context.fillText("WIN", winWidth, 125);
 
-        console.log("??");
-
         cancelAnimationFrame(this.state.animationFrameId);
-        this.state.finish = true;
         opponent1["score"] = this.state.player1Score;
         opponent2["score"] = this.state.player2Score;
-        // this.props.handlePongNextGameClick(opponent1, opponent2);
-        // window.location.hash = "#/tournament";
+
+        console.log(this.state.player1Score);
+        console.log(this.state.player2Score);
+
+        this.$target.querySelector(".container").classList.remove("d-none");
       }
     }
     ball.update(player1, player2);
@@ -105,6 +111,13 @@ export default class Pong extends Component {
 
       if (e.code == "ArrowUp") this.state.player2.velocityY = -3;
       else if (e.code == "ArrowDown") this.state.player2.velocityY = 3;
+    });
+
+    this.addEvent("click", "#nextBtn", () => {
+      const { opponent1, opponent2 } = this.state;
+
+      this.props.handlePongNextGameClick(opponent1, opponent2);
+      window.location.hash = "#/tournament";
     });
   }
 }

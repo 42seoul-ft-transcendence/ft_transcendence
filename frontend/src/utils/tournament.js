@@ -37,6 +37,7 @@ const generateMatchJson = (participantJson) => {
     let matches = Math.floor(totalPlayer / 2); // 현재 라운드 경기 수
     let isBye = totalPlayer % 2 === 1; // 부전승 여부
     let matchCount = isBye ? matches + 1 : matches; // 부전승 포함한 경기 수
+    // let matchCount = matches;
 
     for (let number = 1; number <= matchCount; number++) {
       tournaments.push({
@@ -49,12 +50,13 @@ const generateMatchJson = (participantJson) => {
         status: 0,
         opponent1: {
           id: null,
-          // position: 0,
+          position: number * 2 - 1,
         },
         opponent2: {
           id: null,
-          // position: 0,
+          position: number * 2,
         },
+        empty: true,
       });
     }
 
@@ -74,11 +76,13 @@ const insertParticipant = (matchJson, participantJson) => {
     matchJson[i].opponent1.position = 2 * i + 1;
     matchJson[i].opponent2.id = 2 * i + 1;
     matchJson[i].opponent2.position = 2 * i + 2;
+    matchJson[i].empty = false;
   }
 
   if (participantJson.length % 2 != 0) {
     matchJson[matchCount].opponent1.id = 2 * i;
-    matchJson[i].opponent1.position = 2 * i + 1;
+    matchJson[matchCount].opponent1["result"] = "win";
+    matchJson[matchCount].empty = false;
   }
 };
 

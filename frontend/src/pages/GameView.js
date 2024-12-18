@@ -11,15 +11,18 @@ export default class Game extends Component {
   }
 
   mounted() {
-    this.pongInstance = this.initComponent(
-      this.pongInstance,
-      Pong,
-      "#gameCtn",
-      {
-        isGameMode: true,
-        ...this.props,
-      },
-    );
-    // new Pong(this.$target.querySelector("div"));
+    // this.pongInstance = this.initComponent(
+    //   this.pongInstance,
+    //   Pong,
+    //   "#gameCtn",
+    //   {
+    //     isGameMode: true,
+    //     ...this.props,
+    //   },
+    // );
+    new Pong(this.$target.querySelector("#gameCtn"), {
+      isGameMode: true,
+      ...this.props,
+    });
   }
 }
