@@ -62,7 +62,7 @@ export default class App extends Component {
     router.addRoute("#/", () => {
       new Navbar($nav, profile);
       new Home($body, {
-        handleNickModalClick: this.handleNickModalClick.bind(this),
+        handleNickModalClick: this.handleNickModalClick.bind(this)
       });
     });
 

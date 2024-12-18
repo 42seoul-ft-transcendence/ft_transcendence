@@ -319,9 +319,7 @@ td {
 #gameStartBtn {
   /* margin-top: 20px; */
   position: relative;
-  /* 부모에 대한 상대 위치 */
   bottom: 0;
-  /* 브래킷 하단에 밀착 */
   left: 0;
   text-align: center;
   /* 버튼 중앙 정렬 */
@@ -331,13 +329,13 @@ td {
   padding: 15px 30px;
   font-size: 1.2rem;
   font-weight: bold;
-  border-radius: 8px;
+  border-radius: 5px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
 }
 
 #gameStartBtn button:hover {
-  background-color: #007bff;
+  background-color: #0dcaf0d6;
   color: #fff;
 }
 
@@ -374,4 +372,11 @@ td {
 
   z-index: 10;
   /* Canvas 위에 표시 */
+}
+
+#oneToOneBtn:hover,
+#tournamentBtn:hover,
+#nextBtn:hover {
+  background-color: #0dcaf0d6;
+  color: white;
 }
