@@ -12,6 +12,21 @@ import SettingView from "./pages/profile/SettingView.js";
 
 import * as brackets from "/frontend/src/utils/tournament.js";
 
+const data = {
+  users: [
+    {
+      id: 1,
+      profileImage: "https://robohash.org/JohnDoe.png?size=150x150",
+      nickname: "Champion01",
+      username: "john_doe",
+      winLossRecord: {
+        wins: 10,
+        losses: 3,
+      },
+    },
+  ],
+};
+
 export default class App extends Component {
   setup() {
     this.state = {
@@ -22,6 +37,7 @@ export default class App extends Component {
       matchGame: null,
       opponent1: null,
       opponent2: null,
+      profile: data.users[0],
     };
   }
 
@@ -37,7 +53,7 @@ export default class App extends Component {
     this.$target.append($nav, $body);
 
     router.addRoute("#/", () => {
-      new Navbar($nav);
+      new Navbar($nav, profile);
       new Home($body, {
         handleNickModalClick: this.handleNickModalClick.bind(this),
       });
@@ -48,7 +64,7 @@ export default class App extends Component {
     });
 
     router.addRoute("#/game", () => {
-      new Navbar($nav);
+      new Navbar($nav, profile);
       new Game($body, {
         gameMode: this.state.gameMode,
         // matches: this.state.matches,
@@ -60,7 +76,7 @@ export default class App extends Component {
     });
 
     router.addRoute("#/tournament", () => {
-      new Navbar($nav);
+      new Navbar($nav, profile);
       new Tournament($body, {
         playerNames: this.state.playerNames,
         participants: this.state.participants,
@@ -71,17 +87,17 @@ export default class App extends Component {
     });
 
     router.addRoute("#/profile/history", () => {
-      new Navbar($nav);
+      new Navbar($nav, profile);
       new HistoryView($body);
     });
 
     router.addRoute("#/profile/friends", () => {
-      new Navbar($nav);
+      new Navbar($nav, profile);
       new FriendView($body);
     });
 
     router.addRoute("#/profile/setting", () => {
-      new Navbar($nav);
+      new Navbar($nav, profile);
       new SettingView($body);
     });
 

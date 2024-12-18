@@ -22,12 +22,12 @@ export default class Component {
   /**
    * @brief 컴포넌트 초기 설정 함수
    */
-  setup() {}
+  setup() { }
 
   /**
    * @brief 컴포넌트가 마운트된 후 호출되는 함수
    */
-  mounted() {}
+  mounted() { }
 
   /**
    * @brief 컴포넌트의 HTML 템플릿을 반환하는 함수
@@ -58,7 +58,7 @@ export default class Component {
   /**
    * @brief 이벤트를 설정하는 함수
    */
-  setEvent() {}
+  setEvent() { }
 
   /**
    * @brief 이벤트를 추가하는 함수
