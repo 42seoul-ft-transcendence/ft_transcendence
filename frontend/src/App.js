@@ -42,6 +42,7 @@ export default class App extends Component {
   }
 
   mounted() {
+    const { profile } = this.state;
     const router = new Router();
 
     const $nav = document.createElement("div");
