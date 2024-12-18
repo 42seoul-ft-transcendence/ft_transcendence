@@ -5,7 +5,7 @@ export default class Game extends Component {
   template() {
     return /* html */ `
     <div class="vh-100 d-flex align-items-center justify-content-center">
-			<div id="gameCtn" ></div>
+			<div id="gameCtn"></div>
     </div>
 		`;
   }

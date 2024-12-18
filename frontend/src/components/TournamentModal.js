@@ -6,7 +6,10 @@ export default class TournamentModal extends Component {
     this.$target.setAttribute("tabindex", "-1");
     this.$target.setAttribute("aria-labelledby", "tournamentModalLabel");
     this.$target.setAttribute("aria-hidden", "true");
+    this.$target.setAttribute("data-bs-backdrop", "static");
+    this.$target.setAttribute("data-bs-keyboard", "false");
   }
+
   template() {
     return /* html */ `
 			<div class="modal-dialog modal-dialog-centered">
