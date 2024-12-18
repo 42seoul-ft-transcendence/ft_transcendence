@@ -7,6 +7,8 @@ export default class NickModal extends Component {
     this.$target.setAttribute("tabindex", "-1");
     this.$target.setAttribute("aria-labelledby", "nicknameModalLabel");
     this.$target.setAttribute("aria-hidden", "true");
+    this.$target.setAttribute("data-bs-backdrop", "static");
+    this.$target.setAttribute("data-bs-keyboard", "false");
 
     this.state = {
       playerName: [],

@@ -22,9 +22,11 @@ export default class Pong extends Component {
 
   template() {
     return /* html */ `
-      <canvas id="board"></canvas>
-      <div class="container d-none">
-        <button id="nextBtn" class="btn btn-light fw-bold text-decoration-underline fs-3 py-3 w-75 border-info border-4">Next Game</button>
+      <div class="canvas-container position-relative">
+        <canvas id="board"></canvas>
+        <button id="nextBtn" class="btn btn-light fw-bold fs-3 py-3 border-info border-4 d-none">
+         Next Game
+        </button>
       </div>
     `;
   }
@@ -87,7 +89,7 @@ export default class Pong extends Component {
         console.log(this.state.player1Score);
         console.log(this.state.player2Score);
 
-        this.$target.querySelector(".container").classList.remove("d-none");
+        this.$target.querySelector("#nextBtn").classList.remove("d-none");
       }
     }
     ball.update(player1, player2);

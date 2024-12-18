@@ -1,14 +1,17 @@
 import Component from "../core/Component.js";
 
 export default class TournamentModal extends Component {
-  setup() {
-    this.$target.classList = "modal fade";
-    this.$target.setAttribute("tabindex", "-1");
-    this.$target.setAttribute("aria-labelledby", "tournamentModalLabel");
-    this.$target.setAttribute("aria-hidden", "true");
-  }
-  template() {
-    return /* html */ `
+	setup() {
+		this.$target.classList = "modal fade";
+		this.$target.setAttribute("tabindex", "-1");
+		this.$target.setAttribute("aria-labelledby", "tournamentModalLabel");
+		this.$target.setAttribute("aria-hidden", "true");
+		this.$target.setAttribute("data-bs-backdrop", "static");
+		this.$target.setAttribute("data-bs-keyboard", "false");
+	}
+
+	template() {
+		return /* html */ `
 			<div class="modal-dialog modal-dialog-centered">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -33,17 +36,17 @@ export default class TournamentModal extends Component {
 				</div>
 			</div>
 		`;
-  }
+	}
 
-  setEvent() {
-    this.addEvent("click", "#nextButton", () => {
-      const totalNum = parseInt(
-        this.$target.querySelector("#playerCount").value,
-      );
-      this.$target.remove();
-      this.props.handleTotalPlayerClick(totalNum);
-    });
-  }
+	setEvent() {
+		this.addEvent("click", "#nextButton", () => {
+			const totalNum = parseInt(
+				this.$target.querySelector("#playerCount").value,
+			);
+			this.$target.remove();
+			this.props.handleTotalPlayerClick(totalNum);
+		});
+	}
 }
 
 //<div class="modal fade" id="tournamentModal" tabindex="-1" aria-labelledby="tournamentModalLabel" aria-hidden="true">

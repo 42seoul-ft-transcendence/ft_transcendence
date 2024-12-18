@@ -26,7 +26,13 @@ export default class SettingInfo extends Component {
                         </td>
                     </tr>
                 </tbody>
-            </table>		
+            </table>
+             <!-- Logout Button -->
+            <div class="d-flex justify-content-end mt-4">
+                <button type="button" class="btn btn-outline-danger btn-lg px-4 fw-bold" id="logoutBtn">
+                 Logout
+                </button>
+            </div>	
 		`;
     }
 }
