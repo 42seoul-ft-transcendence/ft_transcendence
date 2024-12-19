@@ -27,14 +27,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', False).lower() in ('true', '1')
 
 ALLOWED_HOSTS = []
 
+# ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", default="").split(" ")
+#
+# CSRF_TRUSTED_ORIGINS = os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", default="https://localhost:4443").split(" ")
 
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
+    'channels',
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -43,9 +49,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'authentication',
     'friendship',
+    'game',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -86,6 +94,16 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+# DATABASES = {
+#     'default': {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": os.getenv("POSTGRES_DB"),
+#         "USER": os.getenv("POSTGRES_USER"),
+#         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+#         "HOST": "postgres",
+#         "PORT": "5432",
+#     }
+# }
 
 
 # Password validation
@@ -134,7 +152,7 @@ CLIENT_ID = os.environ.get('FT_UID')
 CLIENT_SECRET = os.environ.get('FT_SECRET')
 REDIRECT_URI = os.environ.get('REDIRECT_URI')
 
-LOGIN_URL = 'login'
+LOGIN_URL = '/login/'
 
 AUTH_USER_MODEL = 'authentication.User'
 
@@ -142,3 +160,18 @@ AUTH_USER_MODEL = 'authentication.User'
 JWT_SECRET_KEY = SECRET_KEY
 JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(hours=12)
 JWT_REFRESH_TOKEN_EXPIRES = datetime.timedelta(days=7)
+
+# WebSocket
+ASGI_APPLICATION = 'transcendence.asgi.application'
+
+# 채널 레이어 설정 (Redis 사용)
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],  # Redis 서버 주소(나중에 redis container)
+        },
+    },
+}
+
+CORS_ORIGIN_ALLOW_ALL = True
