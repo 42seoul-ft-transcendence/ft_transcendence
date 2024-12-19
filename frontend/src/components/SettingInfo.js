@@ -11,8 +11,9 @@ export default class SettingInfo extends Component {
                         <th scope="row" class="text-start align-middle px-3">Language</th>
                         <td>
                             <select class="form-select">
-                                <option value="korean" selected>🇰🇷 한국어</option>
-                                <option value="english">🇺🇸 English</option>
+                                <option value="english" selected>🇺🇸 English</option>
+                                <option value="korean">🇰🇷 한국어</option>
+                                <option value="japanese">🇯🇵 日本語</option>
                             </select>
                         </td>
                     </tr>

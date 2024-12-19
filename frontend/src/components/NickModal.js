@@ -33,7 +33,7 @@ export default class NickModal extends Component {
 						<div id="errorMessage" class="text-danger mt-2" style="display: none;"></div>
 					</div>
 					<div class="modal-footer">
-						<button type="button" class="btn btn-primary" id="nextPlayerButton">
+						<button type="button" class="btn btn-outline-info" id="nextPlayerButton">
               ${currentPlayer == totalPlayer ? "Start" : "Next"}
             </button>
 					</div>
