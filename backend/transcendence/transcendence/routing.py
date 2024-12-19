@@ -1,0 +1,4 @@
+from authentication.routing import websocket_urlpatterns as auth_websocket_urlpatterns
+from game.routing import websocket_urlpatterns as game_websocket_urlpatterns
+
+websocket_urlpatterns = game_websocket_urlpatterns + auth_websocket_urlpatterns
