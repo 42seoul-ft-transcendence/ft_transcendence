@@ -10,11 +10,8 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
 
-
 User = get_user_model()
 
-
-@method_decorator(csrf_exempt, name='dispatch')
 class SendFriendRequestView(LoginRequiredMixin, View):
     """
     친구 요청 전송

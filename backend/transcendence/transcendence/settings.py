@@ -88,22 +88,22 @@ WSGI_APPLICATION = 'transcendence.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
 DATABASES = {
     'default': {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("POSTGRES_DB"),
-        "USER": os.getenv("POSTGRES_USER"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-        "HOST": "postgres",
-        "PORT": "5432",
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+# DATABASES = {
+#     'default': {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": os.getenv("POSTGRES_DB"),
+#         "USER": os.getenv("POSTGRES_USER"),
+#         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+#         "HOST": "postgres",
+#         "PORT": "5432",
+#     }
+# }
 
 
 # Password validation
@@ -152,7 +152,7 @@ CLIENT_ID = os.environ.get('FT_UID')
 CLIENT_SECRET = os.environ.get('FT_SECRET')
 REDIRECT_URI = os.environ.get('REDIRECT_URI')
 
-LOGIN_URL = 'login'
+LOGIN_URL = '/login/'
 
 AUTH_USER_MODEL = 'authentication.User'
 
