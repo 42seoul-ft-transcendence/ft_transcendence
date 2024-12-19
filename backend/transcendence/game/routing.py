@@ -1,6 +1,9 @@
-from django.urls import path
-from .consumers import GameConsumer
+from django.urls import re_path
+from .consumers import Pong
 
 websocket_urlpatterns = [
-    path("ws/game/<int:game_id>/", GameConsumer.as_asgi()),
+    # Pong 게임 WebSocket 라우트
+    re_path(r"ws/game/(?P<room_id>[a-zA-Z0-9\-]+)/$", Pong.as_asgi()),
+    # 대기 큐를 위한 WebSocket 라우트
+    re_path(r"ws/queue/$", Pong.as_asgi()),
 ]

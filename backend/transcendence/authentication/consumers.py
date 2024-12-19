@@ -3,7 +3,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 from asgiref.sync import sync_to_async
 # from redis_utils import set_user_login, is_user_logged_in, set_user_logout
-from ..transcendence.redis_utils import set_user_login, is_user_logged_in, set_user_logout
+from transcendence.redis_utils import set_user_login, is_user_logged_in, set_user_logout
 
 class LoginStatusConsumer(AsyncWebsocketConsumer):
     async def connect(self):

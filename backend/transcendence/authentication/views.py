@@ -70,20 +70,7 @@ class OauthCallbackView(View):
             response_data = self.generate_jwt_tokens(user)
 
             response = JsonResponse({"message": "Login successful"})
-            response.set_cookie(
-                key="access_token",
-                value=response_data["access_token"],
-                httponly=True,
-                secure=True,
-                samesite="Lax",
-            )
-            response.set_cookie(
-                key="refresh_token",
-                value=response_data["refresh_token"],
-                httponly=True,
-                secure=True,
-                samesite="Lax",
-            )
+            self.set_cookies(response, response_data)
 
             # websocket
             set_user_login(user.username)
@@ -91,6 +78,24 @@ class OauthCallbackView(View):
 
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
+
+
+    def set_cookies(self, response, response_data):
+        response.set_cookie(
+            key="access_token",
+            value=response_data["access_token"],
+            httponly=True, # JS 접근불가
+            secure=True, # HTTPS
+            samesite="Strict", # CSRF 방지
+        )
+        response.set_cookie(
+            key="refresh_token",
+            value=response_data["refresh_token"],
+            httponly=True,
+            secure=True,
+            samesite="Strict",
+        )
+
 
     def fetch_tokens(self, code):
         """
@@ -164,12 +169,12 @@ class OauthCallbackView(View):
         totp = pyotp.TOTP(user.otp_secret)
         qr_url = totp.provisioning_uri(user.username, issuer_name="Transcendence")
 
-        qr = qrcode.make(qr_url)
-        buffer = BytesIO()
-        qr.save(buffer, format='PNG')
-        buffer.seek(0)
+        # qr = qrcode.make(qr_url)
+        # buffer = BytesIO()
+        # qr.save(buffer, format='PNG')
+        # buffer.seek(0)
 
-        return HttpResponse(buffer, content_type='image/png')
+        return JsonResponse({"qr_url": qr_url})
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -257,6 +262,14 @@ class RefreshTokenView(View):
 
             # 새로운 access_token 생성
             access_token = generate_jwt(user, "access")
-            return JsonResponse({"access_token": access_token})
+            response = JsonResponse({"message": "Access token refreshed"})
+            response.set_cookie(
+                key="access_token",
+                value=access_token,
+                httponly=True,
+                secure=True,
+                samesite="Strict",
+            )
+            return response
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
