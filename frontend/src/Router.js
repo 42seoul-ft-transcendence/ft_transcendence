@@ -12,6 +12,14 @@ export default class Router extends Component {
   }
 
   checkRoutes() {
+    const token = sessionStorage.getItem("accessToken");
+
+    // if (!token) {
+    //   window.location.hash = "#/login";
+    //   this.state.routes[1].component();
+    //   return;
+    // }
+
     const currentRoute = this.state.routes.find((route) => {
       return route.fragment === window.location.hash;
     });
@@ -26,7 +34,6 @@ export default class Router extends Component {
   }
 
   start() {
-    // window.addEventListener("hashchange", () => this.checkRoutes());
     window.onhashchange = () => {
       this.checkRoutes();
     };

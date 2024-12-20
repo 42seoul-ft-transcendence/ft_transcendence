@@ -73,8 +73,10 @@ const insertParticipant = (matchJson, participantJson) => {
 
   for (i = 0; i < matchCount; i++) {
     matchJson[i].opponent1.id = 2 * i;
+    matchJson[i].opponent1.name = participantJson[2 * i].name;
     matchJson[i].opponent1.position = 2 * i + 1;
     matchJson[i].opponent2.id = 2 * i + 1;
+    matchJson[i].opponent1.name = participantJson[2 * i + 1].name;
     matchJson[i].opponent2.position = 2 * i + 2;
     matchJson[i].empty = false;
   }

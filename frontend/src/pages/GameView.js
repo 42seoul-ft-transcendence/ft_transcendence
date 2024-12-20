@@ -1,5 +1,7 @@
-import Component from "/frontend/src/core/Component.js";
-import Pong from "/frontend/src/components/Pong.js";
+// import Component from "/frontend/src/core/Component.js";
+// import Pong from "/frontend/src/components/Pong.js";
+import Component from "../core/Component.js";
+import Pong from "../components/Pong.js";
 
 export default class Game extends Component {
   template() {

@@ -1,8 +1,8 @@
-import Component from "/frontend/src/core/Component.js";
-import SelectMode from "/frontend/src/components/SelectMode.js";
-import Pong from "/frontend/src/components/Pong.js";
-import TournamentModal from "/frontend/src/components/TournamentModal.js";
-import NickModal from "/frontend/src/components/NickModal.js";
+import Component from "../core/Component.js";
+import SelectMode from "../components/SelectMode.js";
+import Pong from "../components/Pong.js";
+import TournamentModal from "../components/TournamentModal.js";
+import NickModal from "../components/NickModal.js";
 
 export default class Home extends Component {
   setup() {
@@ -43,31 +43,6 @@ export default class Home extends Component {
       totalPlayer: this.state.totalPlayer,
       handleNickModalClick: this.props.handleNickModalClick,
     });
-
-    // this.selectModeInstance = this.initComponent(
-    //   this.selectModeInstance,
-    //   SelectMode,
-    //   "#selectModeCtn",
-    // );
-
-    // this.tournamentModalInstance = this.initComponent(
-    //   this.tournamentModalInstance,
-    //   TournamentModal,
-    //   "#tournamentModal",
-    //   {
-    //     handleTotalPlayerClick: this.handleTotalPlayerClick.bind(this),
-    //   },
-    // );
-
-    // this.nickModalInstance = this.initComponent(
-    //   this.nickModalInstance,
-    //   NickModal,
-    //   "#nicknameModal",
-    //   {
-    //     totalPlayer: this.state.totalPlayer,
-    //     handleNickModalClick: this.props.handleNickModalClick,
-    //   },
-    // );
   }
 
   setEvent() {

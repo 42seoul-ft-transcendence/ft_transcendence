@@ -1,5 +1,5 @@
 import Component from "../core/Component.js";
-
+import { getTranslation } from "../utils/translations.js";
 export default class TournamentModal extends Component {
 	setup() {
 		this.$target.classList = "modal fade";
@@ -15,11 +15,11 @@ export default class TournamentModal extends Component {
 			<div class="modal-dialog modal-dialog-centered">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h5 class="modal-title" id="tournamentModalLabel">Tournament</h5>
+						<h5 class="modal-title" id="tournamentModalLabel">${getTranslation("tournament")}</h5>
 						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 					</div>
 					<div class="modal-body">
-						<p>How many people do you want to play?</p>
+						<p>${getTranslation("tournamentDescription")}</p>
 						<select id="playerCount" class="form-select w-50 mx-auto">
 							<option value="3">3</option>
 							<option value="4">4</option>
@@ -31,7 +31,7 @@ export default class TournamentModal extends Component {
 					</div>
 
 					<div class="modal-footer">
-						<button id="nextButton" class="btn btn-outline-info" data-bs-target="#nicknameModal" data-bs-toggle="modal">Next</button>
+						<button id="nextButton" class="btn btn-outline-info" data-bs-target="#nicknameModal" data-bs-toggle="modal">${getTranslation("next")}</button>
 					</div>
 				</div>
 			</div>
@@ -48,4 +48,3 @@ export default class TournamentModal extends Component {
 	}
 }
 
-//<div class="modal fade" id="tournamentModal" tabindex="-1" aria-labelledby="tournamentModalLabel" aria-hidden="true">

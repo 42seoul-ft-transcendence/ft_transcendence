@@ -1,24 +1,26 @@
-import Component from '/frontend/src/core/Component.js';
-
+import Component from "../core/Component.js";
 export default class HistoryCard extends Component {
+  template() {
+    const { me, oppenent, date } = this.props;
 
-    template() {
-        const { me, oppenent, date } = this.props;
-
-        return /* html */`
+    return /* html */ `
         <!-- Match History Section -->
         <div class="match-card ${this.isWinner(me, oppenent)}">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <div class="d-flex align-items-center">
                     <div>
-                        <img class="player-profile me-2" src=${me.profileImage} alt="Profile Picture">
+                        <img class="player-profile me-2" src=${
+                          me.profileImage
+                        } alt="Profile Picture">
                     </div>
                     <span>${me.name}</span>
                 </div>
                 <div class="d-flex align-items-center">
                     <span>${oppenent.name}</span>
                     <div>
-                        <img class="player-profile ms-2" src=${oppenent.profileImage} alt="Profile Picture">
+                        <img class="player-profile ms-2" src=${
+                          oppenent.profileImage
+                        } alt="Profile Picture">
                     </div>
                 </div>
             </div>
@@ -31,9 +33,9 @@ export default class HistoryCard extends Component {
             </div>
         </div>
         `;
-    }
+  }
 
-    isWinner(me, oppenent) {
-        return me.score > oppenent.score ? 'blue' : 'pink';
-    }
+  isWinner(me, oppenent) {
+    return me.score > oppenent.score ? "blue" : "pink";
+  }
 }

@@ -1,11 +1,10 @@
-import Component from "/frontend/src/core/Component.js";
+import Component from "../core/Component.js";
 
 export default class FriendCard extends Component {
+  template() {
+    const { profileImage, nickname, username } = this.props;
 
-	template() {
-		const { profileImage, nickname, username } = this.props;
-
-		return /* html */ `
+    return /* html */ `
 		<!-- Friend Card -->
 		<div class="friend-card d-flex align-items-center">
 			<div class="friend-profile-pic-wrapper online me-3">
@@ -17,9 +16,9 @@ export default class FriendCard extends Component {
 			</div>
 		</div>
 		`;
-	}
+  }
 
-	// isOnline(userName) {
-	// 	// user is online
-	// }
+  // isOnline(userName) {
+  // 	// user is online
+  // }
 }

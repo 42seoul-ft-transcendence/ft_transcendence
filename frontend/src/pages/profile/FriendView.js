@@ -1,98 +1,100 @@
-import Component from "/frontend/src/core/Component.js";
-import ProfileNav from "/frontend/src/components/ProfileNav.js";
-import FriendCard from "/frontend/src/components/FriendCard.js";
+// import Component from "/frontend/src/core/Component.js";
+// import ProfileNav from "/frontend/src/components/ProfileNav.js";
+// import FriendCard from "/frontend/src/components/FriendCard.js";
+import Component from "../../core/Component.js";
+import ProfileNav from "../../components/ProfileNav.js";
+import FriendCard from "../../components/FriendCard.js";
 
 const data = {
-	"users": [
-		{
-			"id": 1,
-			"profileImage": "https://ui-avatars.com/api/?name=John+Doe&size=150",
-			"nickname": "Champion01",
-			"username": "john_doe",
-			"winLossRecord": {
-				"wins": 10,
-				"losses": 3
-			}
-		},
-		{
-			"id": 2,
-			"profileImage": "https://via.placeholder.com/150",
-			"nickname": "ProGamer77",
-			"username": "jane_smith",
-			"winLossRecord": {
-				"wins": 8,
-				"losses": 5
-			}
-		},
-		{
-			"id": 3,
-			"profileImage": "https://via.placeholder.com/150",
-			"nickname": "NoobMaster69",
-			"username": "max_king",
-			"winLossRecord": {
-				"wins": 3,
-				"losses": 9
-			}
-		},
-		{
-			"id": 4,
-			"profileImage": "https://via.placeholder.com/150",
-			"nickname": "LegendX",
-			"username": "sara_connor",
-			"winLossRecord": {
-				"wins": 12,
-				"losses": 0
-			}
-		},
-		{
-			"id": 5,
-			"profileImage": "https://via.placeholder.com/150",
-			"nickname": "AcePlayer",
-			"username": "tony_stark",
-			"winLossRecord": {
-				"wins": 7,
-				"losses": 2
-			}
-		}
-	]
+  users: [
+    {
+      id: 1,
+      profileImage: "https://ui-avatars.com/api/?name=John+Doe&size=150",
+      nickname: "Champion01",
+      username: "john_doe",
+      winLossRecord: {
+        wins: 10,
+        losses: 3,
+      },
+    },
+    {
+      id: 2,
+      profileImage: "https://via.placeholder.com/150",
+      nickname: "ProGamer77",
+      username: "jane_smith",
+      winLossRecord: {
+        wins: 8,
+        losses: 5,
+      },
+    },
+    {
+      id: 3,
+      profileImage: "https://via.placeholder.com/150",
+      nickname: "NoobMaster69",
+      username: "max_king",
+      winLossRecord: {
+        wins: 3,
+        losses: 9,
+      },
+    },
+    {
+      id: 4,
+      profileImage: "https://via.placeholder.com/150",
+      nickname: "LegendX",
+      username: "sara_connor",
+      winLossRecord: {
+        wins: 12,
+        losses: 0,
+      },
+    },
+    {
+      id: 5,
+      profileImage: "https://via.placeholder.com/150",
+      nickname: "AcePlayer",
+      username: "tony_stark",
+      winLossRecord: {
+        wins: 7,
+        losses: 2,
+      },
+    },
+  ],
 };
 
-
 export default class FriendView extends Component {
-	setup() {
-		this.state = {
-			friendCount: data.users.length,
-			friendData: data.users,
-		}
-	}
+  setup() {
+    this.state = {
+      friendCount: data.users.length,
+      friendData: data.users,
+    };
+  }
 
-	template() {
-		const { friendCount } = this.state;
+  template() {
+    const { friendCount } = this.state;
 
-		let temp = /* html */`
+    let temp = /* html */ `
 			<div class="container nav-section"></div>
 			<div class="container friends" id="friendSection">
 				<h3 class="mb-4">Friends List</h3>
 				<div class="row gy-4">
 		`;
-		for (let i = 0; i < friendCount; ++i)
-			temp += /* html */
-				`<div id="friendCard${i}" class="col-md-4"></div>`;
-		temp += /* html */
-			`
+    for (let i = 0; i < friendCount; ++i)
+      temp += /* html */ `<div id="friendCard${i}" class="col-md-4"></div>`;
+    temp +=
+      /* html */
+      `
 				</div>
 			</div>`;
-		return temp;
-	}
+    return temp;
+  }
 
-	mounted() {
-		const { friendData } = this.state;
+  mounted() {
+    const { friendData } = this.state;
 
-		new ProfileNav(this.$target.querySelector('.nav-section'));
-		// for (let i = 0; i < friendCount; ++i)
-		// 	new FriendCard(this.$target.querySelector(`#friendCard${i}`));
-		friendData.forEach((list, index) => {
-			new FriendCard(this.$target.querySelector(`#friendCard${index}`), list);
-		});
-	}
+    new ProfileNav(this.$target.querySelector(".nav-section"));
+    // for (let i = 0; i < friendCount; ++i)
+    // 	new FriendCard(this.$target.querySelector(`#friendCard${i}`));
+    friendData.forEach((list, index) => {
+      new FriendCard(this.$target.querySelector(`#friendCard${index}`), list);
+    });
+  }
 }

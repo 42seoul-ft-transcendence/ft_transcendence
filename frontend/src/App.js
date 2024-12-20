@@ -10,7 +10,7 @@ import HistoryView from "./pages/profile/HistoryView.js";
 import FriendView from "./pages/profile/FriendView.js";
 import SettingView from "./pages/profile/SettingView.js";
 
-import * as brackets from "/frontend/src/utils/tournament.js";
+import * as brackets from "./utils/tournament.js";
 
 const data = {
   users: [
@@ -62,7 +62,7 @@ export default class App extends Component {
     router.addRoute("#/", () => {
       new Navbar($nav, profile);
       new Home($body, {
-        handleNickModalClick: this.handleNickModalClick.bind(this)
+        handleNickModalClick: this.handleNickModalClick.bind(this),
       });
     });
 
@@ -105,10 +105,16 @@ export default class App extends Component {
 
     router.addRoute("#/profile/setting", () => {
       new Navbar($nav, profile);
-      new SettingView($body);
+      new SettingView($body, {
+        handleLangChange: this.handleLangChange.bind(this),
+      });
     });
 
     router.start();
+  }
+
+  handleLangChange() {
+    this.setState();
   }
 
   handleNickModalClick(playerNames) {

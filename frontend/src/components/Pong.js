@@ -18,6 +18,8 @@ export default class Pong extends Component {
       opponent2: this.props.opponent2,
       finish: false,
     };
+
+    console.log(this.state.opponent1);
   }
 
   template() {

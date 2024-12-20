@@ -1,5 +1,8 @@
-import Component from "/frontend/src/core/Component.js";
-import * as brackets from "/frontend/src/utils/tournament.js";
+// import Component from "/frontend/src/core/Component.js";
+// import * as brackets from "/frontend/src/utils/tournament.js";
+
+import Component from "../core/Component.js";
+import * as brackets from "../utils/tournament.js";
 
 export default class Tournament extends Component {
   setup() {
