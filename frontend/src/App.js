@@ -141,7 +141,7 @@ export default class App extends Component {
   }
 
   handlePongNextGameClick(opponent1, opponent2) {
-    let { matches, matchGame, gameCnt, participants} = this.state;
+    let { matches, matchGame, gameCnt, participants } = this.state;
 
     console.log(matches);
 

@@ -4,6 +4,7 @@
 import Component from "../../core/Component.js";
 import ProfileNav from "../../components/ProfileNav.js";
 import FriendCard from "../../components/FriendCard.js";
+import { getTranslation } from "../../utils/translations.js";
 
 const data = {
   users: [
@@ -74,7 +75,7 @@ export default class FriendView extends Component {
     let temp = /* html */ `
 			<div class="container nav-section"></div>
 			<div class="container friends" id="friendSection">
-				<h3 class="mb-4">Friends List</h3>
+				<h3 class="mb-4 fw-bold">${getTranslation("friendList")}</h3>
 				<div class="row gy-4">
 		`;
     for (let i = 0; i < friendCount; ++i)

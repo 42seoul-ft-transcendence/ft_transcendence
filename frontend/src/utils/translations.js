@@ -27,6 +27,7 @@ export const translations = {
 		nickEmpty: "Nickname cannot be empty",
 		gameStart: "Start Game",
 		nextGame: "Next Game",
+		friendList: "Friend List",
 	},
 	korean: {
 		player: "플레이어",
@@ -56,6 +57,7 @@ export const translations = {
 		nickEmpty: "닉네임을 입력해주세요",
 		gameStart: "게임 시작",
 		nextGame: "다음 게임",
+		friendList: "친구 목록",
 	},
 	japanese: {
 		player: "プレイヤー",
@@ -85,6 +87,7 @@ export const translations = {
 		nickEmpty: "ニックネームを入力してください",
 		gameStart: "ゲームを開始",
 		nextGame: "次のゲーム",
+		friendList: "友達リスト",
 	},
 };
 

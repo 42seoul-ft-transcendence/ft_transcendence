@@ -265,7 +265,6 @@ html {
 }
 
 .section-title {
-  font-size: 1.25rem;
   font-weight: bold;
   text-decoration: underline;
 }
@@ -344,7 +343,7 @@ td {
   /* 버튼의 절대 위치 기준 */
   width: 100%;
   /* 화면 너비 */
-  height: 65vh;
+  height: 70vh;
   /* 화면 높이 */
   display: flex;
   justify-content: center;
