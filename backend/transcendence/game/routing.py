@@ -1,5 +1,5 @@
 from django.urls import re_path
-from .consumers import Pong
+from .pong import Pong
 
 websocket_urlpatterns = [
     # Pong 게임 WebSocket 라우트

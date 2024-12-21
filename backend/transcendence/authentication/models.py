@@ -51,7 +51,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=15, unique=True)
     display_name = models.CharField(max_length=50, unique=True)
     email = models.EmailField(unique=True)
-    avatar = models.URLField(blank=True, null=True)
+    avatar = models.ImageField(upload_to="media/avatars/", default="media/avatars/default.png")
     two_factor = models.BooleanField(default=False)
     otp_secret = models.CharField(max_length=10, blank=True, null=True)
     is_active = models.BooleanField(default=True)  # 활성 사용자 여부
