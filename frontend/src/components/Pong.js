@@ -1,5 +1,6 @@
 import Component from "../core/Component.js";
 import * as game from "../utils/game/game.js";
+import { getTranslation } from "../utils/translations.js";
 
 export default class Pong extends Component {
   setup() {
@@ -18,18 +19,31 @@ export default class Pong extends Component {
       opponent2: this.props.opponent2,
       finish: false,
     };
-
-    console.log(this.state.opponent1);
   }
 
   template() {
+    const { opponent1, opponent2 } = this.state;
+    console.log(opponent1);
+    console.log(opponent2);
     return /* html */ `
       <div class="canvas-container position-relative">
         <canvas id="board"></canvas>
+        <div id="gameCtn" class="border bg-dark"></div>
+        <div class="container-fluid position-absolute bottom-0 px-5">
+          <div class="row w-100">
+            <div class="col text-start">
+              <span id="nickname-left" class="nickName fs-4" style="${!opponent1 ? "display:none;" : ""}">${opponent1?.name || ''}</span>
+            </div>
+            <div class="col text-end">
+              <span id="nickname-right" class="nickName" style="${!opponent2 ? "display:none;" : ""}">${opponent2?.name || ''}</span>
+            </div>
+          </div>
+        </div>
         <button id="nextBtn" class="btn btn-light fw-bold fs-3 py-3 border-info border-4 d-none">
-         Next Game
+         ${getTranslation("nextGame")}
         </button>
       </div>
+  
     `;
   }
 

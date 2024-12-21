@@ -344,7 +344,7 @@ td {
   /* 버튼의 절대 위치 기준 */
   width: 100%;
   /* 화면 너비 */
-  height: 100vh;
+  height: 65vh;
   /* 화면 높이 */
   display: flex;
   justify-content: center;
@@ -379,4 +379,12 @@ td {
 #nextBtn:hover {
   background-color: #0dcaf0d6;
   color: white;
+}
+
+#nickname-left {
+  text-align: left;
+}
+
+#nickname-right {
+  text-align: right;
 }
