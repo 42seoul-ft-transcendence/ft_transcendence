@@ -141,7 +141,7 @@ export default class App extends Component {
   }
 
   handlePongNextGameClick(opponent1, opponent2) {
-    let { matches, matchGame, gameCnt } = this.state;
+    let { matches, matchGame, gameCnt, participants} = this.state;
 
     console.log(matches);
 
@@ -156,12 +156,14 @@ export default class App extends Component {
 
     matches[gameCnt] = matchGame;
     if (nextMatchIdx != -1) {
+      let id = opponent1.score > opponent2.score ? opponent1.id : opponent2.id;
+
       if (matches[nextMatchIdx].opponent1.id === null) {
-        matches[nextMatchIdx].opponent1.id =
-          opponent1.score > opponent2.score ? opponent1.id : opponent2.id;
+        matches[nextMatchIdx].opponent1.id = id
+        matches[nextMatchIdx].opponent1.name = participants[id].name;
       } else {
-        matches[nextMatchIdx].opponent2.id =
-          opponent1.score > opponent2.score ? opponent1.id : opponent2.id;
+        matches[nextMatchIdx].opponent2.id = id
+        matches[nextMatchIdx].opponent2.name = participants[id].name;
       }
       matches[nextMatchIdx].empty = false;
     }
@@ -169,3 +171,9 @@ export default class App extends Component {
     this.setState({ matches });
   }
 }
+
+window.onpopstate = (event) => {
+  const path = window.location.hash;
+  console.log(path);
+  console.log("popstate", event.state);
+};
