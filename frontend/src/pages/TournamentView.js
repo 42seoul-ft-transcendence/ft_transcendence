@@ -13,6 +13,10 @@ export default class Tournament extends Component {
       matches: this.props.matches,
       currentMatch: 0,
     };
+
+    console.log(this.props.matches);
+    if (this.props.matches.length === 0)
+      window.location.hash = "#/";
   }
 
   template() {
@@ -20,7 +24,9 @@ export default class Tournament extends Component {
     <div class="bracket-wrapper">
   		<div id="brackets" class="container brackets-viewer"></div>
       <div id="gameStartBtn">
-      <button id="gameStartBtn" class="btn btn-info mt-3 btn-lg">${getTranslation("gameStart")}</button>
+      <button id="gameStartBtn" class="btn btn-info mt-3 btn-lg">${getTranslation(
+        "gameStart",
+      )}</button>
       </div>
     </div>
   	`;
@@ -53,8 +59,10 @@ export default class Tournament extends Component {
         const startMatch = this.state.matches[startMatchIdx];
 
         this.props.handleTournamentGameStartClick(startMatch, startMatchIdx);
+        // window.history.pushState({ isManual: true }, "", "/game");
         window.location.hash = "#/game";
       } else {
+        // window.history.pushState({ isManual: true }, "", "/");
         window.location.hash = "#/";
       }
     });

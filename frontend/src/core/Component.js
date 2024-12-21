@@ -67,6 +67,7 @@ export default class Component {
    * @param {Function} callback - 이벤트 핸들러 함수
    */
   addEvent(eventType, selector, callback) {
+    if (this.$target === null) return;
     const children = [...this.$target.querySelectorAll(selector)];
     const isTarget = (target) =>
       children.includes(target) || target.closest(selector);

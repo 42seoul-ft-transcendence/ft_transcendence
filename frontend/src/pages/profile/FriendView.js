@@ -4,13 +4,14 @@
 import Component from "../../core/Component.js";
 import ProfileNav from "../../components/ProfileNav.js";
 import FriendCard from "../../components/FriendCard.js";
+import { getTranslation } from "../../utils/translations.js";
 
 const data = {
   users: [
     {
       id: 1,
       profileImage: "https://ui-avatars.com/api/?name=John+Doe&size=150",
-      nickname: "Champion01",
+      message: "",
       username: "john_doe",
       winLossRecord: {
         wins: 10,
@@ -20,7 +21,7 @@ const data = {
     {
       id: 2,
       profileImage: "https://via.placeholder.com/150",
-      nickname: "ProGamer77",
+      message: "ProGamer77 hihddddddddddddddddd dddddddddddihiiihhhhhhhhhhhhhhhh",
       username: "jane_smith",
       winLossRecord: {
         wins: 8,
@@ -30,7 +31,7 @@ const data = {
     {
       id: 3,
       profileImage: "https://via.placeholder.com/150",
-      nickname: "NoobMaster69",
+      message: "ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ",
       username: "max_king",
       winLossRecord: {
         wins: 3,
@@ -40,7 +41,7 @@ const data = {
     {
       id: 4,
       profileImage: "https://via.placeholder.com/150",
-      nickname: "LegendX",
+      message: "dddddddddddihiiihh hh hh hh hh hh",
       username: "sara_connor",
       winLossRecord: {
         wins: 12,
@@ -50,7 +51,7 @@ const data = {
     {
       id: 5,
       profileImage: "https://via.placeholder.com/150",
-      nickname: "AcePlayer",
+      message: "プレイヤープレイヤープレイヤープレイ",
       username: "tony_stark",
       winLossRecord: {
         wins: 7,
@@ -74,11 +75,11 @@ export default class FriendView extends Component {
     let temp = /* html */ `
 			<div class="container nav-section"></div>
 			<div class="container friends" id="friendSection">
-				<h3 class="mb-4">Friends List</h3>
+				<h3 class="mb-4 fw-bold">${getTranslation("friendList")}</h3>
 				<div class="row gy-4">
 		`;
     for (let i = 0; i < friendCount; ++i)
-      temp += /* html */ `<div id="friendCard${i}" class="col-md-4"></div>`;
+      temp += /* html */ `<div id="friendCard${i}" class="col-md-6"></div>`;
     temp +=
       /* html */
       `
@@ -91,8 +92,7 @@ export default class FriendView extends Component {
     const { friendData } = this.state;
 
     new ProfileNav(this.$target.querySelector(".nav-section"));
-    // for (let i = 0; i < friendCount; ++i)
-    // 	new FriendCard(this.$target.querySelector(`#friendCard${i}`));
+
     friendData.forEach((list, index) => {
       new FriendCard(this.$target.querySelector(`#friendCard${index}`), list);
     });

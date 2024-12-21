@@ -12,7 +12,7 @@ const data = {
   users: [
     {
       profileImage: "https://robohash.org/JohnDoe.png?size=150x150",
-      nickname: "Champion01",
+      message: "Champion01",
       username: "john_doe",
       email: "abc@abc.com",
     },
@@ -33,6 +33,7 @@ export default class SettingView extends Component {
     return /* html */ `
 		<div class="container nav-section"></div>
 		<!-- Profile Section -->
+<<<<<<< HEAD
     <div class="setting-profile-section" id="settingSection">
     <div>
       <img class="setting-profile-pic" src=${
@@ -44,6 +45,17 @@ export default class SettingView extends Component {
     </div>
     <div id="userInfo" class="container settings-section"></div>
     <div id="settingInfo" class="container settings-section"></div>
+=======
+        <div class="setting-profile-section" id="settingSection">
+			<div>
+				<img class="setting-profile-pic" src=${profile.profileImage
+      } alt="Profile Picture">
+			</div>
+            <button class="edit-button">${getTranslation("edit", lang)}</button>
+        </div>
+        <div id="userInfo" class="container settings-section"></div>
+        <div id="settingInfo" class="container settings-section"></div>
+>>>>>>> 8ced16848eaae800f9646ca763c1bfdb01f9556c
 		`;
   }
 

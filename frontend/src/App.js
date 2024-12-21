@@ -41,12 +41,6 @@ export default class App extends Component {
     };
   }
 
-  template() {
-    return /* html */ `
-      <div id="test"></div>
-    `;
-  }
-
   mounted() {
     const { profile } = this.state;
     const router = new Router();
@@ -67,7 +61,10 @@ export default class App extends Component {
     });
 
     router.addRoute("#/login", () => {
-      new Login(this.$target);
+      const $login = document.createElement("div");
+
+      this.$target.append($login);
+      new Login($login);
     });
 
     router.addRoute("#/game", () => {
@@ -141,7 +138,7 @@ export default class App extends Component {
   }
 
   handlePongNextGameClick(opponent1, opponent2) {
-    let { matches, matchGame, gameCnt, participants} = this.state;
+    let { matches, matchGame, gameCnt, participants } = this.state;
 
     console.log(matches);
 

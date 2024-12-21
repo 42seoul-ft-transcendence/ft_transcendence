@@ -18,12 +18,14 @@ export default class Pong extends Component {
       opponent2: this.props.opponent2,
       finish: false,
     };
+    
+    if (!this.props.opponent1 && !this.props.opponent2) 
+      window.location.hash = "#/";
   }
 
   template() {
     const { opponent1, opponent2 } = this.state;
-    console.log(opponent1);
-    console.log(opponent2);
+
     return /* html */ `
       <div class="canvas-container position-relative">
         <canvas id="board"></canvas>
@@ -31,10 +33,14 @@ export default class Pong extends Component {
         <div class="container-fluid position-absolute bottom-0 px-5">
           <div class="row w-100">
             <div class="col text-start">
-              <span id="nickname-left" class="nickName fs-4" style="${!opponent1 ? "display:none;" : ""}">${opponent1?.name || ''}</span>
+              <span id="nickname-left" class="nickName fs-1 fw-bold" style="${
+                !opponent1 ? "display:none;" : ""
+              }">${opponent1?.name || ""}</span>
             </div>
             <div class="col text-end">
-              <span id="nickname-right" class="nickName" style="${!opponent2 ? "display:none;" : ""}">${opponent2?.name || ''}</span>
+              <span id="nickname-right" class="nickName fs-1 fw-bold" style="${
+                !opponent2 ? "display:none;" : ""
+              }">${opponent2?.name || ""}</span>
             </div>
           </div>
         </div>
@@ -47,7 +53,8 @@ export default class Pong extends Component {
   }
 
   mounted() {
-    const { board, player1, player2, player1Score, player2Score, finish} = this.state;
+    const { board, player1, player2, player1Score, player2Score, finish } =
+      this.state;
 
     board.init();
 
@@ -86,22 +93,23 @@ export default class Pong extends Component {
         this.state.finish = true;
         if (this.state.player1Score == 3) {
           winWidth = board.width / 5 - 20;
-          opponent1["result"] = "win";
-          opponent2["result"] = "loss";
+          // opponent1["result"] = "win";
+          // opponent2["result"] = "loss";
         } else {
           winWidth = (board.width * 4) / 5 - 60;
-          opponent2["result"] = "win";
-          opponent1["result"] = "loss";
+          // opponent2["result"] = "win";
+          // opponent1["result"] = "loss";
         }
 
         board.context.fillStyle = "White";
         board.context.fillText("WIN", winWidth, 125);
 
         cancelAnimationFrame(this.state.animationFrameId);
-        opponent1["score"] = this.state.player1Score;
-        opponent2["score"] = this.state.player2Score;
+        // opponent1["score"] = this.state.player1Score;
+        // opponent2["score"] = this.state.player2Score;
 
         this.$target.querySelector("#nextBtn").classList.remove("d-none");
+        return;
       }
     }
     ball.update(player1, player2);
@@ -128,7 +136,18 @@ export default class Pong extends Component {
     });
 
     this.addEvent("click", "#nextBtn", () => {
-      const { opponent1, opponent2 } = this.state;
+      const { opponent1, opponent2, player1Score, player2Score } = this.state;
+
+      if (player1Score == 3) {
+        opponent1["result"] = "win";
+        opponent2["result"] = "loss";
+      } else {
+        opponent2["result"] = "win";
+        opponent1["result"] = "loss";
+      }
+
+      opponent1["score"] = player1Score;
+      opponent2["score"] = player2Score;
 
       this.props.handlePongNextGameClick(opponent1, opponent2);
       window.location.hash = "#/tournament";

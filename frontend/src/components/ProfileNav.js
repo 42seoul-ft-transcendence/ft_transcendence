@@ -37,10 +37,9 @@ export default class ProfileNav extends Component {
   }
 
   setEvent() {
-    this.addEvent("click", ".nav", (event) => {
+    this.addEvent("click", ".nav-item", (event) => {
       event.preventDefault();
 
-      // 선택한 페이지의 hash를 업데이트 (라우팅용)
       window.location.hash = "#/profile/" + event.target.dataset.name;
     });
   }

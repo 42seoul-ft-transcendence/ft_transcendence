@@ -27,6 +27,8 @@ export default class Login extends Component {
           "http://localhost:8000/login/oauth/redirect/",
           {
             method: "GET", // 백엔드에서 OAuth 제공자와 통신
+            
+            
           },
         );
 

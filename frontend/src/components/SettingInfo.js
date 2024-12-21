@@ -59,6 +59,7 @@ export default class SettingInfo extends Component {
 
   changeLanguage(e) {
     const lang = e.target.value;
+    console.log(e);
 
     localStorage.setItem("lang", lang);
     this.props.handleLangChange();
