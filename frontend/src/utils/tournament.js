@@ -84,6 +84,7 @@ const insertParticipant = (matchJson, participantJson) => {
   if (participantJson.length % 2 != 0) {
     matchJson[matchCount].opponent1.id = 2 * i;
     matchJson[matchCount].opponent1["result"] = "win";
+    matchJson[matchCount].opponent1.name = participantJson[2 * i].name;
     matchJson[matchCount].empty = false;
   }
 };

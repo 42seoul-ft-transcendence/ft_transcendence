@@ -34,7 +34,7 @@ export default class NickModal extends Component {
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-outline-info" id="nextPlayerButton">
-              ${currentPlayer == totalPlayer ? getTranslation("start"): getTranslation("next")}
+              ${currentPlayer == totalPlayer ? getTranslation("start") : getTranslation("next")}
             </button>
 					</div>
 				</div>
@@ -57,11 +57,11 @@ export default class NickModal extends Component {
     if (nickname == "") {
       $nicknameInput.classList.add("is-invalid");
       $error.style.display = "block";
-      $error.textContent = "Nickname cannot be empty";
+      $error.textContent = getTranslation("nickEmpty");
     } else if (this.validateNickName(nickname)) {
       $nicknameInput.classList.add("is-invalid");
       $error.style.display = "block";
-      $error.textContent = "Nickname already exist";
+      $error.textContent = getTranslation("nickDuplicate");
     } else if (currentPlayer < totalPlayer) {
       currentPlayer++;
       playerName.push(nickname);

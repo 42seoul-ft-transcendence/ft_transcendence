@@ -3,6 +3,7 @@
 
 import Component from "../core/Component.js";
 import * as brackets from "../utils/tournament.js";
+import { getTranslation } from "../utils/translations.js";
 
 export default class Tournament extends Component {
   setup() {
@@ -19,7 +20,7 @@ export default class Tournament extends Component {
     <div class="bracket-wrapper">
   		<div id="brackets" class="container brackets-viewer"></div>
       <div id="gameStartBtn">
-      <button id="gameStartBtn" class="btn btn-info mt-3 btn-lg">Game Start</button>
+      <button id="gameStartBtn" class="btn btn-info mt-3 btn-lg">${getTranslation("gameStart")}</button>
       </div>
     </div>
   	`;
