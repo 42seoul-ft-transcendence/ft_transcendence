@@ -10,7 +10,7 @@ export const translations = {
 		friends: "Friends",
 		email: "Email",
 		username: "Username",
-		nickname: "Nickname",
+		message: "Message",
 		save: "Save",
 		language: "Language",
 		oneVsOne: "1 vs 1",
@@ -28,6 +28,7 @@ export const translations = {
 		gameStart: "Start Game",
 		nextGame: "Next Game",
 		friendList: "Friend List",
+		errorMessage: "Message is too long",
 	},
 	korean: {
 		player: "플레이어",
@@ -40,7 +41,7 @@ export const translations = {
 		friends: "친구",
 		email: "이메일",
 		username: "사용자 이름",
-		nickname: "닉네임",
+		message: "상태 메세지",
 		save: "저장",
 		language: "언어",
 		oneVsOne: "1 대 1",
@@ -58,6 +59,7 @@ export const translations = {
 		gameStart: "게임 시작",
 		nextGame: "다음 게임",
 		friendList: "친구 목록",
+		errorMessage: "메세지가 너무 깁니다",
 	},
 	japanese: {
 		player: "プレイヤー",
@@ -70,7 +72,7 @@ export const translations = {
 		friends: "友達",
 		email: "メール",
 		username: "ユーザー名",
-		nickname: "ニックネーム",
+		message: "メッセージ",
 		save: "保存",
 		language: "言語",
 		oneVsOne: "1 対 1",
@@ -88,6 +90,7 @@ export const translations = {
 		gameStart: "ゲームを開始",
 		nextGame: "次のゲーム",
 		friendList: "友達リスト",
+		errorMessage: "メッセージが長すぎます",
 	},
 };
 

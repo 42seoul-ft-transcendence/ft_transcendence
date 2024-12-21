@@ -98,7 +98,7 @@ export default class HistoryView extends Component {
                     <p class="fw-bold fs-4 mb-1" id="userName">${profile.username}</p>
                     <p class="fs-6" id="nickName">${profile.nickname}</p>
                     <div class="record-box fw-bold fs-3 my-5">
-                        <span class="match-card blue">${profile.winLossRecord.wins}</span> -
+                        <span class="match-card blue">${profile.winLossRecord.wins}</span> /
                         <span class="match-card pink">${profile.winLossRecord.losses}</span>
                     </div>
                 </div>

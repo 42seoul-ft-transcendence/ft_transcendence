@@ -12,7 +12,7 @@ const data = {
   users: [
     {
       profileImage: "https://robohash.org/JohnDoe.png?size=150x150",
-      nickname: "Champion01",
+      message: "Champion01",
       username: "john_doe",
       email: "abc@abc.com",
     },
@@ -35,9 +35,8 @@ export default class SettingView extends Component {
 		<!-- Profile Section -->
         <div class="setting-profile-section" id="settingSection">
 			<div>
-				<img class="setting-profile-pic" src=${
-          profile.profileImage
-        } alt="Profile Picture">
+				<img class="setting-profile-pic" src=${profile.profileImage
+      } alt="Profile Picture">
 			</div>
             <button class="edit-button">${getTranslation("edit", lang)}</button>
         </div>
