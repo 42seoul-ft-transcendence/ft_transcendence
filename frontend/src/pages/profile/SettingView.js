@@ -33,16 +33,17 @@ export default class SettingView extends Component {
     return /* html */ `
 		<div class="container nav-section"></div>
 		<!-- Profile Section -->
-        <div class="setting-profile-section" id="settingSection">
-			<div>
-				<img class="setting-profile-pic" src=${
-          profile.profileImage
-        } alt="Profile Picture">
-			</div>
-            <button class="edit-button">${getTranslation("edit", lang)}</button>
-        </div>
-        <div id="userInfo" class="container settings-section"></div>
-        <div id="settingInfo" class="container settings-section"></div>
+    <div class="setting-profile-section" id="settingSection">
+    <div>
+      <img class="setting-profile-pic" src=${
+        profile.profileImage
+      } alt="Profile Picture">
+      <input type="file" id="fileInput" style="display: none;">
+    </div>
+      <button class="edit-button">${getTranslation("edit", lang)}</button>
+    </div>
+    <div id="userInfo" class="container settings-section"></div>
+    <div id="settingInfo" class="container settings-section"></div>
 		`;
   }
 
@@ -53,6 +54,32 @@ export default class SettingView extends Component {
     new UserInfo(this.$target.querySelector("#userInfo"), profile);
     new SettingInfo(this.$target.querySelector("#settingInfo"), {
       handleLangChange: this.props.handleLangChange,
+    });
+  }
+
+  setEvent() {
+    this.addEvent("click", ".edit-button", () => {
+      const fileInput = document.getElementById("fileInput");
+
+      fileInput.click();
+    });
+
+    this.addEvent("change", "#fileInput", (e) => {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        const profileImage = e.target.result;
+
+        this.setState({
+          profile: {
+            ...this.state.profile,
+            profileImage,
+          },
+        });
+      };
+
+      reader.readAsDataURL(file);
     });
   }
 }
