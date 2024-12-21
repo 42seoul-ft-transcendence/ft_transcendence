@@ -13,13 +13,10 @@ export default class Pong extends Component {
       player2: new game.Player(board.width - 20, board.height / 2, board),
       ball: new game.Ball(board.width / 2, board.height / 2, 10, 10, 3, board),
       animationFrameId: null,
-      // matches: this.props.matches,
       opponent1: this.props.opponent1,
       opponent2: this.props.opponent2,
       finish: false,
     };
-
-    console.log(this.state.opponent1);
   }
 
   template() {
@@ -34,7 +31,7 @@ export default class Pong extends Component {
   }
 
   mounted() {
-    const { board, player1, player2, player1Score, player2Score } = this.state;
+    const { board, player1, player2, player1Score, player2Score, finish} = this.state;
 
     board.init();
 
@@ -43,7 +40,7 @@ export default class Pong extends Component {
 
     board.draw(player1Score, player2Score);
 
-    if (this.props.gameMode != "") {
+    if (this.props.gameMode != "" && !finish) {
       if (this.props.opponent2.id == null) this.state.player1Score = 3;
       this.state.animationFrameId = requestAnimationFrame(
         this.update.bind(this),
@@ -87,9 +84,6 @@ export default class Pong extends Component {
         cancelAnimationFrame(this.state.animationFrameId);
         opponent1["score"] = this.state.player1Score;
         opponent2["score"] = this.state.player2Score;
-
-        console.log(this.state.player1Score);
-        console.log(this.state.player2Score);
 
         this.$target.querySelector("#nextBtn").classList.remove("d-none");
       }
