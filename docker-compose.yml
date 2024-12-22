@@ -6,10 +6,8 @@ services:
       args:
         DJANGO_SUPERUSER: ${DJANGO_SUPERUSER}
         HOSTNAME: ${HOSTNAME}
-    ports:
-      - 8000:8000
     expose:
-      - 8000
+      - 443
     init: true
     networks:
       - network

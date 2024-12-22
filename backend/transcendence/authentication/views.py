@@ -10,8 +10,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from .utils import generate_jwt, decode_jwt
-from transcendence.redis_utils import set_user_login, set_user_logout
+from .utils import generate_jwt, decode_jwt, set_user_login, set_user_logout
 
 User = get_user_model()
 

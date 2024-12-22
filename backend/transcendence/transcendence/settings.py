@@ -108,10 +108,6 @@ DATABASES = {
     }
 }
 
-# Redis settings
-REDIS_HOST = "redis"
-REDIS_PORT = 6379
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -182,7 +178,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("redis", 6379)],  # Redis 서버 주소(나중에 redis container)
+            "hosts": [("redis", 6379)],
         },
     },
 }

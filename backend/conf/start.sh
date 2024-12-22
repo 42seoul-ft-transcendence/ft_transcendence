@@ -12,30 +12,33 @@ if [ ! -f /ssl/localhost.key ] || [ ! -f /ssl/localhost.crt ]; then
   chmod 600 /ssl/localhost.key /ssl/localhost.crt
 fi
 
-# Apply migrations
 echo "Applying database migrations..."
 python manage.py makemigrations
-python manage.py migrate
+python manage.py migrate --noinput
+echo "Database migrations completed."
 
-# Create superuser if it doesn't exist
-echo "Checking if superuser with username ${DJANGO_SUPERUSER} exists..."
-python manage.py shell <<EOF
-from django.contrib.auth import get_user_model
-User = get_user_model()
-if not User.objects.filter(username="${DJANGO_SUPERUSER}").exists():
-    user = User.objects.create_superuser(
-        username="${DJANGO_SUPERUSER}",
-        email="${DJANGO_SUPERUSER_EMAIL}",
-        password="${DJANGO_SUPERUSER_PASSWORD}",
-        avatar="${DJANGO_DEFAULT_AVATAR}"
-    )
-    user.avatar = "default_avatar.jpg"  # Set a default avatar
-    user.save()
-    print("Superuser ${DJANGO_SUPERUSER} created.")
-else:
-    print("Superuser ${DJANGO_SUPERUSER} already exists.")
-EOF
+if [ "$DJANGO_SUPERUSER" ]; then
+    echo "Checking if superuser with username ${DJANGO_SUPERUSER} exists..."
+    exists=$(python manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); print(User.objects.filter(username='$DJANGO_SUPERUSER').exists())")
+    if [ "$exists" = "True" ]; then
+        echo "Superuser ${DJANGO_SUPERUSER} already exists. Skipping creation."
+    else
+        echo "Superuser ${DJANGO_SUPERUSER} does not exist. Creating superuser..."
+        (python manage.py createsuperuser \
+            --noinput \
+            --username $DJANGO_SUPERUSER) \
+        || true
+        echo "Superuser ${DJANGO_SUPERUSER} created."
+    fi
+else
+    echo "No superuser username provided. Skipping superuser creation."
+fi
 
-# Start the Django server
-echo "Starting Django development server..."
-python manage.py runserver 0.0.0.0:8000
+django-admin compilemessages
+
+echo "Collecting static files..."
+python manage.py collectstatic --noinput
+echo "Static files collected."
+
+echo "Starting Daphne server with SSL..."
+daphne -e ssl:443:privateKey=/ssl/${HOSTNAME}.key:certKey=/ssl/${HOSTNAME}.crt transcendence.asgi:application

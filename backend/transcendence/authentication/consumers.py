@@ -2,7 +2,7 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 from asgiref.sync import sync_to_async
-from transcendence.redis_utils import set_user_login, is_user_logged_in, set_user_logout, redis_client
+from .utils import set_user_login, set_user_logout, redis_client
 
 class LoginStatusConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -42,10 +42,11 @@ class LoginStatusConsumer(AsyncWebsocketConsumer):
                     "data": friend_statuses
                 }))
 
-    def get_friend_statuses(user_id):
-        friend_ids = redis_client.smembers(f"user:{user_id}:friends")
-        statuses = {}
-        for friend_id in friend_ids:
-            status = redis_client.get(f"user:{friend_id}:status")
-            statuses[friend_id] = "online" if status else "offline"
-        return statuses
+
+def get_friend_statuses(user_id):
+    friend_ids = redis_client.smembers(f"user:{user_id}:friends")
+    statuses = {}
+    for friend_id in friend_ids:
+        status = redis_client.get(f"user:{friend_id}:status")
+        statuses[friend_id] = "online" if status else "offline"
+    return statuses
