@@ -1,0 +1,130 @@
+services:
+  django:
+    container_name: django
+    build:
+      context: backend
+      args:
+        DJANGO_SUPERUSER: ${DJANGO_SUPERUSER}
+        HOSTNAME: ${HOSTNAME}
+    expose:
+      - 443
+    init: true
+    networks:
+      - network
+    volumes:
+      - static-files:/static
+      - media-files:/app/media
+      - ssl-keys:/ssl
+    env_file:
+      - .env
+    working_dir: /app
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./backend/transcendence/
+          target: /app/
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python manage.py healthcheck || exit 1"]
+      interval: 2s
+      timeout: 2s
+      retries: 5
+      start_period: 5s
+
+  nginx:
+    container_name: nginx
+    build:
+      context: nginx
+      args:
+        HOSTNAME: ${HOSTNAME}
+    ports:
+      - 4443:443
+    init: true
+    networks:
+      - network
+    volumes:
+      - static-files:/static
+      - media-files:/media
+      - ssl-keys:/ssl
+    env_file:
+      - .env
+    develop:
+      watch:
+        - action: sync
+          path: ./nginx/src/
+          target: /usr/share/nginx/
+    depends_on:
+      django:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 2s
+      timeout: 2s
+      retries: 5
+      start_period: 5s
+
+  postgres:
+    container_name: postgres
+    image: postgres:16.3
+    ports:
+      - 5432:5432
+    networks:
+      - network
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    env_file:
+      - .env
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} || exit 1",
+        ]
+      interval: 2s
+      timeout: 2s
+      retries: 5
+      start_period: 5s
+
+  redis:
+    container_name: redis
+    image: redis:7.4
+    expose:
+      - 6379
+    networks:
+      - network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 2s
+      retries: 5
+      start_period: 5s
+
+  parcel:
+    image: node:18
+    working_dir: /app
+    expose:
+      - 1234
+    volumes:
+      - ./frontend:/app
+    command: sh -c "npm install parcel && npx parcel index.html --port 1234 --public-url /"
+    networks:
+      - network
+
+networks:
+  network:
+    name: network
+    driver: bridge
+
+volumes:
+  static-files:
+    driver: local
+  media-files:
+    driver: local
+  ssl-keys:
+    driver: local
+  postgres-data:
+    driver: local

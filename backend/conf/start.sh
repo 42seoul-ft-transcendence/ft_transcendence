@@ -1,25 +1,25 @@
 #!/bin/sh
-set -e
 
 echo "Starting Django..."
 
-if [ ! -e "/ssl/${HOSTNAME}.key" ]; then
-    echo "SSL key for ${HOSTNAME} not found. Generating a new self-signed SSL certificate..."
-    openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /ssl/${HOSTNAME}.key -out /ssl/${HOSTNAME}.crt -subj "/CN=${HOSTNAME}"
-    echo "SSL certificate generated and saved at /ssl/${HOSTNAME}.crt"
-    chmod 644 /ssl/${HOSTNAME}.key /ssl/${HOSTNAME}.crt
-    echo "Permissions set for SSL key and certificate."
-else
-    echo "SSL key for ${HOSTNAME} already exists. Skipping certificate generation."
+# Generate SSL certificate if not found
+if [ ! -f /ssl/localhost.key ] || [ ! -f /ssl/localhost.crt ]; then
+  echo "SSL key for localhost not found. Generating a new self-signed SSL certificate..."
+  openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -keyout /ssl/localhost.key -out /ssl/localhost.crt \
+    -subj "/CN=localhost"
+  echo "SSL certificate generated and saved at /ssl/localhost.crt"
+  chmod 600 /ssl/localhost.key /ssl/localhost.crt
 fi
 
 echo "Applying database migrations..."
+python manage.py makemigrations
 python manage.py migrate --noinput
 echo "Database migrations completed."
 
 if [ "$DJANGO_SUPERUSER" ]; then
     echo "Checking if superuser with username ${DJANGO_SUPERUSER} exists..."
-    exists=$(python manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); print(User.objects.filter(username='$DJANGO_SUPERUSER_USERNAME').exists())")
+    exists=$(python manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); print(User.objects.filter(username='$DJANGO_SUPERUSER').exists())")
     if [ "$exists" = "True" ]; then
         echo "Superuser ${DJANGO_SUPERUSER} already exists. Skipping creation."
     else
@@ -41,4 +41,5 @@ python manage.py collectstatic --noinput
 echo "Static files collected."
 
 echo "Starting Daphne server with SSL..."
-daphne -e ssl:443:privateKey=/ssl/${HOSTNAME}.key:certKey=/ssl/${HOSTNAME}.crt core.asgi:application
+# daphne -e ssl:8000:privateKey=/ssl/${HOSTNAME}.key:certKey=/ssl/${HOSTNAME}.crt transcendence.asgi:application
+daphne -b 0.0.0.0 -p 443 transcendence.asgi:application
