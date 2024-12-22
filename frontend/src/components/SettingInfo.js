@@ -13,8 +13,8 @@ export default class SettingInfo extends Component {
           <tr>
             <th scope="row" class="text-start align-middle px-3">${getTranslation("language")}</th>
             <td class="text-end">
-              <select id="languageSelect" name="language" class="form-select">
-                <option value="english">🇺🇸 English</option>
+              <select id="languageSelect" name="language" class="form-select w-100">
+                <option value="english" >🇺🇸 English </option>
                 <option value="korean">🇰🇷 한국어</option>
                 <option value="japanese">🇯🇵 日本語</option>
               </select>

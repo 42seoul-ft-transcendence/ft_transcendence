@@ -7,19 +7,13 @@ export default class ProfileNav extends Component {
           <!-- Internal Navigation -->        
             <ul class="nav nav-underline">
                 <li class="nav-item">
-                    <a class="nav-link" data-name="history">${getTranslation(
-                      "history",
-                    )}</a>
+                    <a class="nav-link" data-name="history">${getTranslation("history")}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-name="friends">${getTranslation(
-                      "friends",
-                    )}</a>
+                    <a class="nav-link" data-name="friends">${getTranslation("friends")}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-name="setting">${getTranslation(
-                      "setting",
-                    )}</a>
+                    <a class="nav-link" data-name="setting">${getTranslation("setting")}</a>
                 </li>
             </ul>
         `;
