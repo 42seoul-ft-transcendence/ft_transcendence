@@ -97,4 +97,13 @@ export default class FriendView extends Component {
       new FriendCard(this.$target.querySelector(`#friendCard${index}`), list);
     });
   }
+
+  setEvent() {
+    this.addEvent("click", ".delete-friend-btn", (e) => {
+      const username = e.target.getAttribute("data-id");
+      console.log(username);
+      const card = e.target.closest("[id^=friendCard]");
+      if (card) card.remove();
+    });
+  }
 }

@@ -6,19 +6,14 @@ export default class SettingInfo extends Component {
     const language = localStorage.getItem("lang") || "english";
 
     return /* html */ `
-		  <h2 class="section-title mb-3 fs-4">${getTranslation(
-        "setting",
-        language,
-      )}</h2>
+		  <h2 class="section-title mb-3 fs-4">${getTranslation("setting")}</h2>
       <table class="table shadow">
         <tbody style="opacity: 0.9;">
           <!-- Language Row -->
           <tr>
-            <th scope="row" class="text-start align-middle px-3">${getTranslation(
-              "language",
-            )}</th>
+            <th scope="row" class="text-start align-middle px-3">${getTranslation("language")}</th>
             <td>
-              <select class="form-select">
+              <select id="languageSelect" name="language" class="form-select">
                 <option value="english">🇺🇸 English</option>
                 <option value="korean">🇰🇷 한국어</option>
                 <option value="japanese">🇯🇵 日本語</option>
@@ -26,9 +21,7 @@ export default class SettingInfo extends Component {
             </td>
           </tr>
           <tr>
-            <th scope="row" class="text-start align-middle px-3">${getTranslation(
-              "twoFactor",
-            )}</th>
+            <th scope="row" class="text-start align-middle px-3">${getTranslation("twoFactor")}</th>
             <td class="d-flex justify-content-end align-items-center">
               <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" role="switch" id="2faSwitch"
@@ -40,7 +33,7 @@ export default class SettingInfo extends Component {
       </table>
         <!-- Logout Button -->
       <div class="d-flex justify-content-end mt-4">
-        <button type="button" class="btn btn-outline-danger btn-lg px-4 fw-bold" id="logoutBtn">
+        <button type="button" class="btn btn-outline-danger px-4 fw-bold" id="logoutBtn">
         ${getTranslation("logout")}
         </button>
       </div>	
