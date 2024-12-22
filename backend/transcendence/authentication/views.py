@@ -39,10 +39,11 @@ class OauthRedirect(View):
             f"client_id={settings.CLIENT_ID}&redirect_uri={settings.REDIRECT_URI}&response_type=code"
         )
 
-        response = HttpResponseRedirect(url)
-        response['custom-header'] = 'custom-header-value'
-        return response
-        # return redirect(url)
+        # response = HttpResponseRedirect(url)
+        # response['custom-header'] = 'custom-header-value'
+        # return response
+        print(settings.REDIRECT_URI)
+        return redirect(url)
 
 
 class OauthCallbackView(View):
@@ -76,7 +77,7 @@ class OauthCallbackView(View):
             self.set_cookies(response, response_data)
 
             # websocket
-            set_user_login(user.username)
+            # set_user_login(user.username)
             return response
 
         except Exception as e:

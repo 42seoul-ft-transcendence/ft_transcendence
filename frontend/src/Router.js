@@ -27,6 +27,7 @@ export default class Router extends Component {
 
   start() {
     window.onhashchange = (event) => {
+      console.log("hash changed:", window.location.hash);
       this.checkRoutes();
     };
 

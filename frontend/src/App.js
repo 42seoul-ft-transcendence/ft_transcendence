@@ -168,9 +168,3 @@ export default class App extends Component {
     this.setState({ matches });
   }
 }
-
-window.onpopstate = (event) => {
-  const path = window.location.hash;
-  console.log(path);
-  console.log("popstate", event.state);
-};
