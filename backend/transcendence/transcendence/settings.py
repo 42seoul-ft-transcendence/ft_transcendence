@@ -41,7 +41,7 @@ CSRF_TRUSTED_ORIGINS = os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", default="https:/
 #     "https://localhost:443",
 # ]
 
-# CORS_ALLOWED_CREDENTIALS = True
+CORS_ALLOWED_CREDENTIALS = True
 
 # Application definition
 
