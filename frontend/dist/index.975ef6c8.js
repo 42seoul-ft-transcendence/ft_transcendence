@@ -954,14 +954,12 @@ class Login extends (0, _componentJsDefault.default) {
             console.log("42 login button clicked");
             try {
                 // 백엔드에 요청
-                const response = await fetch("/api/login/oauth/redirect/", {
+                const response = await fetch("https://localhost:4443/api/login/oauth/redirect/", {
                     method: "GET"
                 });
                 if (response.ok) {
                     const data = await response.json();
-                    const test = await fetch(data.redirect_url);
-                    if (response.ok) console.log(response.json());
-                } else console.error("OAuth Failed:", response.status);
+                }
             } catch (error) {
                 console.error("Error during OAuth:", error);
             }
