@@ -39,6 +39,7 @@ class OauthRedirect(View):
             f"https://api.intra.42.fr/oauth/authorize?"
             f"client_id={settings.CLIENT_ID}&redirect_uri={settings.REDIRECT_URI}&response_type=code"
         )
+        print(url)
 
         return redirect(url)
 

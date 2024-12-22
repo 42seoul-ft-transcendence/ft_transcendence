@@ -38,9 +38,5 @@ Twisted==24.11.0
 txaio==23.1.1
 typing_extensions==4.12.2
 urllib3==2.2.3
-<<<<<<< HEAD
-zope.interface==7.2
-=======
 Werkzeug==3.1.3
 zope.interface==7.2
->>>>>>> 9e788d8d2c676beec401876c0bc661490e1af7f6
