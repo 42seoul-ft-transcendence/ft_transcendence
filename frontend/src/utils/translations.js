@@ -27,8 +27,9 @@ export const translations = {
 		nickEmpty: "Nickname cannot be empty",
 		gameStart: "Start Game",
 		nextGame: "Next Game",
-		friendList: "Friend List",
+		friendList: "Friends List",
 		errorMessage: "Message is too long",
+		delete: "delete",
 	},
 	korean: {
 		player: "플레이어",
@@ -60,6 +61,7 @@ export const translations = {
 		nextGame: "다음 게임",
 		friendList: "친구 목록",
 		errorMessage: "메세지가 너무 깁니다",
+		delete: "삭제",
 	},
 	japanese: {
 		player: "プレイヤー",
@@ -91,6 +93,7 @@ export const translations = {
 		nextGame: "次のゲーム",
 		friendList: "友達リスト",
 		errorMessage: "メッセージが長すぎます",
+		delete: "削除",
 	},
 };
 

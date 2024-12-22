@@ -1,4 +1,5 @@
 import Component from "../core/Component.js";
+import { getTranslation } from "../utils/translations.js";
 
 export default class FriendCard extends Component {
 	template() {
@@ -11,13 +12,13 @@ export default class FriendCard extends Component {
 				<div class="friend-profile-pic-wrapper online me-3">
 					<img class="friend-profile-pic" src=${profileImage} alt="Profile Picture">
 				</div>
-				<div>
+				<div class="message-wrapper">
 					<p class="friend-name mb-1">${username}</p>
-					<p class="friend-username mb-0">${message}</p>
+					<p class="friend-message mb-0">${message}</p>
 				</div>
 			</div>
 			<button id="deleteBtn" class="btn btn-outline-danger btn-sm delete-friend-btn" data-id="${username}">
-				Delete
+				${getTranslation("delete")}
 			</button>
 		</div>
 		`;
@@ -25,22 +26,5 @@ export default class FriendCard extends Component {
 
 	// isOnline(userName) {
 	// 	// user is online
-	// }
-
-	// setEvent() {
-	// 	this.addEvent("click", "#deleteBtn", () => {
-
-	// 			const username = this.$target.getAttribute("data-id");
-	// 			console.log(this.$target.getAttribute("data-id"));
-
-	// 			this.deleteFriend(username);
-	// 	});
-	// }
-
-	// deleteFriend(username) {
-	// 	console.log(`${username} 삭제`);
-	// 	const card = this.$target.querySelector(`[data-id="${username}"]`).closest(".friend-card");
-	// 	if (card)
-	// 		card.remove();
 	// }
 }
