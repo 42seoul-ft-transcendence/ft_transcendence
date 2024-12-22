@@ -25,7 +25,7 @@ export default class UserInfo extends Component {
 						<th scope="row" class="text-start align-middle px-3">${getTranslation("message")}</th>
 						<td>
 							<div class="d-flex justify-content-start align-items-center">
-								<div class="col-9">
+								<div class="col-10">
   									<input type="text" id="messageInput" class="form-control" value="${message}">
 								</div>
 								<div class="col-3">

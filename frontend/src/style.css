@@ -284,7 +284,6 @@ html {
 
 .edit-button {
   display: inline-block;
-
   background-color: #ffc107;
   color: #fff;
   border: none;
@@ -313,6 +312,11 @@ html {
 
 td {
   height: 60px;
+}
+
+#languageSelect {
+  width: 500px;
+  display: inline-block;
 }
 
 .bracket-wrapper {
