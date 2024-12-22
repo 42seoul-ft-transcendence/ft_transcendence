@@ -29,7 +29,8 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', False).lower() in ('true', '1')
 
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', default="").split(" ")
+# ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', default="").split(" ")
+ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", default="https://localhost:4443").split(" ")
 
@@ -176,3 +177,9 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+# SSL
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
