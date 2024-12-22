@@ -104,6 +104,7 @@ services:
       start_period: 5s
 
   parcel:
+    container_name: parcel
     image: node:18
     working_dir: /app
     expose:

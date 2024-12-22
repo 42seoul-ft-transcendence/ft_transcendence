@@ -36,6 +36,12 @@ ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", default="https://localhost:4443").split(" ")
 
+# CORS_ALLOWED_ORIGINS = [
+#     "https://localhost:4443",
+#     "https://localhost:443",
+# ]
+
+CORS_ALLOWED_CREDENTIALS = True
 
 # Application definition
 

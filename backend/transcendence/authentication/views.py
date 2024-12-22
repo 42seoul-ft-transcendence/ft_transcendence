@@ -1,16 +1,16 @@
-from io import BytesIO
 import requests
 import pyotp
-import qrcode
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.shortcuts import redirect
-from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse, HttpResponseRedirect
+from django.http import JsonResponse, HttpResponseBadRequest
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from .utils import generate_jwt, decode_jwt, set_user_login, set_user_logout
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 User = get_user_model()
 
@@ -24,6 +24,15 @@ class LogoutView(View):
     def get(self, request):
         user = request.user
         set_user_logout(user.username)
+
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            "online",
+            {
+                "type": "user.disconnect",
+                "user_id": user.id,
+            }
+        )
 
         response = JsonResponse({'message': 'Logout successful'})
         response.delete_cookie("access_token")
@@ -42,7 +51,6 @@ class OauthRedirect(View):
         # response = HttpResponseRedirect(url)
         # response['custom-header'] = 'custom-header-value'
         # return response
-        print(settings.REDIRECT_URI)
         return redirect(url)
 
 
@@ -54,7 +62,7 @@ class OauthCallbackView(View):
         code = request.GET.get("code")
         if not code:
             # FE url
-            return HttpResponseBadRequest("Authorization code is required.")
+            return JsonResponse({'error': 'Authorization code not provided'}, status=400)
 
         try:
             # 토큰 요청 및 처리
@@ -73,11 +81,13 @@ class OauthCallbackView(View):
             # JWT 생성
             response_data = self.generate_jwt_tokens(user)
 
-            response = JsonResponse({"message": "Login successful"})
+            response = JsonResponse({
+                "message": "Login successful",
+                "websocket_url": "ws://localhost:4443/ws/login_status/",
+                "access_token": response_data["access_token"],
+                "refresh_token": response_data["refresh_token"],
+            })
             self.set_cookies(response, response_data)
-
-            # websocket
-            # set_user_login(user.username)
             return response
 
         except Exception as e:
@@ -105,14 +115,15 @@ class OauthCallbackView(View):
         """
         인증 코드를 사용하여 42 API에서 토큰을 가져옵니다.
         """
+        print(f"Code: {code}")
         response = requests.post(
             self.token_url,
             data={
                 "grant_type": "authorization_code",
                 "client_id": settings.CLIENT_ID,
                 "client_secret": settings.CLIENT_SECRET,
-                "code": code,
                 "redirect_uri": settings.REDIRECT_URI,
+                "code": code,
             },
         )
         if response.status_code != 200:
