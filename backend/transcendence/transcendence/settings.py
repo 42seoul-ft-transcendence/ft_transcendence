@@ -41,6 +41,8 @@ CORS_ALLOWED_ORIGINS = [
     "https://localhost:443",
 ]
 
+CORS_ALLOWED_CREDENTIALS = True
+
 # Application definition
 
 INSTALLED_APPS = [
