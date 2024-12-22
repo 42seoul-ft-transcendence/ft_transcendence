@@ -29,7 +29,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD-SHELL", "python manage.py healthcheck || exit 1" ]
+      test: ["CMD-SHELL", "python manage.py healthcheck || exit 1"]
       interval: 2s
       timeout: 2s
       retries: 5
@@ -61,7 +61,7 @@ services:
       django:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "nginx", "-t" ]
+      test: ["CMD", "nginx", "-t"]
       interval: 2s
       timeout: 2s
       retries: 5
@@ -79,7 +79,11 @@ services:
     env_file:
       - .env
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} || exit 1" ]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} || exit 1",
+        ]
       interval: 2s
       timeout: 2s
       retries: 5
@@ -93,11 +97,20 @@ services:
     networks:
       - network
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 2s
       timeout: 2s
       retries: 5
       start_period: 5s
+
+  parcel:
+    image: node:18
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    command: sh -c "npm install parcel && npx parcel index.html --port 1234 --public-url /"
+    networks:
+      - network
 
 networks:
   network:
