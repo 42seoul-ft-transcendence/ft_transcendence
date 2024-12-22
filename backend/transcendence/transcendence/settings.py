@@ -36,6 +36,7 @@ CSRF_TRUSTED_ORIGINS = os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", default="https:/
 # Application definition
 
 INSTALLED_APPS = [
+    'django_extensions',
     'daphne',
     'channels',
     'corsheaders',
@@ -81,18 +82,11 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'transcendence.wsgi.application'
-
+# WSGI_APPLICATION = 'transcendence.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
 DATABASES = {
     'default': {
         "ENGINE": "django.db.backends.postgresql",
@@ -103,6 +97,10 @@ DATABASES = {
         "PORT": "5432",
     }
 }
+
+# Redis settings
+REDIS_HOST = "redis"
+REDIS_PORT = 6379
 
 
 # Password validation
@@ -139,7 +137,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+# STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = '/static/'
+
+# Media files (User-uploaded content)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = '/app/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -172,5 +176,3 @@ CHANNEL_LAYERS = {
         },
     },
 }
-
-CORS_ORIGIN_ALLOW_ALL = True

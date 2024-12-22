@@ -2,6 +2,7 @@ from io import BytesIO
 import requests
 import pyotp
 import qrcode
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.shortcuts import redirect
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
@@ -273,3 +274,12 @@ class RefreshTokenView(View):
             return response
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
+
+class UpdateStatusMessageView(LoginRequiredMixin, View):
+    def post(self, request):
+        status_message = request.POST.get("status_message", "").strip()
+        user = request.user
+        user.status_message = status_message
+        user.save()
+
+        return JsonResponse({"message": "status message updated.", "status_message": status_message})

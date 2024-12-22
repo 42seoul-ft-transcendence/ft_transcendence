@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from transcendence.redis_utils import add_friend_to_redis, remove_friend_from_redis, redis_client
 
 
 User = get_user_model()
@@ -58,8 +59,12 @@ class RespondFriendRequestView(LoginRequiredMixin, View):
         if friendship.status == "pending":
             if action == "accept":
                 friendship.status = "accepted"
+                add_friend_to_redis(friendship.requester.id, friendship.receiver.id)
+                add_friend_to_redis(friendship.receiver.id, friendship.requester.id)
             elif action == "deny":
                 friendship.status = "denied"
+                remove_friend_to_redis(friendship.requester.id, friendship.receiver.id)
+                remove_friend_to_redis(friendship.receiver.id, friendship.requester.id)
             else:
                 return HttpResponseBadRequest("Invalid action for pending state.")
         elif friendship.status == "accepted":
@@ -77,13 +82,22 @@ class RespondFriendRequestView(LoginRequiredMixin, View):
         })
 
 
-# class FriendshipListView(LoginRequiredMixin, View):
-#     """
-#     친구 목록 조회
-#     """
-#     def get(self, request):
-#         friendships = Friendship.objects.filter(
-#             (models.Q(requester=request.user) | models.Q(receiver=request.user)) & ~models.Q(status="deleted")
-#         ).select_related("requester", "receiver")
-#
-#         return render(request, "friendships/list.html", {"friendships": friendships})
+class FriendshipListView(LoginRequiredMixin, View):
+    """
+    친구 목록 조회
+    """
+    def get(self, request):
+        user = request.user
+        friend_ids = redis_client.smembers(f"user:{user.id}:friends")
+        friends = User.objects.filter(id__in=friend_ids)
+
+        friend_data = []
+        for friend in friends:
+            status = redis_client.get(f"user:{friend.id}:status")
+            friend_data.append({
+                "id": friend.id,
+                "display_name": friend.display_name,
+                "status": "online" if status else "offline"
+            })
+
+        return JsonResponse({"friends": friend_data})
