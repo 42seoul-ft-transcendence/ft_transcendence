@@ -5,7 +5,7 @@ import qrcode
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.shortcuts import redirect
-from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
+from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse, HttpResponseRedirect
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_exempt
@@ -38,9 +38,11 @@ class OauthRedirect(View):
             f"https://api.intra.42.fr/oauth/authorize?"
             f"client_id={settings.CLIENT_ID}&redirect_uri={settings.REDIRECT_URI}&response_type=code"
         )
-        print(url)
 
-        return redirect(url)
+        response = HttpResponseRedirect(url)
+        response['custom-header'] = 'custom-header-value'
+        return response
+        # return redirect(url)
 
 
 class OauthCallbackView(View):

@@ -32,16 +32,16 @@ DEBUG = os.environ.get('DEBUG', False).lower() in ('true', '1')
 # ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', default="").split(" ")
 ALLOWED_HOSTS = ['*']
 
-CORS_ORIGIN_ALLOW_ALL = True  # TEST: 모든 도메인 허용 (보안 취약)
+# CORS_ORIGIN_ALLOW_ALL = True  # TEST: 모든 도메인 허용 (보안 취약)
 
 CSRF_TRUSTED_ORIGINS = os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", default="https://localhost:4443").split(" ")
 
-CORS_ALLOWED_ORIGINS = [
-    "https://localhost:4443",
-    "https://localhost:443",
-]
+# CORS_ALLOWED_ORIGINS = [
+#     "https://localhost:4443",
+#     "https://localhost:443",
+# ]
 
-CORS_ALLOWED_CREDENTIALS = True
+# CORS_ALLOWED_CREDENTIALS = True
 
 # Application definition
 
@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'daphne',
     'channels',
-    'corsheaders',
+    # 'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -63,7 +63,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    # 'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

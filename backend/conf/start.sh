@@ -41,4 +41,5 @@ python manage.py collectstatic --noinput
 echo "Static files collected."
 
 echo "Starting Daphne server with SSL..."
-daphne -e ssl:443:privateKey=/ssl/${HOSTNAME}.key:certKey=/ssl/${HOSTNAME}.crt transcendence.asgi:application
+# daphne -e ssl:8000:privateKey=/ssl/${HOSTNAME}.key:certKey=/ssl/${HOSTNAME}.crt transcendence.asgi:application
+daphne -b 0.0.0.0 -p 443 transcendence.asgi:application

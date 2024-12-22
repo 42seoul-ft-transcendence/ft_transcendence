@@ -23,15 +23,15 @@ export default class Login extends Component {
       console.log("42 login button clicked");
       try {
         // 백엔드에 요청
-        const response = await fetch(
-          "https://localhost:4443/api/login/oauth/redirect/",
-          {
-            method: "GET", // 백엔드에서 OAuth 제공자와 통신
-          },
-        );
+        const response = await fetch("/api/login/oauth/redirect/", {
+          method: "GET", // 백엔드에서 OAuth 제공자와 통신
+          credentials: "include",
+          // mode: "cors",
+        });
 
         if (response.ok) {
           const data = await response.json();
+          console.log(data);
         }
       } catch (error) {
         console.error("Error during OAuth:", error);
