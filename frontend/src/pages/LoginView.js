@@ -23,14 +23,9 @@ export default class Login extends Component {
       console.log("42 login button clicked");
       try {
         // 백엔드에 요청
-        const response = await fetch(
-          "http://localhost:8000/login/oauth/redirect/",
-          {
-            method: "GET", // 백엔드에서 OAuth 제공자와 통신
-            
-            
-          },
-        );
+        const response = await fetch("/api/login/oauth/redirect/", {
+          method: "GET", // 백엔드에서 OAuth 제공자와 통신
+        });
 
         if (response.ok) {
           const data = await response.json();

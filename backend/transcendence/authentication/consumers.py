@@ -2,8 +2,7 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 from asgiref.sync import sync_to_async
-# from redis_utils import set_user_login, is_user_logged_in, set_user_logout
-from transcendence.redis_utils import set_user_login, is_user_logged_in, set_user_logout
+from transcendence.redis_utils import set_user_login, is_user_logged_in, set_user_logout, redis_client
 
 class LoginStatusConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -33,8 +32,20 @@ class LoginStatusConsumer(AsyncWebsocketConsumer):
             await sync_to_async(set_user_logout)(user.id)
 
     async def receive(self, text_data):
-        # 클라이언트로부터 받은 메시지 처리 (필요 시 구현)
-        data = json.loads(text_data)
-        await self.send(json.dumps({
-            "message": f"Received: {data}"
-        }))
+        user = self.scope["user"]
+        if user.is_authenticated:
+            data = json.loads(text_data)
+            if data.get("action") == "friend_status":
+                friend_statuses = await sync_to_async(get_friend_statuses)(user.id)
+                await self.send(json.dumps({
+                    "action": "friend_status",
+                    "data": friend_statuses
+                }))
+
+    def get_friend_statuses(user_id):
+        friend_ids = redis_client.smembers(f"user:{user_id}:friends")
+        statuses = {}
+        for friend_id in friend_ids:
+            status = redis_client.get(f"user:{friend_id}:status")
+            statuses[friend_id] = "online" if status else "offline"
+        return statuses

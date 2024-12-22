@@ -1,6 +1,7 @@
 import redis
+from django.conf import settings
 
-redis_client = redis.StrictRedis(host='127.0.0.1', port=6379, db=0)
+redis_client = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0)
 
 # 사용자 상태 관리
 def set_user_status(username, status):
@@ -41,3 +42,9 @@ def set_user_logout(username):
     사용자 로그아웃 상태를 Redis에 기록.
     """
     redis_client.set(f"user_login:{username}", "false")
+
+def add_friend_to_redis(user_id, friend_id):
+    redis_client.sadd(f"user:{user_id}:friends", friend_id)
+
+def remove_friend_from_redis(user_id, friend_id):
+    redis_client.srem(f"user:{user_id}:friends", friend_id)

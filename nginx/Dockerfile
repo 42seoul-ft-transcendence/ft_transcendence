@@ -11,7 +11,7 @@ RUN apt update && \
     apt install -y coreutils && \
     apt clean
 
-COPY src /usr/share/nginx
+# COPY src /usr/share/nginx
 COPY conf/default.conf /etc/nginx/conf.d/default.conf.template
 RUN envsubst '${HOSTNAME}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
 

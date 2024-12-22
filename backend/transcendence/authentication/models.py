@@ -54,6 +54,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     avatar = models.ImageField(upload_to="media/avatars/", default="media/avatars/default.png")
     two_factor = models.BooleanField(default=False)
     otp_secret = models.CharField(max_length=10, blank=True, null=True)
+    status_message = models.TextField(max_length=255, blank=True, null=True, default='')
     is_active = models.BooleanField(default=True)  # 활성 사용자 여부
     is_staff = models.BooleanField(default=False)  # 관리 패널 접근 가능 여부
     is_superuser = models.BooleanField(default=False)  # 모든 권한 부여 여부

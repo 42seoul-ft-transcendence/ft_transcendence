@@ -156,10 +156,10 @@ export default class App extends Component {
       let id = opponent1.score > opponent2.score ? opponent1.id : opponent2.id;
 
       if (matches[nextMatchIdx].opponent1.id === null) {
-        matches[nextMatchIdx].opponent1.id = id
+        matches[nextMatchIdx].opponent1.id = id;
         matches[nextMatchIdx].opponent1.name = participants[id].name;
       } else {
-        matches[nextMatchIdx].opponent2.id = id
+        matches[nextMatchIdx].opponent2.id = id;
         matches[nextMatchIdx].opponent2.name = participants[id].name;
       }
       matches[nextMatchIdx].empty = false;
