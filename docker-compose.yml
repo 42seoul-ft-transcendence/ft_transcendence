@@ -6,8 +6,6 @@ services:
       args:
         DJANGO_SUPERUSER: ${DJANGO_SUPERUSER}
         HOSTNAME: ${HOSTNAME}
-    ports:
-      - 8000:8000
     expose:
       - 8000
     init: true
@@ -108,6 +106,8 @@ services:
   parcel:
     image: node:18
     working_dir: /app
+    expose:
+      - 1234
     volumes:
       - ./frontend:/app
     command: sh -c "npm install parcel && npx parcel index.html --port 1234 --public-url /"
