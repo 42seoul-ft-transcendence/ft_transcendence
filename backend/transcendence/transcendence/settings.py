@@ -32,7 +32,14 @@ DEBUG = os.environ.get('DEBUG', False).lower() in ('true', '1')
 # ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', default="").split(" ")
 ALLOWED_HOSTS = ['*']
 
+CORS_ORIGIN_ALLOW_ALL = True  # TEST: 모든 도메인 허용 (보안 취약)
+
 CSRF_TRUSTED_ORIGINS = os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", default="https://localhost:4443").split(" ")
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:4443",
+    "http://localhost:443",
+]
 
 # Application definition
 
