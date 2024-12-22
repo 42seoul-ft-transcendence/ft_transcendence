@@ -17,6 +17,7 @@ COPY conf/requirements.txt requirements.txt
 RUN apt update && \
     apt upgrade -y && \
     apt install -y openssl coreutils gettext && \
+    apt install -y tcpdump && \
     apt clean && \
     pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt && \

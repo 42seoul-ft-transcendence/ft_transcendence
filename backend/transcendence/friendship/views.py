@@ -2,13 +2,9 @@ from django.http import JsonResponse, HttpResponseBadRequest
 from django.views import View
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db import models
 from .models import Friendship
 from django.contrib.auth import get_user_model
-
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
-from transcendence.redis_utils import add_friend_to_redis, remove_friend_from_redis, redis_client
+from .utils import add_friend_to_redis, remove_friend_from_redis, redis_client
 
 
 User = get_user_model()
@@ -63,8 +59,8 @@ class RespondFriendRequestView(LoginRequiredMixin, View):
                 add_friend_to_redis(friendship.receiver.id, friendship.requester.id)
             elif action == "deny":
                 friendship.status = "denied"
-                remove_friend_to_redis(friendship.requester.id, friendship.receiver.id)
-                remove_friend_to_redis(friendship.receiver.id, friendship.requester.id)
+                remove_friend_from_redis(friendship.requester.id, friendship.receiver.id)
+                remove_friend_from_redis(friendship.receiver.id, friendship.requester.id)
             else:
                 return HttpResponseBadRequest("Invalid action for pending state.")
         elif friendship.status == "accepted":

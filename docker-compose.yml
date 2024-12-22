@@ -7,7 +7,7 @@ services:
         DJANGO_SUPERUSER: ${DJANGO_SUPERUSER}
         HOSTNAME: ${HOSTNAME}
     expose:
-      - 8000
+      - 443
     init: true
     networks:
       - network
