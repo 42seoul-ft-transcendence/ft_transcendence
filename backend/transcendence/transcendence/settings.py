@@ -37,9 +37,11 @@ CORS_ORIGIN_ALLOW_ALL = True  # TEST: 모든 도메인 허용 (보안 취약)
 CSRF_TRUSTED_ORIGINS = os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", default="https://localhost:4443").split(" ")
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:4443",
-    "http://localhost:443",
+    "https://localhost:4443",
+    "https://localhost:443",
 ]
+
+CORS_ALLOWED_CREDENTIALS = True
 
 # Application definition
 
