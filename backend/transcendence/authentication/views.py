@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from .utils import generate_jwt, decode_jwt, set_user_login, set_user_logout
+from .utils import generate_jwt, decode_jwt
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
@@ -23,7 +23,6 @@ class LoginPageView(View):
 class LogoutView(View):
     def get(self, request):
         user = request.user
-        set_user_logout(user.username)
 
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
@@ -89,9 +88,6 @@ class OauthCallbackView(View):
                 "refresh_token": response_data["refresh_token"],
             })
             self.set_cookies(response, response_data)
-
-            # websocket
-            # set_user_login(user.username)
             return response
 
         except Exception as e:

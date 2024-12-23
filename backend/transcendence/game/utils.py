@@ -1,6 +1,6 @@
 import redis
 
-redis_client = redis.StrictRedis(host="127.0.0.1", port=6379, db=0)
+redis_client = redis.StrictRedis(host="redis", port=6379, db=0)
 
 QUEUE_KEY = "game_queue"
 
