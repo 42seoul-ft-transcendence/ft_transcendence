@@ -33,29 +33,15 @@ export default class SettingView extends Component {
     return /* html */ `
 		<div class="container nav-section"></div>
 		<!-- Profile Section -->
-<<<<<<< HEAD
     <div class="setting-profile-section" id="settingSection">
     <div>
-      <img class="setting-profile-pic" src=${
-        profile.profileImage
-      } alt="Profile Picture">
+      <img class="setting-profile-pic" src=${profile.profileImage} alt="Profile Picture">
       <input type="file" id="fileInput" style="display: none;">
     </div>
       <button class="edit-button">${getTranslation("edit", lang)}</button>
     </div>
     <div id="userInfo" class="container settings-section"></div>
     <div id="settingInfo" class="container settings-section"></div>
-=======
-        <div class="setting-profile-section" id="settingSection">
-			<div>
-				<img class="setting-profile-pic" src=${profile.profileImage
-      } alt="Profile Picture">
-			</div>
-            <button class="edit-button">${getTranslation("edit", lang)}</button>
-        </div>
-        <div id="userInfo" class="container settings-section"></div>
-        <div id="settingInfo" class="container settings-section"></div>
->>>>>>> 8ced16848eaae800f9646ca763c1bfdb01f9556c
 		`;
   }
 
@@ -70,11 +56,16 @@ export default class SettingView extends Component {
   }
 
   setEvent() {
-    this.addEvent("click", ".edit-button", () => {
+    // this.addEvent("click", ".edit-button", () => {
+    //   const fileInput = document.getElementById("fileInput");
+
+    //   fileInput.click();
+    // });
+    this.$target.querySelector(".edit-button").onclick = () => {
       const fileInput = document.getElementById("fileInput");
 
       fileInput.click();
-    });
+    }
 
     this.addEvent("change", "#fileInput", (e) => {
       const file = e.target.files[0];

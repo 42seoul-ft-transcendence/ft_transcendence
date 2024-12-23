@@ -5,6 +5,7 @@ import Component from "../../core/Component.js";
 import ProfileNav from "../../components/ProfileNav.js";
 import FriendCard from "../../components/FriendCard.js";
 import { getTranslation } from "../../utils/translations.js";
+import FriendRequest from "../../components/FriendRequest.js";
 
 const data = {
   users: [
@@ -21,7 +22,7 @@ const data = {
     {
       id: 2,
       profileImage: "https://via.placeholder.com/150",
-      message: "WWWWWWWWWWWWWWWWWW",
+      message: "WWWWWWWWW",
       username: "jane_smith",
       winLossRecord: {
         wins: 8,
@@ -59,6 +60,26 @@ const data = {
       },
     },
   ],
+  requests: [
+    {
+      id: 1,
+      profileImage: "https://ui-avatars.com/api/?name=John+Doe&size=150",
+      username: "john_doe",
+      message: "let's play a game!",
+    },
+    {
+      id: 2,
+      profileImage: "https://via.placeholder.com/150",
+      username: "jane_smith",
+      message: "let's play a game!",
+    },
+    {
+      id: 3,
+      profileImage: "https://via.placeholder.com/150",
+      username: "max_king",
+      message: "let's play a game!",
+    },
+  ],
 };
 
 export default class FriendView extends Component {
@@ -66,35 +87,48 @@ export default class FriendView extends Component {
     this.state = {
       friendCount: data.users.length,
       friendData: data.users,
+      requestCount: data.requests.length,
+      requestData: data.requests,
     };
   }
 
   template() {
-    const { friendCount } = this.state;
+    const { friendCount, requestCount } = this.state;
 
     let temp = /* html */ `
 			<div class="container nav-section"></div>
 			<div class="container friends" id="friendSection">
 				<h3 class="mb-4 fw-bold">${getTranslation("friendList")}</h3>
-				<div class="row gy-4">
-		`;
+        <div class="row g-3 px-3">`;
+
+    for (let i = 0; i < requestCount; ++i)
+      temp += /* html */ `<div id="friendRequest${i}" class="col-md-4"></div>`;
+
+    temp += /* html */ `</div>
+    <div class="row g-4 mt-1">`;
+
     for (let i = 0; i < friendCount; ++i)
       temp += /* html */ `<div id="friendCard${i}" class="col-md-6"></div>`;
+
     temp +=
       /* html */
       `
-				</div>
-			</div>`;
+        </div>
+    	</div > `;
     return temp;
   }
 
   mounted() {
-    const { friendData } = this.state;
+    const { friendData, requestData } = this.state;
 
     new ProfileNav(this.$target.querySelector(".nav-section"));
+    new FriendRequest(this.$target.querySelector("#friendRequest"));
 
+    requestData.forEach((list, index) => {
+      new FriendRequest(this.$target.querySelector(`#friendRequest${index} `), list);
+    });
     friendData.forEach((list, index) => {
-      new FriendCard(this.$target.querySelector(`#friendCard${index}`), list);
+      new FriendCard(this.$target.querySelector(`#friendCard${index} `), list);
     });
   }
 
@@ -103,6 +137,21 @@ export default class FriendView extends Component {
       const username = e.target.getAttribute("data-id");
       console.log(username);
       const card = e.target.closest("[id^=friendCard]");
+      if (card) card.remove();
+    });
+
+    this.addEvent("click", ".accept-btn", (e) => {
+      const username = e.target.getAttribute("data-id");
+      console.log(username);
+
+      const card = e.target.closest("[id^=friendRequest]");
+      if (card) card.remove();
+    });
+
+    this.addEvent("click", ".reject-btn", (e) => {
+      const username = e.target.getAttribute("data-id");
+      console.log(username);
+      const card = e.target.closest("[id^=friendRequest]");
       if (card) card.remove();
     });
   }
