@@ -69,6 +69,7 @@ class OauthCallbackView(View):
             token_data = self.fetch_tokens(code)
             access_token = token_data.get("access_token")
 
+
             # 사용자 정보 가져오기
             user_info = self.fetch_user_info(access_token)
             user = self.get_or_create_user(user_info)
@@ -88,6 +89,9 @@ class OauthCallbackView(View):
                 "refresh_token": response_data["refresh_token"],
             })
             self.set_cookies(response, response_data)
+
+            # websocket
+            # set_user_login(user.username)
             return response
 
         except Exception as e:
