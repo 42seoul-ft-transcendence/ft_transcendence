@@ -1,29 +1,6 @@
 import jwt
-import redis
 from datetime import datetime, timedelta
 from django.conf import settings
-
-redis_client = redis.StrictRedis(host=redis, port=6379, db=0)
-
-# 로그인 상태 관리
-def set_user_login(username):
-    """
-    사용자 로그인 상태를 Redis에 기록.
-    """
-    redis_client.set(f"user_login:{username}", "true")
-
-def is_user_logged_in(username):
-    """
-    Redis에서 사용자 로그인 상태를 확인.
-    """
-    login_status = redis_client.get(f"user_login:{username}")
-    return login_status == b"true"
-
-def set_user_logout(username):
-    """
-    사용자 로그아웃 상태를 Redis에 기록.
-    """
-    redis_client.set(f"user_login:{username}", "false")
 
 
 def generate_unique_display_name(display_name, model_class, field_name="display_name"):

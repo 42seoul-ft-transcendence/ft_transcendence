@@ -1,8 +1,6 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 from asgiref.sync import sync_to_async
-from .utils import set_user_login, set_user_logout
-from channels.layers import get_channel_layer
 
 
 class LoginStatusConsumer(AsyncWebsocketConsumer):
@@ -11,13 +9,12 @@ class LoginStatusConsumer(AsyncWebsocketConsumer):
         Called when a WebSocket connection is opened.
         """
         user = self.scope["user"]
-        if user.is_authenticated:
-            self.user_group = f"user_{user.id}"
-            await self.channel_layer.group_add(self.user_group, self.channel_name)
 
-            await sync_to_async(set_user_login)(user.username)
+        if user.is_authenticated:
+            await self.channel_layer.group_add("online", f"user.{user.id}")
+
             await self.accept()
-            await self.send(json.dumps({"message": "Connected and added to online group"}))
+            await self.send(json.dumps({"message": "WebSocket connected"}))
         else:
             await self.close()
 
@@ -27,8 +24,8 @@ class LoginStatusConsumer(AsyncWebsocketConsumer):
         """
         user = self.scope["user"]
         if user.is_authenticated:
-            await sync_to_async(set_user_logout)(user.username)
-            await self.channel_layer.group_discard(self.user_group, self.channel_name)
+            await self.send(json.dumps({"message": "WebSocket disconnected"}))
+            await self.channel_layer.group_discard("online", f"user.{user.id}")
             await self.close()
 
     async def receive(self, text_data):
