@@ -62,7 +62,26 @@ const data = {
 };
 
 export default class FriendView extends Component {
-  setup() {
+  async setup() {
+    try {
+      const res = await fetch("/api/friendship/received/", {
+        method: "get",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error("HTTP status " + res.status);
+      }
+
+      data = await res.json();
+      console.log(data);
+    } catch (e) {
+      console.error(e);
+    }
+
     this.state = {
       friendCount: data.users.length,
       friendData: data.users,
