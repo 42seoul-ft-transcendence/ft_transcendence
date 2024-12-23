@@ -1,5 +1,6 @@
 import requests
 import pyotp
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.shortcuts import redirect
@@ -37,6 +38,7 @@ class LogoutView(View):
             response = JsonResponse({'message': 'Logout successful'})
             response.delete_cookie("access_token")
             response.delete_cookie("refresh_token")
+            logout(request)
 
             return response
 
@@ -91,6 +93,7 @@ class OauthCallbackView(View):
                 "refresh_token": response_data["refresh_token"],
             })
             self.set_cookies(response, response_data)
+            login(request, user)
             return response
 
         except Exception as e:
