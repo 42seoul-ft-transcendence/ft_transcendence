@@ -4,6 +4,7 @@
 import Component from "../../core/Component.js";
 import ProfileNav from "../../components/ProfileNav.js";
 import HistoryCard from "../../components/HistoryCard.js";
+import { getTranslation } from "../../utils/translations.js";
 
 const test = [
   {
@@ -117,7 +118,7 @@ const data = {
     {
       id: 1,
       profileImage: "https://robohash.org/JohnDoe.png?size=150x150",
-      nickname: "Champion01",
+      message: "hihihiihhi",
       username: "john_doe",
       winLossRecord: {
         wins: 10,
@@ -148,7 +149,8 @@ export default class HistoryView extends Component {
                         <img id="profileImg" class="profile-pic" src=${profile.profileImage} alt="Profile Picture">
                     </div>
                     <p class="fw-bold fs-4 mb-1" id="userName">${profile.username}</p>
-                    <p class="fs-6" id="nickName">${profile.nickname}</p>
+                    <p class="fs-6 mb-1" id="message">${profile.message}</p>
+                    <button class="btn btn-outline-success btn-sm" id="addFriend">${getTranslation("addFriend")}</button>
                     <div class="record-box fw-bold fs-3 my-5">
                         <span class="match-card blue">${profile.winLossRecord.wins}</span> /
                         <span class="match-card pink">${profile.winLossRecord.losses}</span>

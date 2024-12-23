@@ -32,6 +32,7 @@ export const translations = {
 		delete: "delete",
 		accept: "Accept",
 		reject: "Reject",
+		addFriend: "Add Friend+",
 	},
 	korean: {
 		player: "플레이어",
@@ -66,6 +67,7 @@ export const translations = {
 		delete: "삭제",
 		accept: "수락",
 		reject: "거절",
+		addFriend: "친구 추가+",
 	},
 	japanese: {
 		player: "プレイヤー",
@@ -100,6 +102,7 @@ export const translations = {
 		delete: "削除",
 		accept: "受け入れ",
 		reject: "拒否",
+		addFriend: "友達追加+",
 	},
 };
 

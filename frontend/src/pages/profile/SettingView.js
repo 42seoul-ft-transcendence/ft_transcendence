@@ -35,7 +35,7 @@ export default class SettingView extends Component {
 		<!-- Profile Section -->
     <div class="setting-profile-section" id="settingSection">
     <div>
-      <img class="setting-profile-pic" src=${profile.profileImage} alt="Profile Picture">
+      <img class="setting-profile-pic mb-1" src=${profile.profileImage} alt="Profile Picture">
       <input type="file" id="fileInput" style="display: none;">
     </div>
       <button class="edit-button">${getTranslation("edit", lang)}</button>
