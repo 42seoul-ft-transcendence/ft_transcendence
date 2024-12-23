@@ -34,15 +34,18 @@ class LoginStatusConsumer(AsyncWebsocketConsumer):
         """
         if self.user.is_authenticated:
             await self.send(json.dumps({"message": "WebSocket disconnected"}))
-            await redis_client.delete(f"user:{user.id}:status", "online")
-            await self.channel_layer.group_discard("online", self.user_group_name)
+            await redis_client.delete(f"user:{self.user.id}:status", "online")
+            await self.channel_layer.group_discard("online", self.channel_name)
             await self.close()
 
     async def receive(self, text_data):
-        """
-        Called when a WebSocket message is received.
-        """
-        user = self.scope["user"]
-        if user.is_authenticated:
-            data = json.loads(text_data)
-            await self.send(json.dumps({"message": "Message received", "data": data}))
+        data = json.loads(text_data)
+        message_type = data.get("type")
+
+        if message_type == "heartbeat":
+            await self.send(json.dumps({"status": "alive"}))
+
+    async def user_disconnect(self, event):
+        if self.user.is_authenticated:
+            # Custom event to remove the user from Redis on manual logout
+            await self.channel_layer.group_discard("online", self.channel_name)

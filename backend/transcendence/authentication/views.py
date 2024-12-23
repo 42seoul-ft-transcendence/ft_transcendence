@@ -24,20 +24,23 @@ class LogoutView(View):
     def get(self, request):
         user = request.user
 
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-            "online",
-            {
-                "type": "user.disconnect",
-                "user_id": user.id,
-            }
-        )
+        if user.is_authenticated:
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                "online",
+                {
+                    "type": "user.disconnect",
+                    "user_id": user.id,
+                }
+            )
 
-        response = JsonResponse({'message': 'Logout successful'})
-        response.delete_cookie("access_token")
-        response.delete_cookie("refresh_token")
+            response = JsonResponse({'message': 'Logout successful'})
+            response.delete_cookie("access_token")
+            response.delete_cookie("refresh_token")
 
-        return response
+            return response
+
+        return JsonResponse({'error': 'User is not authenticated'}, status=401)
 
 
 class OauthRedirect(View):
