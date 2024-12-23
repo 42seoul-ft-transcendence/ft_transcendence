@@ -41,6 +41,31 @@ class SendFriendRequestView(LoginRequiredMixin, View):
         })
 
 
+class ReceivedFriendRequestsView(LoginRequiredMixin, View):
+    """
+    받은 친구 요청 조회
+    """
+    def get(self, request):
+        user = request.user
+
+        received_requests = Friendship.objects.filter(
+            receiver=user,
+            status="pending"
+        )
+
+        request_data = [
+            {
+                "id": request.id,
+                "requester_id": request.requester.id,
+                "requester_display_name": request.requester.display_name,
+                "created_at": request.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            }
+            for request in received_requests
+        ]
+
+        return JsonResponse({"received_requests": request_data})
+
+
 class RespondFriendRequestView(LoginRequiredMixin, View):
     """
     친구 요청에 응답 (accept, deny, delete)
