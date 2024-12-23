@@ -2,11 +2,10 @@ import uuid
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
-from .utils import generate_unique_display_name
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, username, email, avatar, display_name=None, password=None, **extra_fields):
+    def create_user(self, username, email, avatar, password=None, **extra_fields):
         """
         일반 사용자 생성
         """
@@ -16,18 +15,10 @@ class UserManager(BaseUserManager):
             raise ValueError("Users must have an email address.")
 
         email = self.normalize_email(email)
-        if not display_name:
-            display_name = username
-
-        # Display name의 중복 체크
-        if self.model.objects.filter(display_name=display_name).exists():
-            display_name = generate_unique_display_name(display_name, self.model)
-
         user = self.model(
             username=username,
             email=email,
             avatar=avatar,
-            display_name=display_name,
             **extra_fields
         )
         user.set_password(password)  # 암호 설정
@@ -46,13 +37,12 @@ class UserManager(BaseUserManager):
         if not extra_fields.get("is_superuser"):
             raise ValueError("Superuser must have is_superuser=True.")
 
-        return self.create_user(username, email, avatar, display_name=username, password=password, **extra_fields)
+        return self.create_user(username, email, avatar, password=password, **extra_fields)
 
 
 class User(AbstractBaseUser, PermissionsMixin):
     id = models.BigAutoField(primary_key=True)
     username = models.CharField(max_length=15, unique=True)
-    display_name = models.CharField(max_length=50, unique=True)
     email = models.EmailField(unique=True)
     avatar = models.ImageField(upload_to="media/avatars/", default="media/avatars/default.png")
     two_factor = models.BooleanField(default=False)

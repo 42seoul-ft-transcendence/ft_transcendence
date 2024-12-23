@@ -7,12 +7,12 @@
 </head>
 <body>
     <h1>Friendship Test</h1>
-    <form method="post" action="/friend/send/">
+    <form method="post" action="/api/friend/send/">
         {% csrf_token %}
         <input type="text" name="receiver" placeholder="Receiver ID" required>
         <button type="submit">Send Friend Request</button>
     </form>
-    <form method="post" action="/friend/respond/{friendship_id}/">
+    <form method="post" action="/api/friend/respond/{friendship_id}/">
         {% csrf_token %}
         <input type="text" name="action" placeholder="Action (accept/deny/delete)" required>
         <button type="submit">Respond to Friend Request</button>
