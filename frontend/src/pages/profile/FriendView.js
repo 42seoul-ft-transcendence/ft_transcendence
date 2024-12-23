@@ -11,7 +11,7 @@ const data = {
     {
       id: 1,
       profileImage: "https://ui-avatars.com/api/?name=John+Doe&size=150",
-      message: "",
+      message: "...................",
       username: "john_doe",
       winLossRecord: {
         wins: 10,
@@ -21,7 +21,7 @@ const data = {
     {
       id: 2,
       profileImage: "https://via.placeholder.com/150",
-      message: "ProGamer77 hihddddddddddddddddd dddddddddddihiiihhhhhhhhhhhhhhhh",
+      message: "WWWWWWWWWWWWWWWWWW",
       username: "jane_smith",
       winLossRecord: {
         wins: 8,
@@ -41,7 +41,7 @@ const data = {
     {
       id: 4,
       profileImage: "https://via.placeholder.com/150",
-      message: "dddddddddddihiiihh hh hh hh hh hh",
+      message: "dddddddddddihi",
       username: "sara_connor",
       winLossRecord: {
         wins: 12,
@@ -95,6 +95,15 @@ export default class FriendView extends Component {
 
     friendData.forEach((list, index) => {
       new FriendCard(this.$target.querySelector(`#friendCard${index}`), list);
+    });
+  }
+
+  setEvent() {
+    this.addEvent("click", ".delete-friend-btn", (e) => {
+      const username = e.target.getAttribute("data-id");
+      console.log(username);
+      const card = e.target.closest("[id^=friendCard]");
+      if (card) card.remove();
     });
   }
 }
