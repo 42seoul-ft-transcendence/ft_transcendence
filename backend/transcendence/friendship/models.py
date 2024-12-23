@@ -9,6 +9,7 @@ class Friendship(models.Model):
         ("deleted", "DEL"),
     ]
 
+    id = models.BigAutoField(primary_key=True)
     requester = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="sent_requests"
     )

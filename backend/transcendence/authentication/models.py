@@ -1,3 +1,5 @@
+import uuid
+
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 from .utils import generate_unique_display_name
@@ -48,6 +50,7 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
+    id = models.BigAutoField(primary_key=True)
     username = models.CharField(max_length=15, unique=True)
     display_name = models.CharField(max_length=50, unique=True)
     email = models.EmailField(unique=True)

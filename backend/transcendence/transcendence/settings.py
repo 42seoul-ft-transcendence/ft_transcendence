@@ -41,7 +41,7 @@ CSRF_TRUSTED_ORIGINS = os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", default="https:/
 #     "https://localhost:443",
 # ]
 
-# CORS_ALLOWED_CREDENTIALS = True
+CORS_ALLOWED_CREDENTIALS = True
 
 # Application definition
 
@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'daphne',
     'channels',
-    # 'corsheaders',
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -63,7 +63,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    # 'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -73,6 +73,13 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'authentication.middleware.JWTAuthenticationMiddleware',
 ]
+
+CORS_ALLOWED_ORIGINS = [
+    "https://localhost:4443",
+    "https://localhost:443",
+]
+
+CORS_ALLOWED_CREDENTIALS = True
 
 ROOT_URLCONF = 'transcendence.urls'
 

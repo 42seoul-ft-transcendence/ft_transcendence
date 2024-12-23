@@ -1,52 +1,41 @@
-# authentication/consumers.py
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 from asgiref.sync import sync_to_async
-from .utils import set_user_login, set_user_logout, redis_client
+from .utils import set_user_login, set_user_logout
+from channels.layers import get_channel_layer
+
 
 class LoginStatusConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        """
+        Called when a WebSocket connection is opened.
+        """
         user = self.scope["user"]
-
         if user.is_authenticated:
-            # 사용자 로그인 상태를 Redis에 저장
-            await sync_to_async(set_user_login)(user.id)
+            self.user_group = f"user_{user.id}"
+            await self.channel_layer.group_add(self.user_group, self.channel_name)
 
-            # WebSocket 연결 수락
+            await sync_to_async(set_user_login)(user.username)
             await self.accept()
-
-            # 로그인 상태를 클라이언트로 전송
-            await self.send(json.dumps({
-                "message": f"User {user.id} is logged in",
-                "status": "online"
-            }))
+            await self.send(json.dumps({"message": "Connected and added to online group"}))
         else:
-            # 비로그인 사용자는 연결을 거부
             await self.close()
 
     async def disconnect(self, close_code):
+        """
+        Called when a WebSocket connection is closed.
+        """
         user = self.scope["user"]
-
         if user.is_authenticated:
-            # Redis에서 사용자 로그아웃 처리
-            await sync_to_async(set_user_logout)(user.id)
+            await sync_to_async(set_user_logout)(user.username)
+            await self.channel_layer.group_discard(self.user_group, self.channel_name)
+            await self.close()
 
     async def receive(self, text_data):
+        """
+        Called when a WebSocket message is received.
+        """
         user = self.scope["user"]
         if user.is_authenticated:
             data = json.loads(text_data)
-            if data.get("action") == "friend_status":
-                friend_statuses = await sync_to_async(get_friend_statuses)(user.id)
-                await self.send(json.dumps({
-                    "action": "friend_status",
-                    "data": friend_statuses
-                }))
-
-
-def get_friend_statuses(user_id):
-    friend_ids = redis_client.smembers(f"user:{user_id}:friends")
-    statuses = {}
-    for friend_id in friend_ids:
-        status = redis_client.get(f"user:{friend_id}:status")
-        statuses[friend_id] = "online" if status else "offline"
-    return statuses
+            await self.send(json.dumps({"message": "Message received", "data": data}))

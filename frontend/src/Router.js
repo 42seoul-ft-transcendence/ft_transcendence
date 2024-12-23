@@ -37,3 +37,28 @@ export default class Router extends Component {
     this.checkRoutes();
   }
 }
+
+window.onload = async () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has("code")) {
+    const code = urlParams.get("code");
+
+    try {
+      const res = await fetch(`/api/login/oauth/callback/?code=${code}`, {
+        method: "get",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (res.status === 200) {
+        console.log(res.json());
+        window.location.href = "/";
+      }
+    } catch (error) {
+      console.error(error);
+    }
+    console.log(code);
+  }
+};

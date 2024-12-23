@@ -7,7 +7,7 @@ services:
         DJANGO_SUPERUSER: ${DJANGO_SUPERUSER}
         HOSTNAME: ${HOSTNAME}
     expose:
-      - 443
+      - 8000
     init: true
     networks:
       - network
@@ -104,6 +104,7 @@ services:
       start_period: 5s
 
   parcel:
+    container_name: parcel
     image: node:18
     working_dir: /app
     expose:
