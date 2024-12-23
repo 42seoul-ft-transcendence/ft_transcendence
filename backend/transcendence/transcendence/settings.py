@@ -58,7 +58,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'authentication',
     'friendship',
-    # 'game',
+    'game',
     'tools',
 ]
 

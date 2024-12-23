@@ -1,0 +1,273 @@
+{#{% extends "./extends/base.html" %}#}
+
+{% load i18n %}
+{% block content %}
+<div class="container-fluid h-100">
+	<div class="row h-100" id="pong-row">
+		<div id="game" class="col-9 d-flex align-items-center">
+			<div class="w-100 text-center">
+				<div class="d-inline-block" id="copy-id-div">
+					<button id="copy-id-btn" class="btn game-btns fw-bold" onclick="copyElementText('room-id-text')">
+						{% trans "Room ID:" %} <span id="room-id-text" class="text-decoration-underline fw-light">
+							{{room_id}}</span></button>
+				</div>
+				<canvas id="pong-canvas" class="game-canvas"></canvas>
+			</div>
+		</div>
+
+		<div class="col-3 game-params d-flex flex-column justify-content-center">
+			<div class="row mb-2">
+				<button class="btn game-btns mb-4 game-btns-scnd-clr fw-bold" id="ready-btn">
+					{% trans "Ready" %}</button>
+			</div>
+			<div class="row mb-2">
+				<button class="btn game-btns mt-4 mb-2 fw-bold" id="power-btn">{% trans "Power-Up" %}</button>
+			</div>
+			<hr class="row-divider my-2 mx-0" id="pong-game-divider">
+			<div class="row">
+				<button class="btn game-btns mt-2 game-btns-scnd-clr fw-bold" id="back-btn">{% trans "Back" %}</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	const canvas = document.getElementById('pong-canvas');
+	const ctx = canvas.getContext('2d');
+	const readyBtn = document.getElementById('ready-btn');
+	const powerBtn = document.getElementById('power-btn');
+	const mode = "{{ mode }}";
+	const tournamentGame = "{{ tournament_name }}" !== "0";
+	const localGame = mode === "local";
+	const mouseSensitivity = 0.25;
+	const font = `20px ${getFont()}`
+	let socket = wsConnect(wsCreateUrl("pong", {
+		"mode": mode,
+		"room_id": "{{room_id}}",
+		"player_needed": mode === "online" ? 2 : 1,
+		"tournament_name": "{{ tournament_name }}",
+		"power": "{{ power }}",
+	}), onMessage, exit);
+	let upKey = "w";
+	let downKey = "s";
+	let padN = "";
+	let run = false;
+	let ready = false;
+	let gameState;
+	let keyInterval = null;
+	let pointerLock = false;
+	let exitRoute = "/pong"
+	let host = false;
+
+	function exit(goBack = true) {
+		if (socket) {
+			sendToWebSocket("game_stop");
+			socket.close();
+			socket = undefined;
+		}
+		document.exitPointerLock();
+		if (goBack)
+			route(exitRoute);
+	}
+
+	function sendToWebSocket(type, args = {}) {
+		socket.send(JSON.stringify({ type, content: args }));
+	}
+
+	function onMessage(data) {
+		switch (data.type) {
+			case 'game_pad': handleGamePad(data); break;
+			case 'game_start': handleGameStart(); break;
+			case 'game_state': handleGameState(data); break;
+			case 'game_stop': handleGameStop(data); break;
+			case 'game_error': handleGameError(data); break;
+			case 'tournament_name': exitRoute = `/tournaments/pong/${data.content.tournament_name}`; break;
+		}
+	}
+
+	function handleGamePad(data) {
+		padN = data.content.game_pad
+		host = data.content.host
+		if (host && !tournamentGame) showBtn(powerBtn);
+		canvasResize(canvas);
+		if (!localGame)
+			drawCenteredText("{% trans 'Waiting for second player' %}");
+	}
+
+	function handleGameStart() {
+		run = true;
+		if (localGame) {
+			canvas.click()
+		}
+	}
+
+	function handleGameState(data) {
+		gameState = data.content;
+		renderGame();
+	}
+
+	function handleGameStop(data) {
+		exit(false);
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		if (data?.content?.winner) {
+			const transWinner = ("{% trans 'Winner:' %}");
+			drawCenteredText(`${transWinner} ${data.content.winner}`)
+		} else
+			drawCenteredText("{% trans 'Sorry, your mate left :(' %}");
+	}
+
+	function handleGameError(data) {
+		console.error(data.content.error);
+		exit();
+	}
+
+	function canvasResize(canvas) {
+		const style = getComputedStyle(canvas);
+		canvas.width = parseInt(style.width);
+		canvas.height = parseInt(style.height);
+	}
+
+	function renderGame() {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		drawBall(gameState.ball);
+		drawPad(gameState.pad_1);
+		drawPad(gameState.pad_2);
+		drawText(`${gameState.players[0]}: ${gameState.score[0]}`, 20, 20);
+		ctx.font = font;
+		const secondPlayerText = `${gameState.players[1]}: ${gameState.score[1]}`;
+		drawText(secondPlayerText, canvas.width - ctx.measureText(secondPlayerText).width - 20, 20);
+	}
+
+	function drawBall(ball) {
+		const radius = ball.radius * Math.min(canvas.width, canvas.height);
+		ctx.beginPath();
+		ctx.arc(ball.x * canvas.width, ball.y * canvas.height, radius, 0, Math.PI * 2);
+		ctx.fillStyle = ball.color;
+		ctx.fill();
+		ctx.closePath();
+	}
+
+	function drawPad(pad) {
+		ctx.fillStyle = pad.color;
+		ctx.fillRect(pad.x * canvas.width, pad.y * canvas.height, pad.width * canvas.width, pad.height * canvas.height);
+	}
+
+	function drawText(text, x, y, color = "black") {
+		ctx.fillStyle = color;
+		ctx.font = font;
+		ctx.fillText(text, x, y);
+	}
+
+	function drawCenteredText(text, color = "black") {
+		ctx.font = font;
+		const textWidth = ctx.measureText(text).width;
+		const x = (canvas.width - textWidth) / 2;
+		const y = canvas.height / 2;
+		drawText(text, x, y, color);
+	}
+
+	function onPageChange(e) {
+		exit(false);
+		e.srcElement.removeEventListener('pagechange', onPageChange);
+	}
+
+	function checkAndUpdateUrl() {
+		const localPrefix = '/pong/local';
+		const onlinePrefix = '/pong/online';
+
+		sliceAndUpdate(localPrefix);
+		sliceAndUpdate(onlinePrefix);
+	}
+
+	function sliceAndUpdate(prefix) {
+		let pathname = window.location.pathname;
+		if (pathname.endsWith('/')) {
+			pathname = pathname.slice(0, -1);
+		}
+
+		if (pathname.startsWith(prefix)) {
+			const term = pathname.slice(prefix.length);
+			if (term.length === 0) {
+				history.pushState(null, '', `${prefix}/{{ room_id }}`);
+			}
+		}
+	}
+
+	function initializeEvents() {
+		powerBtn.onclick = e => {
+			e.preventDefault();
+			if (!host) return;
+			const activeClass = "active";
+			powerBtn.classList.toggle(activeClass);
+			sendToWebSocket("toggle_power", { power: powerBtn.classList.contains(activeClass) });
+		};
+
+
+		readyBtn.addEventListener("click", e => {
+			hideBtn(readyBtn);
+			hideBtn(powerBtn);
+			document.getElementById("pong-game-divider").classList.toggle("hidden");
+			sendToWebSocket("game_ready", {
+				"pad_n": padN,
+			});
+		});
+
+		document.getElementById('back-btn').onclick = exit;
+
+		window.onresize = () => {
+			canvasResize(canvas);
+			if (run)
+				renderGame();
+		};
+
+		document.onkeydown = e => {
+			if (!socket) return;
+			if (run && (e.key === upKey || e.key === downKey)) {
+				e.preventDefault();
+				if (!keyInterval) {
+					let direction = e.key === upKey ? "up" : "down";
+					sendToWebSocket("game_move", { "pad_n": padN, "direction": direction });
+					keyInterval = setInterval(() => {
+						sendToWebSocket("game_move", { "pad_n": padN, "direction": direction });
+					}, 30);
+				}
+			}
+		};
+
+		document.onkeyup = e => {
+			if (e.key === upKey || e.key === downKey) {
+				clearInterval(keyInterval);
+				keyInterval = null;
+			}
+		};
+
+		document.getElementById('content').addEventListener('pagechange', onPageChange);
+
+		if (localGame) {
+			canvas.onclick = () => {
+				if (run && !pointerLock)
+					canvas.requestPointerLock()
+			}
+
+			document.onmousemove = e => {
+				if (!socket) return;
+				if (run && pointerLock) {
+					let direction = e.movementY < 0 ? "up" : "down";
+					if (Math.abs(e.movementY) * mouseSensitivity >= 1)
+						sendToWebSocket("game_move", { "pad_n": "pad_2", "direction": direction });
+				}
+			};
+
+			document.onpointerlockchange = () => {
+				pointerLock = document.pointerLockElement === canvas
+			};
+		}
+	}
+
+	if (mode !== "online") document.getElementById("copy-id-div").classList.add("hidden");
+
+	initializeEvents();
+	checkAndUpdateUrl();
+	hideBtn(powerBtn);
+</script>
+{% endblock %}

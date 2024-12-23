@@ -1,0 +1,33 @@
+{#{% extends "./extends/base.html" %}#}
+
+{% load i18n %}
+{% block content %}
+<div class="container-fluid">
+	<div class="row justify-content-center align-items-center w-35 h-100">
+		<div class="col-12 col-md-3">
+			<div class="row w-100">
+				<form class="form-group my-4 w-100" id="tournament-form">
+					<div class="form-floating w-100 room-input-container mb-4">
+						<input class="form-control room-input fw-bold font" type="text" pattern="^[A-Za-z]+$"
+							title="letters only" tournament-name placeholder="Name" required autocomplete="off"
+							id="tournament-field-name" maxlength="100">
+						<label id="tournament-name-label" for="tournament-field-name" class="room-input">
+							{% trans "Tournament name" %}</label>
+					</div>
+					<button type="submit"
+						class="btn pong-selection-buttons pong-btn-scnd-color text-decoration-none mb-4 w-100 fw-bold">
+						{% trans "Rumble" %}</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	document.getElementById('tournament-form').onsubmit = (e) => {
+		e.preventDefault();
+		const name = e.target.querySelector('[tournament-name]')?.value;
+		route(`/tournaments/pong/${name}`);
+	};
+</script>
+{% endblock %}
