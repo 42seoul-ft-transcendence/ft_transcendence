@@ -63,6 +63,10 @@ const data = {
 
 export default class FriendView extends Component {
   async setup() {
+    this.state = {
+      friendCount: data.users.length,
+      friendData: data.users,
+    };
     try {
       const res = await fetch("/api/friendship/received/", {
         method: "get",
@@ -76,16 +80,11 @@ export default class FriendView extends Component {
         throw new Error("HTTP status " + res.status);
       }
 
-      data = await res.json();
-      console.log(data);
+      const data1 = await res.json();
+      console.log(data1);
     } catch (e) {
       console.error(e);
     }
-
-    this.state = {
-      friendCount: data.users.length,
-      friendData: data.users,
-    };
   }
 
   template() {
