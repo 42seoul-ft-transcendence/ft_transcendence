@@ -58,6 +58,7 @@ class ReceivedFriendRequestsView(LoginRequiredMixin, View):
                 "id": request.id,
                 "requester_id": request.requester.id,
                 "requester_display_name": request.requester.display_name,
+                "avatar": request.avatar,
                 "created_at": request.created_at.strftime("%Y-%m-%d %H:%M:%S"),
             }
             for request in received_requests
