@@ -9,19 +9,19 @@ class Pong(models.Model):
         ("finished", "Finished"),
     ]
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)  # UUID 기본 키
+    id = models.BigAutoField(primary_key=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
     user1 = models.ForeignKey(
         get_user_model(),
         on_delete=models.SET_NULL,
         null=True,
-        related_name="user1_games",
+        related_name="user1",
     )
     user2 = models.ForeignKey(
         get_user_model(),
         on_delete=models.SET_NULL,
         null=True,
-        related_name="user2_games",
+        related_name="user2",
     )
     score1 = models.IntegerField(default=0)
     score2 = models.IntegerField(default=0)
@@ -29,4 +29,4 @@ class Pong(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.user1.username if self.user1 else 'Unknown'} vs {self.user2.username if self.user2 else 'Unknown'}"
+        return f"Match {self.id} | {self.user1} vs {self.user2 or 'Waiting...'}"

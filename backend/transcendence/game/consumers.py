@@ -1,152 +1,60 @@
-import asyncio
-import os
 import json
-import random
-import redis.asyncio as redis
-from typing import Any, List
-from urllib.parse import parse_qs
-from asgiref.sync import sync_to_async
-from django.contrib.auth import get_user_model
-from django.apps import apps
 from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.db import database_sync_to_async
+from .models import Pong
+from django.contrib.auth.models import User
 
-
-class Pong(AsyncWebsocketConsumer):
-    win_goal = 5
-
+class PongGameConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.connected = True
-        self.redis = redis.Redis(host=os.getenv("REDIS_HOST", "127.0.0.1"), port=6379)
+        self.room_name = self.scope["url_route"]["kwargs"]["match_id"]
+        self.room_group_name = f"match_{self.room_name}"
 
-        try:
-            self.user = self.scope.get("user")
-            if not self.user or self.user.is_anonymous:
-                raise ValueError("Invalid user")
-
-            await self.initialize_game()
-        except Exception as e:
-            await self.close()
-            return
-
+        # WebSocket 연결
+        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
-        await self.channel_layer.group_add(self.room_id, self.channel_name)
-        self.valid = True
-        await self.send_message(
-            "group",
-            "game_join",
-            {"id": self.user.id, "username": self.user.username},
-        )
-
-    async def initialize_game(self):
-        query_params = parse_qs(self.scope["query_string"].decode())
-        self.room_id = self.check_missing_param(query_params, "room_id")
-        self.mode = self.check_missing_param(query_params, "mode")
-        self.room_key = f"game:{self.room_id}:players"
-        self.white_list_key = f"game:{self.room_id}:white_list"
-
-        if await self.redis.get(self.room_id) is None:
-            self.host = True
-            await self.redis.set(self.room_id, 1)
-        else:
-            self.host = False
-
-        players = await self.redis.lrange(self.room_key, 0, -1)
-        if len(players) >= 2:
-            raise ConnectionRefusedError("Room is full")
-        await self.redis.rpush(self.room_key, self.user.id)
 
     async def disconnect(self, close_code):
-        self.connected = False
-        if hasattr(self, "host") and self.host:
-            await self.redis.delete(self.room_key)
-        if hasattr(self, "valid"):
-            await self.channel_layer.group_discard(self.room_id, self.channel_name)
-        await self.redis.close()
+        # WebSocket 연결 종료
+        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+
+        # 플레이어가 방을 나간 경우 몰수패 처리
+        match = await self.get_match(self.room_name)
+        if match and match.status == "active":
+            await self.forfeit_match(match, self.scope["user"])
+
+    @database_sync_to_async
+    def get_match(self, match_id):
+        return Pong.objects.filter(id=match_id).first()
+
+    @database_sync_to_async
+    def forfeit_match(self, match, user):
+        if user == match.user1:
+            match.status = "finished"
+            match.user2_score = 3
+        elif user == match.user2:
+            match.status = "finished"
+            match.user1_score = 3
+        match.save()
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-        try:
-            msg_type = data.get("type")
-            if not msg_type:
-                raise AttributeError("Missing 'type'")
-            if "content" not in data:
-                raise AttributeError("Missing 'content'")
+        action = data.get("action")
 
-            if msg_type == "game_move":
-                await self.send_message("group", args=data)
-            else:
-                await self.send_error("Unsupported message type")
+        if action == "move":
+            # Broadcast player movements to the opponent
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    "type": "player_move",
+                    "player": data["player"],
+                    "direction": data["direction"],
+                }
+            )
 
-        except Exception as e:
-            await self.send_error("Invalid message")
-
-    def check_missing_param(self, query_params, param_name):
-        param = query_params.get(param_name, [None])[0]
-        if param is None:
-            raise AttributeError(f"Missing query parameter: {param_name}")
-        return param
-
-
-    class Info:
-        def __init__(
-            self,
-            creator: str,
-            room_id: str,
-            player_needed: int,
-        ):
-            self.creator = creator
-            self.room_id = room_id
-            self.players_ids = []
-            self.players_usernames = []
-            self.player_needed = player_needed
-            self.player_ready = 0
-            self.score = [0, 0]
-
-    class Ball:
-        def __init__(self, radius=0.015, color="white", power_on=False):
-            self.color = color
-            self.limit = 250 if power_on else 50
-            self.reset(radius=radius)
-
-        def reset(self, radius=0.015):
-            self.x = 0.5
-            self.y = random.uniform(0.2, 0.8)
-            self.radius = radius
-            self.velocity = self.randomize_velocity()
-            self.step = 0.05
-            self.combo = 0
-
-        def randomize_velocity(self) -> List[float]:
-            speed = 0.01
-            velocity = [speed, speed]
-            if random.randint(0, 1):
-                velocity[0] *= -1
-            if random.randint(0, 1):
-                velocity[1] *= -1
-            return velocity
-
-        def revert_velocity(self, index):
-            self.velocity[index] = -self.velocity[index]
-            self.combo += 1
-
-            if self.combo < self.limit:
-                self.velocity[index] *= 1.05
-
-        def move(self):
-            self.x += self.velocity[0]
-            self.y += self.velocity[1]
-
-    class Pad:
-        def __init__(self, left, width=0.02, height=0.2, color="white"):
-            self.left = left
-            self.color = color
-            self.reset(width=width, height=height)
-
-        def reset(self, width=0.02, height=0.2):
-            self.width = width
-            self.height = height
-            self.x = 0 if self.left else 1 - self.width
-            self.y = 0.4
-            self.step = 0.05
-            self.move = 0
-            self.combo = 0
+    async def player_move(self, event):
+        # 상대방에게 움직임 전달
+        await self.send(text_data=json.dumps({
+            "type": "move",
+            "player": event["player"],
+            "direction": event["direction"],
+        }))
