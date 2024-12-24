@@ -1,3 +1,4 @@
+import json
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.views import View
 from django.shortcuts import get_object_or_404, render
@@ -19,7 +20,13 @@ class SendFriendRequestView(LoginRequiredMixin, View):
         return render(request, 'friendship.html')
 
     def post(self, request):
-        receiver_id = request.POST.get("receiver")
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return HttpResponseBadRequest("Invalid JSON.")
+
+        receiver_id = data.get("receiver")
+        print(receiver_id)
         if not receiver_id:
             return HttpResponseBadRequest("Receiver ID is required.")
 
@@ -57,7 +64,7 @@ class ReceivedFriendRequestsView(LoginRequiredMixin, View):
             {
                 "id": request.id,
                 "requester_id": request.requester.id,
-                "requester_display_name": request.requester.display_name,
+                # "requester_display_name": request.requester.display_name,
                 "avatar": request.avatar,
                 "created_at": request.created_at.strftime("%Y-%m-%d %H:%M:%S"),
             }
@@ -131,7 +138,7 @@ class FriendshipListView(LoginRequiredMixin, View):
             is_online = f"user.{friend_id}" in online_users
             friend_data.append({
                 "id": friend.id,
-                "display_name": friend.display_name,
+                # "display_name": friend.display_name,
                 "status": "online" if is_online else "offline",
             })
 

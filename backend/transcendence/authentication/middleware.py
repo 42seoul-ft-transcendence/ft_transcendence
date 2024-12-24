@@ -25,5 +25,6 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
                 payload = decode_jwt(token)
                 user = User.objects.get(id=payload.get("user_id"))
                 request.user = user  # 인증된 사용자 설정
+                print("User authenticated")
             except User.DoesNotExist:
                 print("User dose not exist")

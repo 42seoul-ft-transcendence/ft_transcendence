@@ -103,6 +103,12 @@ export default class FriendView extends Component {
       `
 				</div>
 			</div>`;
+    temp += /* html */ `
+      <div class="container add-friend">
+        <input type="text" class="form-control" id="addFriendInput" placeholder="Add a friend">
+        <button id="addFriendBtn" class="btn btn-primary mt-3">test</button>
+      </div>
+    `;
     return temp;
   }
 
@@ -123,5 +129,53 @@ export default class FriendView extends Component {
       const card = e.target.closest("[id^=friendCard]");
       if (card) card.remove();
     });
+
+    this.addEvent("click", "#addFriendBtn", async () => {
+      const input = this.$target.querySelector("#addFriendInput");
+      const username = input.value;
+      const csrfToken = getCSRFToken();
+
+      console.log(username);
+      console.log(csrfToken);
+      try {
+        const res = await fetch("/api/friendship/send/", {
+          method: "post",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken,
+          },
+          body: JSON.stringify({
+            receiver: username,
+          }),
+        });
+
+        if (!res.ok) {
+          console.log(res);
+          throw new Error("HTTP status " + res.status);
+        }
+
+        const data = await res.json();
+        console.log(data);
+      } catch (e) {
+        console.error(e);
+      }
+    });
   }
+}
+
+function getCSRFToken() {
+  let cookieValue = null; // 기본값
+  const cookies = document.cookie.split(";"); // 쿠키 문자열을 ';'로 분리
+  for (let i = 0; i < cookies.length; i++) {
+    const cookie = cookies[i].trim(); // 공백 제거
+
+    // 'csrftoken='으로 시작하는 쿠키를 찾음
+    if (cookie.startsWith("csrftoken=")) {
+      cookieValue = cookie.substring("csrftoken=".length);
+      break;
+    }
+  }
+
+  return cookieValue;
 }
