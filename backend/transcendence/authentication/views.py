@@ -1,3 +1,5 @@
+from http.client import HTTPResponse
+
 import requests
 import pyotp
 import qrcode
@@ -213,7 +215,7 @@ class OauthCallbackView(View):
         qr.save(buffer, format='PNG')
         buffer.seek(0)
 
-        return buffer
+        return HTTPResponse(buffer, content_type="image/png")
 
 
 @method_decorator(csrf_exempt, name='dispatch')
