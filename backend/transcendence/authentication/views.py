@@ -213,7 +213,7 @@ class OauthCallbackView(View):
         qr.save(buffer, format='PNG')
         buffer.seek(0)
 
-        return JsonResponse({"qr_url": qr_url})
+        return buffer
 
 
 @method_decorator(csrf_exempt, name='dispatch')
