@@ -1,7 +1,9 @@
 from django.contrib.auth.models import AnonymousUser
+from django.http import JsonResponse
 from django.utils.deprecation import MiddlewareMixin
 from .utils import decode_jwt
 from django.contrib.auth import get_user_model
+from django.shortcuts import redirect
 
 User = get_user_model()
 
@@ -25,6 +27,13 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
                 payload = decode_jwt(token)
                 user = User.objects.get(id=payload.get("user_id"))
                 request.user = user  # 인증된 사용자 설정
-                print("User authenticated")
-            except User.DoesNotExist:
-                print("User dose not exist")
+            except Exception:
+                return JsonResponse(
+                    {"error": "Invalid or expired token. Please login again."},
+                    status=401
+                )
+        else:
+            return JsonResponse(
+                {"error": "Invalid or expired token. Please login again."},
+                status=401
+            )
