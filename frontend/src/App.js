@@ -57,6 +57,11 @@ export default class App extends Component {
       new Navbar($nav, profile);
       new Home($body, {
         handleNickModalClick: this.handleNickModalClick.bind(this),
+        handleOneToOneClick: () => {
+          console.log("??");
+          this.setState({ gameMode: "singleMode" });
+          window.location.hash = "#/game";
+        },
       });
     });
 
@@ -71,10 +76,8 @@ export default class App extends Component {
       new Navbar($nav, profile);
       new Game($body, {
         gameMode: this.state.gameMode,
-        // matches: this.state.matches,
         opponent1: this.state.opponent1,
         opponent2: this.state.opponent2,
-        // matchGame: this.state.matchGame,
         handlePongNextGameClick: this.handlePongNextGameClick.bind(this),
       });
     });

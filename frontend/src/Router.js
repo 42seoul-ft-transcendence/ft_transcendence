@@ -18,7 +18,7 @@ export default class Router extends Component {
     });
 
     if (!currentRoute) {
-      window.location.href = "#/";
+      window.location.hash = "#/";
       this.state.routes[0].component();
       return;
     }

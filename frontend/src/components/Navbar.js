@@ -4,7 +4,7 @@ export default class Navbar extends Component {
   template() {
     const { profileImage } = this.props;
 
-		return /* html */ `
+    return /* html */ `
 			<nav class="pong-nav navbar navbar-expand bg-warning navbar-dark px-4 py-3">
 				<div class="container-fluid">
 					<a class="navbar-brand fw-bold" href="#/">PONG!</a>
@@ -21,9 +21,10 @@ export default class Navbar extends Component {
   }
 
   setEvent() {
-    this.addEvent('click', '#profileIcon', () => window.location.href = '#/profile/history')
-    // this.addEvent("click", "#profileIcon", () =>
-    //   window.history.pushState({ isManual: true }, "", "/profile/history"),
-    // );
+    this.addEvent(
+      "click",
+      "#profileIcon",
+      () => (window.location.hash = "#/profile/history"),
+    );
   }
 }

@@ -1,6 +1,7 @@
 import Component from "../core/Component.js";
 import * as game from "../utils/game/game.js";
 import { getTranslation } from "../utils/translations.js";
+import { wsConnect } from "../utils/ws.js";
 
 export default class Pong extends Component {
   setup() {
@@ -18,9 +19,9 @@ export default class Pong extends Component {
       opponent2: this.props.opponent2,
       finish: false,
     };
-    
-    if (!this.props.opponent1 && !this.props.opponent2) 
-      window.location.hash = "#/";
+
+    // if (!this.props.opponent1 && !this.props.opponent2)
+    //   window.location.hash = "#/";
   }
 
   template() {
@@ -48,11 +49,10 @@ export default class Pong extends Component {
          ${getTranslation("nextGame")}
         </button>
       </div>
-  
     `;
   }
 
-  mounted() {
+  async mounted() {
     const { board, player1, player2, player1Score, player2Score, finish } =
       this.state;
 
@@ -63,7 +63,31 @@ export default class Pong extends Component {
 
     board.draw(player1Score, player2Score);
 
-    if (this.props.gameMode != "" && !finish) {
+    if (this.props.gameMode == "singleMode" && !finish) {
+      const ws = wsConnect(
+        "wss://localhost:4443/ws/pong",
+        (event) => {
+          const data = JSON.parse(event.data);
+
+          switch (data.type) {
+            case "game_state":
+              updateGameState(data.content);
+              break;
+            case "game_stop":
+              displayWinner(data.content.winner);
+              break;
+            case "game_error":
+              console.error("게임 오류:", data.content.error);
+              break;
+            default:
+              console.log("알 수 없는 메시지 타입:", data.type);
+          }
+        },
+        (error) => {
+          console.error("WebSocket 오류:", error);
+        },
+      );
+    } else if (this.props.gameMode != "" && !finish) {
       if (this.props.opponent2.id == null) this.state.player1Score = 3;
       this.state.animationFrameId = requestAnimationFrame(
         this.update.bind(this),
@@ -88,25 +112,14 @@ export default class Pong extends Component {
       let winWidth;
 
       if (this.state.animationFrameId) {
-        let { opponent1, opponent2 } = this.state;
-
         this.state.finish = true;
-        if (this.state.player1Score == 3) {
-          winWidth = board.width / 5 - 20;
-          // opponent1["result"] = "win";
-          // opponent2["result"] = "loss";
-        } else {
-          winWidth = (board.width * 4) / 5 - 60;
-          // opponent2["result"] = "win";
-          // opponent1["result"] = "loss";
-        }
+        if (this.state.player1Score == 3) winWidth = board.width / 5 - 20;
+        else winWidth = (board.width * 4) / 5 - 60;
 
         board.context.fillStyle = "White";
         board.context.fillText("WIN", winWidth, 125);
 
         cancelAnimationFrame(this.state.animationFrameId);
-        // opponent1["score"] = this.state.player1Score;
-        // opponent2["score"] = this.state.player2Score;
 
         this.$target.querySelector("#nextBtn").classList.remove("d-none");
         return;

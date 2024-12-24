@@ -13,7 +13,7 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
         요청이 들어올 때 Authorization 헤더를 확인하고 JWT 검증
         """
         # 특정 경로는 인증 제외 (예: /admin/ 또는 공용 API 경로)
-        if request.path.startswith('/admin/'):
+        if request.path.startswith('/admin/') or request.path.startswith('/login/oauth/'):
             return
 
         # 기본값으로 AnonymousUser 설정
