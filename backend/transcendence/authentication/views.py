@@ -152,7 +152,7 @@ class OauthCallbackView(View):
         """
         username = user_info.get("login")
         email = user_info.get("email")
-        avatar = user_info.get("image", {}).get("link")
+        avatar = user_info.get("image").get("link")
 
         user, created = User.objects.get_or_create(
             username=username,

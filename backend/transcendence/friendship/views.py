@@ -64,7 +64,6 @@ class ReceivedFriendRequestsView(LoginRequiredMixin, View):
             {
                 "id": request.id,
                 "requester_id": request.requester.id,
-                # "requester_display_name": request.requester.display_name,
                 "avatar": request.avatar,
                 "created_at": request.created_at.strftime("%Y-%m-%d %H:%M:%S"),
             }
@@ -138,7 +137,6 @@ class FriendshipListView(LoginRequiredMixin, View):
             is_online = f"user.{friend_id}" in online_users
             friend_data.append({
                 "id": friend.id,
-                # "display_name": friend.display_name,
                 "status": "online" if is_online else "offline",
             })
 
