@@ -88,7 +88,7 @@ class OauthCallbackView(View):
 
             response = JsonResponse({
                 "message": "Login successful",
-                "websocket_url": "ws://localhost:4443/ws/login_status/",
+                "websocket_url": "wss://localhost:4443/ws/login_status/",
                 "access_token": response_data["access_token"],
                 "refresh_token": response_data["refresh_token"],
             })

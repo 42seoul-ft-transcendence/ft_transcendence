@@ -135,8 +135,6 @@ export default class FriendView extends Component {
       const username = input.value;
       const csrfToken = getCSRFToken();
 
-      console.log(username);
-      console.log(csrfToken);
       try {
         const res = await fetch("/api/friendship/send/", {
           method: "post",

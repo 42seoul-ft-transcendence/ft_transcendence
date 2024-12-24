@@ -1,4 +1,5 @@
 import Component from "./core/Component.js";
+import { wsConnect } from "./utils/ws.js";
 
 export default class Router extends Component {
   setup() {
@@ -53,12 +54,15 @@ window.onload = async () => {
       });
 
       if (res.status === 200) {
-        console.log(res.json());
-        window.location.href = "/";
+        // window.location.href = "/";
+        const resJson = await res.json();
+        wsConnect(resJson.websocket_url, (event) => {
+          console.log(event);
+        });
+        console.log(resJson);
       }
     } catch (error) {
       console.error(error);
     }
-    console.log(code);
   }
 };
