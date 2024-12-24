@@ -30,6 +30,9 @@ export const translations = {
 		friendList: "Friends List",
 		errorMessage: "Message is too long",
 		delete: "delete",
+		accept: "Accept",
+		reject: "Reject",
+		addFriend: "Add Friend+",
 	},
 	korean: {
 		player: "플레이어",
@@ -62,6 +65,9 @@ export const translations = {
 		friendList: "친구 목록",
 		errorMessage: "메세지가 너무 깁니다",
 		delete: "삭제",
+		accept: "수락",
+		reject: "거절",
+		addFriend: "친구 추가+",
 	},
 	japanese: {
 		player: "プレイヤー",
@@ -94,6 +100,9 @@ export const translations = {
 		friendList: "友達リスト",
 		errorMessage: "メッセージが長すぎます",
 		delete: "削除",
+		accept: "受け入れ",
+		reject: "拒否",
+		addFriend: "友達追加+",
 	},
 };
 
