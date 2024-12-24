@@ -45,6 +45,22 @@ class LogoutView(View):
         return JsonResponse({'error': 'User is not authenticated'}, status=401)
 
 
+class LandingPageView(View):
+    def get(self, request):
+        """
+        사용자의 인증 상태를 반환하는 API.
+        """
+        token = request.COOKIES.get("access_token")
+        if token:
+            try:
+                payload = decode_jwt(token)
+                return JsonResponse({"authenticated": True, "redirect": "/home/"})
+            except Exception:
+                return JsonResponse({"authenticated": False, "redirect": "/login/"})
+        else:
+            return JsonResponse({"authenticated": False, "redirect": "/login/"})
+
+
 class OauthRedirect(View):
     def get(self, request):
         url = (
@@ -88,7 +104,7 @@ class OauthCallbackView(View):
 
             response = JsonResponse({
                 "message": "Login successful",
-                "websocket_url": "ws://localhost:4443/ws/login_status/",
+                "websocket_url": "wss://localhost:4443/ws/login_status/",
                 "access_token": response_data["access_token"],
                 "refresh_token": response_data["refresh_token"],
             })

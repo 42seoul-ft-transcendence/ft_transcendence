@@ -4,7 +4,7 @@ from asgiref.sync import sync_to_async
 from channels.layers import get_channel_layer
 import redis
 
-redis_client = redis.StrictRedis(host="redis", port=6379, db=0)
+redis_client = redis.asyncio.StrictRedis(host="redis", port=6379, db=0)
 
 
 class LoginStatusConsumer(AsyncWebsocketConsumer):
