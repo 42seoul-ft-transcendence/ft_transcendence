@@ -1,5 +1,7 @@
 import requests
 import pyotp
+import qrcode
+from io import BytesIO
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
@@ -206,10 +208,10 @@ class OauthCallbackView(View):
         totp = pyotp.TOTP(user.otp_secret)
         qr_url = totp.provisioning_uri(user.username, issuer_name="Transcendence")
 
-        # qr = qrcode.make(qr_url)
-        # buffer = BytesIO()
-        # qr.save(buffer, format='PNG')
-        # buffer.seek(0)
+        qr = qrcode.make(qr_url)
+        buffer = BytesIO()
+        qr.save(buffer, format='PNG')
+        buffer.seek(0)
 
         return JsonResponse({"qr_url": qr_url})
 
