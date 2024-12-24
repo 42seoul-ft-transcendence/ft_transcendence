@@ -28,6 +28,7 @@ export default class Router extends Component {
 
   start() {
     window.onhashchange = (event) => {
+      console.log("hash change", event);
       this.checkRoutes();
     };
 
@@ -41,7 +42,9 @@ export default class Router extends Component {
 
 window.onload = async () => {
   const urlParams = new URLSearchParams(window.location.search);
+
   if (urlParams.has("code")) {
+    window.location.hash = "#/loading";
     const code = urlParams.get("code");
 
     try {
@@ -54,8 +57,9 @@ window.onload = async () => {
       });
 
       if (res.status === 200) {
-        // window.location.href = "/";
+        history.replaceState(null, "", "/");
         const resJson = await res.json();
+
         wsConnect(resJson.websocket_url, (event) => {
           console.log(event);
         });

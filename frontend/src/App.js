@@ -9,6 +9,7 @@ import Navbar from "./components/Navbar.js";
 import HistoryView from "./pages/profile/HistoryView.js";
 import FriendView from "./pages/profile/FriendView.js";
 import SettingView from "./pages/profile/SettingView.js";
+import Loading from "./pages/LoadingView.js";
 
 import * as brackets from "./utils/tournament.js";
 
@@ -41,24 +42,25 @@ export default class App extends Component {
     };
   }
 
+  template() {
+    return /* html */ `
+      <div id="nav"></div>
+      <div id="body"></div>
+    `;
+  }
+
   mounted() {
     const { profile } = this.state;
     const router = new Router();
 
-    const $nav = document.createElement("div");
-    const $body = document.createElement("div");
-
-    $nav.setAttribute("id", "nav");
-    $body.setAttribute("id", "body");
-
-    this.$target.append($nav, $body);
+    const $nav = this.$target.querySelector("#nav");
+    const $body = this.$target.querySelector("#body");
 
     router.addRoute("#/", () => {
       new Navbar($nav, profile);
       new Home($body, {
         handleNickModalClick: this.handleNickModalClick.bind(this),
         handleOneToOneClick: () => {
-          console.log("??");
           this.setState({ gameMode: "singleMode" });
           window.location.hash = "#/game";
         },
@@ -66,10 +68,13 @@ export default class App extends Component {
     });
 
     router.addRoute("#/login", () => {
-      const $login = document.createElement("div");
+      $nav.innerHTML = "";
+      new Login($body, { appRender: this.render.bind(this) });
+    });
 
-      this.$target.append($login);
-      new Login($login);
+    router.addRoute("#/loading", () => {
+      $nav.innerHTML = "";
+      new Loading($body);
     });
 
     router.addRoute("#/game", () => {
@@ -95,18 +100,23 @@ export default class App extends Component {
 
     router.addRoute("#/profile/history", () => {
       new Navbar($nav, profile);
-      new HistoryView($body);
+      new HistoryView($body, {
+        appRender: this.render.bind(this),
+      });
     });
 
     router.addRoute("#/profile/friends", () => {
       new Navbar($nav, profile);
-      new FriendView($body);
+      new FriendView($body, {
+        appRender: this.render.bind(this),
+      });
     });
 
     router.addRoute("#/profile/setting", () => {
       new Navbar($nav, profile);
       new SettingView($body, {
         handleLangChange: this.handleLangChange.bind(this),
+        appRender: this.render.bind(this),
       });
     });
 

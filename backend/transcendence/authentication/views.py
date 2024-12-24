@@ -272,7 +272,9 @@ class Toggle2FAView(View):
 
         if not two_factor:
             if not user.otp_secret:
-                user.otp_secret = pyotp.random_base32()
+                temp = pyotp.random_base32()
+                print(temp)
+                user.otp_secret = temp
             user.two_factor = True
             message = "2FA enabled"
         else:

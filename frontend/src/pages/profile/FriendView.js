@@ -1,11 +1,9 @@
-// import Component from "/frontend/src/core/Component.js";
-// import ProfileNav from "/frontend/src/components/ProfileNav.js";
-// import FriendCard from "/frontend/src/components/FriendCard.js";
 import Component from "../../core/Component.js";
 import ProfileNav from "../../components/ProfileNav.js";
 import FriendCard from "../../components/FriendCard.js";
 import { getTranslation } from "../../utils/translations.js";
 import FriendRequest from "../../components/FriendRequest.js";
+import { apiCall } from "../../utils/api.js";
 
 const data = {
   users: [
@@ -87,22 +85,13 @@ export default class FriendView extends Component {
     this.state = {
       friendCount: data.users.length,
       friendData: data.users,
+      requestCount: data.requests.length,
+      requestData: data.requests,
     };
     try {
-      const res = await fetch("/api/friendship/received/", {
-        method: "get",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const data = await apiCall("/api/friendship/received/", "get");
 
-      if (!res.ok) {
-        throw new Error("HTTP status " + res.status);
-      }
-
-      const data1 = await res.json();
-      console.log(data1);
+      console.log(data);
     } catch (e) {
       console.error(e);
     }
@@ -119,16 +108,12 @@ export default class FriendView extends Component {
 
     for (let i = 0; i < requestCount; ++i)
       temp += /* html */ `<div id="friendRequest${i}" class="col-md-4"></div>`;
-
     temp += /* html */ `</div>
     <div class="row g-4 mt-1">`;
 
     for (let i = 0; i < friendCount; ++i)
       temp += /* html */ `<div id="friendCard${i}" class="col-md-6"></div>`;
-
-    temp +=
-      /* html */
-      `
+    temp += /* html */ `
 				</div>
 			</div>`;
     temp += /* html */ `
@@ -143,7 +128,7 @@ export default class FriendView extends Component {
   mounted() {
     const { friendData, requestData } = this.state;
 
-    new ProfileNav(this.$target.querySelector(".nav-section"));
+    new ProfileNav(this.$target.querySelector(".nav-section"), this.props);
     new FriendRequest(this.$target.querySelector("#friendRequest"));
 
     requestData.forEach((list, index) => {
@@ -183,47 +168,17 @@ export default class FriendView extends Component {
     this.addEvent("click", "#addFriendBtn", async () => {
       const input = this.$target.querySelector("#addFriendInput");
       const username = input.value;
-      const csrfToken = getCSRFToken();
 
       try {
-        const res = await fetch("/api/friendship/send/", {
-          method: "post",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrfToken,
-          },
-          body: JSON.stringify({
-            receiver: username,
-          }),
-        });
-
-        if (!res.ok) {
-          console.log(res);
-          throw new Error("HTTP status " + res.status);
-        }
-
-        const data = await res.json();
+        const data = await apiCall(
+          "/api/friendship/send/",
+          "post",
+          JSON.stringify({ receiver: username }),
+        );
         console.log(data);
       } catch (e) {
         console.error(e);
       }
     });
   }
-}
-
-function getCSRFToken() {
-  let cookieValue = null; // 기본값
-  const cookies = document.cookie.split(";"); // 쿠키 문자열을 ';'로 분리
-  for (let i = 0; i < cookies.length; i++) {
-    const cookie = cookies[i].trim(); // 공백 제거
-
-    // 'csrftoken='으로 시작하는 쿠키를 찾음
-    if (cookie.startsWith("csrftoken=")) {
-      cookieValue = cookie.substring("csrftoken=".length);
-      break;
-    }
-  }
-
-  return cookieValue;
 }

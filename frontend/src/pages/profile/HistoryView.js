@@ -1,6 +1,3 @@
-// import Component from "/frontend/src/core/Component.js";
-// import ProfileNav from "/frontend/src/components/ProfileNav.js";
-// import HistoryCard from "/frontend/src/components/HistoryCard.js";
 import Component from "../../core/Component.js";
 import ProfileNav from "../../components/ProfileNav.js";
 import HistoryCard from "../../components/HistoryCard.js";
@@ -146,14 +143,24 @@ export default class HistoryView extends Component {
             <div class="container" id="historySection">
                 <div class="profile-section">
                     <div>
-                        <img id="profileImg" class="profile-pic" src=${profile.profileImage} alt="Profile Picture">
+                        <img id="profileImg" class="profile-pic" src=${
+                          profile.profileImage
+                        } alt="Profile Picture">
                     </div>
-                    <p class="fw-bold fs-4 mb-1" id="userName">${profile.username}</p>
+                    <p class="fw-bold fs-4 mb-1" id="userName">${
+                      profile.username
+                    }</p>
                     <p class="fs-6 mb-1" id="message">${profile.message}</p>
-                    <button class="btn btn-outline-success btn-sm" id="addFriend">${getTranslation("addFriend")}</button>
+                    <button class="btn btn-outline-success btn-sm" id="addFriend">${getTranslation(
+                      "addFriend",
+                    )}</button>
                     <div class="record-box fw-bold fs-3 my-5">
-                        <span class="match-card blue">${profile.winLossRecord.wins}</span> /
-                        <span class="match-card pink">${profile.winLossRecord.losses}</span>
+                        <span class="match-card blue">${
+                          profile.winLossRecord.wins
+                        }</span> /
+                        <span class="match-card pink">${
+                          profile.winLossRecord.losses
+                        }</span>
                     </div>
                 </div>
                 <div class="row gy-4">
@@ -173,9 +180,7 @@ export default class HistoryView extends Component {
   mounted() {
     const { history } = this.state;
 
-    new ProfileNav(this.$target.querySelector(".nav-section"));
-    // for (let i = 0; i < matchCount; ++i)
-    //     new HistoryCard(this.$target.querySelector(`#historyCard${i}`));
+    new ProfileNav(this.$target.querySelector(".nav-section"), this.props);
 
     history.forEach((match, index) => {
       new HistoryCard(
