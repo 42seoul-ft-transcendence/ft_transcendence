@@ -8,7 +8,9 @@ from django.contrib.auth import get_user_model
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from django.db import models
+from django.core.cache import cache
 
+from ..authentication.consumers import redis_client
 
 User = get_user_model()
 
@@ -125,15 +127,13 @@ class FriendshipListView(LoginRequiredMixin, View):
             for friendship in friendships
         )
 
-        # WebSocket의 online 그룹에서 상태 확인
-        channel_layer = get_channel_layer()
-        online_users = async_to_sync(channel_layer.group_channels)("online")
+        redis_keys = [f"user:{friend_id}:status" for friend_id in friend_ids]
+        statuses = redis_client.mget(redis_keys)
 
-        # 친구 데이터 구성
         friend_data = []
-        for friend_id in friend_ids:
+        for friend_id, status in zip(friend_ids, statuses):
             friend = User.objects.get(id=friend_id)
-            is_online = f"user.{friend_id}" in online_users
+            is_online = status == b"online"
             friend_data.append({
                 "id": friend.id,
                 "status": "online" if is_online else "offline",
