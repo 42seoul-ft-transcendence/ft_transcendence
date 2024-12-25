@@ -331,10 +331,10 @@ class RefreshTokenView(View):
             )
             return response
         except Exception:
-            return JsonResponse(
-                {"error": "Invalid or expired refresh token. Please login again."},
-                status=401
-            )
+            response = JsonResponse({"error": "Invalid or expired refresh token. Please login again."}, status=401)
+            response.delete_cookie("access_token")
+            response.delete_cookie("refresh_token")
+            return response
 
 class UpdateStatusMessageView(LoginRequiredMixin, View):
     def post(self, request):
