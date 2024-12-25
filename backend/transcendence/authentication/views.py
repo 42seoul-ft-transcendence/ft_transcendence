@@ -1,4 +1,4 @@
-from http.client import HTTPResponse
+import base64
 
 import requests
 import pyotp
@@ -8,7 +8,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.shortcuts import redirect
-from django.http import JsonResponse, HttpResponseBadRequest
+from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_exempt
@@ -215,7 +215,15 @@ class OauthCallbackView(View):
         qr.save(buffer, format='PNG')
         buffer.seek(0)
 
-        return HTTPResponse(buffer, content_type="image/png")
+        qr_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+
+        response_data = {
+            "qr_url": qr_url,
+            "qr_image": qr_base64,
+            "username": user.username,
+        }
+
+        return JsonResponse(response_data)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -224,7 +232,7 @@ class Verify2FAView(View):
         return render(request, 'authentication.html')
 
     def post(self, request):
-        username = request.POST.get("username")
+        username = request.user.username
         otp_code = request.POST.get("otp_code")
 
         if not username or not otp_code:
