@@ -25,8 +25,21 @@ export function createWebSocketManager(url) {
     };
 
     socket.onmessage = (event) => {
-      console.log("Message received:", event.data);
-      if (callbacks.onMessage) callbacks.onMessage(event);
+      const data = JSON.parse(event.data);
+      console.log("Message received:", data);
+      switch (data.type) {
+        case "game_start":
+          console.log("Game started:", data.content.players);
+          break;
+        case "game_state":
+          console.log("Game state updated:", data.content);
+          break;
+        case "game_stop":
+          console.log("Game stopped. Winner:", data.content.winner);
+          break;
+        default:
+          console.error("Unknown message type:", data.type);
+  }
     };
 
     socket.onclose = (event) => {

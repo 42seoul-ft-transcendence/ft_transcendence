@@ -1,6 +1,11 @@
 from django.http import JsonResponse
 from django.views import View
 from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+import redis.asyncio as redis
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 from . import models
 from .models import Pong
@@ -40,3 +45,58 @@ class MatchHistoryView(View):
             "pages": paginator.num_pages,
             "current_page": current_page.number,
         })
+
+
+@method_decorator(login_required, name='dispatch')
+class GameStartView(View):
+    def post(self, request):
+        user = request.user
+        redis_conn = redis.Redis(host="redis")
+        channel_layer = get_channel_layer()
+
+        existing_rooms = redis_conn.keys(f"room_*_players")
+        for room in existing_rooms:
+            players = redis_conn.lrange(room, 0, -1)
+            if str(user.id).encode('utf-8') in players:
+                return JsonResponse({"room_id": room.decode('utf-8'), "status": "in_room"})
+
+        for room in existing_rooms:
+            if redis_conn.llen(room) < 2:
+                redis_conn.rpush(room, user.id)
+                async_to_sync(channel_layer.group_add)(room.decode('utf-8'), f"user_{user.id}")
+                return JsonResponse({"room_id": room.decode('utf-8'), "status": "waiting"})
+
+        new_room = f"room_{user.id}"
+        redis_conn.rpush(f"{new_room}_players", user.id)
+        async_to_sync(channel_layer.group_add)(new_room, f"user_{user.id}")
+        return JsonResponse({"room_id": new_room, "status": "created"})
+
+
+@method_decorator(login_required, name='dispatch')
+class GameStateView(View):
+    def get(self, request, room_id):
+        redis_conn = redis.Redis(host="redis")
+
+        players = redis_conn.lrange(f"room_{room_id}_players", 0, -1)
+        if not players:
+            return JsonResponse({"error": "Room not found"}, status=404)
+
+        return JsonResponse({
+            "room_id": room_id,
+            "players": [int(player.decode('utf-8')) for player in players],
+        })
+
+
+@method_decorator(login_required, name='dispatch')
+class ForceDisconnectView(View):
+    def post(self, request):
+        user = request.user
+        redis_conn = redis.Redis(host="redis")
+        channel_layer = get_channel_layer()
+
+        rooms = redis_conn.keys(f"room_*_players")
+        for room in rooms:
+            redis_conn.lrem(room, 0, user.id)
+            async_to_sync(channel_layer.group_discard)(room.decode('utf-8'), f"user_{user.id}")
+
+        return JsonResponse({"status": "disconnected"})
