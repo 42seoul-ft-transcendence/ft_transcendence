@@ -8,13 +8,21 @@ from django.shortcuts import redirect
 User = get_user_model()
 
 class JWTAuthenticationMiddleware(MiddlewareMixin):
+    WHITE_LIST = [
+        "/admin/",
+        "/login/oauth/",
+        "/login/verify-2fa/",
+        "/login/"
+        ]
+
     def process_request(self, request):
         """
         요청이 들어올 때 Authorization 헤더를 확인하고 JWT 검증
         """
         # 특정 경로는 인증 제외 (예: /admin/ 또는 공용 API 경로)
-        if request.path.startswith('/admin/') or request.path.startswith('/login/oauth/'):
-            return
+        for prefix in self.WHITE_LIST:
+            if request.path.startswith(prefix):
+                return  # 인증 건너뜀
 
         # 기본값으로 AnonymousUser 설정
         request.user = AnonymousUser()

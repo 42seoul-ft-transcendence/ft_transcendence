@@ -54,7 +54,6 @@ export default class SettingInfo extends Component {
   setEvent() {
     this.addEvent("change", ".form-select", (e) => this.changeLanguage(e));
 
-    this.addEvent("check");
     this.addEvent("click", ".form-check-input", async (e) => {
       console.log(e.target.checked);
       if (e.target.checked) {
@@ -65,6 +64,16 @@ export default class SettingInfo extends Component {
           console.error(e);
         }
       } else {
+      }
+    });
+
+    this.addEvent("click", "#logoutBtn", async (e) => {
+      try {
+        const data = await apiCall("/api/login/logout/", "get");
+        console.log(data);
+        window.location.href = "#/login";
+      } catch (e) {
+        console.error(e);
       }
     });
   }

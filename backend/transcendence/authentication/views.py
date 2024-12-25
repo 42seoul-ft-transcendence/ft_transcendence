@@ -1,14 +1,14 @@
-from http.client import HTTPResponse
 
 import requests
 import pyotp
 import qrcode
+import json
 from io import BytesIO
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.shortcuts import redirect
-from django.http import JsonResponse, HttpResponseBadRequest
+from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_exempt
@@ -58,7 +58,7 @@ class LandingPageView(View):
         if token:
             try:
                 payload = decode_jwt(token)
-                return JsonResponse({"authenticated": True, "redirect": "/home/"})
+                return JsonResponse({"authenticated": True, "redirect": "/"})
             except Exception:
                 return JsonResponse({"authenticated": False, "redirect": "/login/"})
         else:
@@ -215,7 +215,8 @@ class OauthCallbackView(View):
         qr.save(buffer, format='PNG')
         buffer.seek(0)
 
-        return HTTPResponse(buffer, content_type="image/png")
+        print(buffer)
+        return HttpResponse(buffer, content_type="image/png")
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -224,8 +225,17 @@ class Verify2FAView(View):
         return render(request, 'authentication.html')
 
     def post(self, request):
-        username = request.POST.get("username")
-        otp_code = request.POST.get("otp_code")
+        print(request.user)
+        print(request.body)
+        try:
+            data = json.loads(request.body)
+            username = request.user.username
+            otp_code = data.get("otp_code")
+        except json.JSONDecodeError:
+            return HttpResponseBadRequest("Invalid JSON.")
+        
+        print(otp_code)
+        print(username)
 
         if not username or not otp_code:
             return HttpResponseBadRequest("Username and OTP code are required.")

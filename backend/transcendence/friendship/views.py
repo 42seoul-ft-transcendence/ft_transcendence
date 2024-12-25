@@ -22,11 +22,10 @@ class SendFriendRequestView(LoginRequiredMixin, View):
     def post(self, request):
         try:
             data = json.loads(request.body)
+            receiver_id = data.get("receiver")
         except json.JSONDecodeError:
             return HttpResponseBadRequest("Invalid JSON.")
 
-        receiver_id = data.get("receiver")
-        print(receiver_id)
         if not receiver_id:
             return HttpResponseBadRequest("Receiver ID is required.")
 

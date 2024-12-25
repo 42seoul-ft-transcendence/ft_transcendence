@@ -72,11 +72,6 @@ export default class App extends Component {
       new Login($body, { appRender: this.render.bind(this) });
     });
 
-    router.addRoute("#/loading", () => {
-      $nav.innerHTML = "";
-      new Loading($body);
-    });
-
     router.addRoute("#/game", () => {
       new Navbar($nav, profile);
       new Game($body, {

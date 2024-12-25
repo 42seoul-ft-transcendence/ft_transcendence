@@ -17,7 +17,7 @@ export default class FriendRequest extends Component {
 			</div>
 			<div class="d-flex justify-content-end w-100">
 				<button class="btn btn-success btn-sm me-2 accept-btn" data-id="${username}">${getTranslation("accept")}</button>
-				<button class="btn btn-danger btn-sm reject-btn" data-id>${getTranslation("reject")}</button>
+				<button class="btn btn-danger btn-sm reject-btn" data-id="${username}">${getTranslation("reject")}</button>
 			</div>
 		</div>
 		`;

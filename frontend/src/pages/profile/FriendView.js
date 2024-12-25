@@ -170,11 +170,9 @@ export default class FriendView extends Component {
       const username = input.value;
 
       try {
-        const data = await apiCall(
-          "/api/friendship/send/",
-          "post",
-          JSON.stringify({ receiver: username }),
-        );
+        const data = await apiCall("/api/friendship/send/", "post", {
+          receiver: username,
+        });
         console.log(data);
       } catch (e) {
         console.error(e);

@@ -1,10 +1,13 @@
 import Component from "./core/Component.js";
+import TwoFAView from "./pages/TwoFAView.js";
 import { wsConnect } from "./utils/ws.js";
+import { apiCall } from "./utils/api.js";
 
 export default class Router extends Component {
   setup() {
     this.state = {
       routes: [],
+      authenticated: false,
     };
   }
 
@@ -12,13 +15,32 @@ export default class Router extends Component {
     this.state.routes.push({ fragment, component });
   }
 
-  checkRoutes() {
+  async checkRoutes() {
+    const urlParams = new URLSearchParams(window.location.search);
+
+    if (urlParams.has("code")) return;
+
+    const data = await apiCall("/api/login/", "get");
+
+    console.log(data);
+    if (!data.authenticated) {
+      window.location.hash = "#/login";
+      this.state.routes[1].component();
+      return;
+    }
+
+    this.state.authenticated = true;
+
     const currentRoute = this.state.routes.find((route) => {
       return route.fragment === window.location.hash;
     });
 
-    if (!currentRoute) {
+    if (
+      !currentRoute ||
+      (this.state.authenticated && window.location.hash === "#/login")
+    ) {
       window.location.hash = "#/";
+      // history.pushState(null, "", "#/");
       this.state.routes[0].component();
       return;
     }
@@ -27,8 +49,7 @@ export default class Router extends Component {
   }
 
   start() {
-    window.onhashchange = (event) => {
-      console.log("hash change", event);
+    window.onhashchange = () => {
       this.checkRoutes();
     };
 
@@ -36,37 +57,10 @@ export default class Router extends Component {
       window.location.hash = "#/";
     }
 
-    this.checkRoutes();
+    // this.checkRoutes();
   }
 }
 
-window.onload = async () => {
-  const urlParams = new URLSearchParams(window.location.search);
-
-  if (urlParams.has("code")) {
-    window.location.hash = "#/loading";
-    const code = urlParams.get("code");
-
-    try {
-      const res = await fetch(`/api/login/oauth/callback/?code=${code}`, {
-        method: "get",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (res.status === 200) {
-        history.replaceState(null, "", "/");
-        const resJson = await res.json();
-
-        wsConnect(resJson.websocket_url, (event) => {
-          console.log(event);
-        });
-        console.log(resJson);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }
-};
+// window.onload = async () => {
+//   await loginCode();
+// };

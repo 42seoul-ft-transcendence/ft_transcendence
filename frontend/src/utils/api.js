@@ -34,6 +34,8 @@ export const apiCall = async (url, method, data = null) => {
   const res = await fetch(url, init);
 
   if (!res.ok) {
+    const errorText = await res.text();
+    console.log(errorText);
     throw new Error("HTTP status " + res.status);
   }
 
