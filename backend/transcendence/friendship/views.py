@@ -5,12 +5,10 @@ from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Friendship
 from django.contrib.auth import get_user_model
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
+from asgiref.sync import sync_to_async
 from django.db import models
-from django.core.cache import cache
 
-from ..authentication.consumers import redis_client
+from authentication.consumers import redis_client
 
 User = get_user_model()
 
@@ -113,11 +111,11 @@ class FriendshipListView(LoginRequiredMixin, View):
     """
     친구 목록 조회
     """
-    def get(self, request):
+    async def get(self, request):
         user = request.user
 
         # DB에서 친구 목록 조회
-        friendships = Friendship.objects.filter(
+        friendships = await sync_to_async(Friendship.objects.filter)(
             (models.Q(requester=user) | models.Q(receiver=user)) &
             models.Q(status="accepted")
         )
@@ -128,11 +126,11 @@ class FriendshipListView(LoginRequiredMixin, View):
         )
 
         redis_keys = [f"user:{friend_id}:status" for friend_id in friend_ids]
-        statuses = redis_client.mget(redis_keys)
+        statuses = await redis_client.mget(redis_keys)
 
         friend_data = []
         for friend_id, status in zip(friend_ids, statuses):
-            friend = User.objects.get(id=friend_id)
+            friend = await sync_to_async(User.objects.get)(id=friend_id)
             is_online = status == b"online"
             friend_data.append({
                 "id": friend.id,
