@@ -1,6 +1,9 @@
+import os
 import uuid
+import requests
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.core.files.base import ContentFile
 from django.db import models
 
 
@@ -18,10 +21,14 @@ class UserManager(BaseUserManager):
         user = self.model(
             username=username,
             email=email,
-            avatar=avatar,
             **extra_fields
         )
         user.set_password(password)  # 암호 설정
+
+        if avatar:
+            user.save()
+            user.save_avatar_from_url(avatar)
+
         user.save(using=self._db)
         return user
 
@@ -71,3 +78,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         주어진 앱의 모델에 접근할 권한이 있는지 확인
         """
         return True
+
+    def save_avatar_from_url(self, url):
+        response = requests.get(url)
+        if response.status_code == 200:
+            file_name = f"{self.username}.png"
+            avatar_path = os.path.join("avatars", file_name)
+            self.avatar.save(avatar_path, ContentFile(response.content), save=True)
+        else:
+            raise Exception("Failed to download avatar from url")
