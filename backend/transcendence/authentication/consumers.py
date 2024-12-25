@@ -1,8 +1,12 @@
-from channels.generic.websocket import AsyncWebsocketConsumer
+import os
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "transcendence.settings")
+import django
+django.setup()
 import json
+import redis
+from channels.generic.websocket import AsyncWebsocketConsumer
 from asgiref.sync import sync_to_async
 from channels.layers import get_channel_layer
-import redis
 from friendship.models import Friendship
 
 redis_client = redis.asyncio.StrictRedis(host="redis", port=6379, db=0)

@@ -5,10 +5,6 @@ from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Friendship
 from django.contrib.auth import get_user_model
-from asgiref.sync import sync_to_async
-from django.db import models
-
-from authentication.consumers import redis_client
 
 User = get_user_model()
 
