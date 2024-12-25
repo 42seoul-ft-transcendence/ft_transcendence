@@ -24,24 +24,22 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
             if request.path.startswith(prefix):
                 return  # 인증 건너뜀
 
-        # 기본값으로 AnonymousUser 설정
         request.user = AnonymousUser()
+        access_token = request.COOKIES.get("access_token")
 
-        # JWT 토큰 가져오기
-        token = request.COOKIES.get("access_token")
-        if token:
+        if access_token:
             try:
-                # JWT 디코딩 및 사용자 조회
-                payload = decode_jwt(token)
+                # Decode and verify access token
+                payload = decode_jwt(access_token)
                 user = User.objects.get(id=payload.get("user_id"))
-                request.user = user  # 인증된 사용자 설정
+                request.user = user  # Set authenticated user
             except Exception:
                 return JsonResponse(
-                    {"error": "Invalid or expired token. Please login again."},
+                    {"error": "Invalid or expired access token. Please login again."},
                     status=401
                 )
         else:
             return JsonResponse(
-                {"error": "Invalid or expired token. Please login again."},
+                {"error": "Invalid or expired access token. Please login again."},
                 status=401
             )

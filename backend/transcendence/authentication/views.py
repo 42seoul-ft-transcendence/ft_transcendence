@@ -330,8 +330,11 @@ class RefreshTokenView(View):
                 samesite="Strict",
             )
             return response
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=400)
+        except Exception:
+            return JsonResponse(
+                {"error": "Invalid or expired refresh token. Please login again."},
+                status=401
+            )
 
 class UpdateStatusMessageView(LoginRequiredMixin, View):
     def post(self, request):
