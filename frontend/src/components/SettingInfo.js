@@ -55,15 +55,11 @@ export default class SettingInfo extends Component {
     this.addEvent("change", ".form-select", (e) => this.changeLanguage(e));
 
     this.addEvent("click", ".form-check-input", async (e) => {
-      console.log(e.target.checked);
-      if (e.target.checked) {
-        try {
-          const data = await apiCall("/api/login/toggle-2fa/", "post");
-          console.log(data);
-        } catch (e) {
-          console.error(e);
-        }
-      } else {
+      try {
+        const data = await apiCall("/api/login/toggle-2fa/", "post");
+        console.log(data);
+      } catch (e) {
+        console.error(e);
       }
     });
 

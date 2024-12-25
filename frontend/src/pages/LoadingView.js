@@ -12,14 +12,11 @@ export default class Loading extends Component {
 			</div>
 		`;
   }
-
-  setEvent() {
-    this.$target.onload = async () => {
-      console.log("??");
-      await loginCode();
-    };
-  }
 }
+
+window.onload = async () => {
+  await loginCode();
+};
 
 const loginCode = async () => {
   const urlParams = new URLSearchParams(window.location.search);

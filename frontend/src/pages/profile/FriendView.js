@@ -89,9 +89,11 @@ export default class FriendView extends Component {
       requestData: data.requests,
     };
     try {
-      const data = await apiCall("/api/friendship/received/", "get");
+      const receivedFriends = await apiCall("/api/friendship/received/", "get");
+      const listFriends = await apiCall("/api/friendship/list/", "get");
 
-      console.log(data);
+      console.log(receivedFriends);
+      console.log(listFriends);
     } catch (e) {
       console.error(e);
     }

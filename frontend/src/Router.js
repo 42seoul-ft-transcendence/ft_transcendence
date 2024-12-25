@@ -53,6 +53,10 @@ export default class Router extends Component {
       this.checkRoutes();
     };
 
+    window.onload = () => {
+      this.checkRoutes();
+    };
+
     if (!window.location.hash) {
       window.location.hash = "#/";
     }
