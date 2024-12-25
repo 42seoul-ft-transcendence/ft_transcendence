@@ -56,14 +56,17 @@ class LandingPageView(View):
         사용자의 인증 상태를 반환하는 API.
         """
         token = request.COOKIES.get("access_token")
-        if token:
-            try:
-                payload = decode_jwt(token)
-                print(payload)
-                return JsonResponse({"authenticated": True, "redirect": "/"})
-            except Exception:
+        if not token:
+            return JsonResponse({"authenticated": False, "redirect": "/login/"})
+        try:
+            payload = decode_jwt(token)
+            user = User.objects.get(id=payload["user_id"])
+
+            if user.two_factor and not request.session.get("2fa_verified", False):
                 return JsonResponse({"authenticated": False, "redirect": "/login/"})
-        else:
+            login(request, user)
+            return JsonResponse({"authenticated": True, "redirect": "/"})
+        except Exception:
             return JsonResponse({"authenticated": False, "redirect": "/login/"})
 
 
@@ -143,7 +146,6 @@ class OauthCallbackView(View):
         """
         인증 코드를 사용하여 42 API에서 토큰을 가져옵니다.
         """
-        print(f"Code: {code}")
         response = requests.post(
             self.token_url,
             data={
@@ -250,12 +252,12 @@ class Verify2FAView(View):
             return HttpResponseBadRequest("User not found.")
 
         totp = pyotp.TOTP(user.otp_secret)
-        print(otp_code)
-        print(type(otp_code))
         if not totp.verify(otp_code):
             return HttpResponseBadRequest("Invalid OTP code.")
 
         response_data = self.generate_jwt_tokens(user)
+
+        request.session["2fa_verified"] = True
 
         response = JsonResponse({"message": "Login successful"})
         response.set_cookie(
@@ -292,9 +294,7 @@ class Toggle2FAView(View):
 
         if not two_factor:
             if not user.otp_secret:
-                temp = pyotp.random_base32()
-                print(temp)
-                user.otp_secret = temp
+                user.otp_secret = pyotp.random_base32()
             user.two_factor = True
             message = "2FA enabled"
         else:
@@ -330,11 +330,18 @@ class RefreshTokenView(View):
                 samesite="Strict",
             )
             return response
+
         except Exception:
             response = JsonResponse({"error": "Invalid or expired refresh token. Please login again."}, status=401)
             response.delete_cookie("access_token")
             response.delete_cookie("refresh_token")
-            return response
+            # return response
+            return JsonResponse(
+                {"error": "Invalid or expired refresh token. Please login again."},
+                status=401
+            )
+        # except Exception as e:
+        #     return JsonResponse({"error": str(e)}, status=400)
 
 class UpdateStatusMessageView(LoginRequiredMixin, View):
     def post(self, request):

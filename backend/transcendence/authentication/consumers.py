@@ -8,6 +8,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from asgiref.sync import sync_to_async
 from channels.layers import get_channel_layer
 from friendship.models import Friendship
+from django.db import models
 
 redis_client = redis.asyncio.StrictRedis(host="redis", port=6379, db=0)
 
@@ -18,7 +19,7 @@ class LoginStatusConsumer(AsyncWebsocketConsumer):
         Called when a WebSocket connection is opened.
         """
         self.user = self.scope["user"]
-        # self.user_group_name = f"user_{self.user.id}"
+        self.user_group_name = f"user_{self.user.id}"
 
         if self.user.is_authenticated:
             channel_layer = get_channel_layer()
@@ -38,6 +39,7 @@ class LoginStatusConsumer(AsyncWebsocketConsumer):
         """
         if self.user.is_authenticated:
             await self.send(json.dumps({"message": "WebSocket disconnected"}))
+            # await redis_client.delete(f"user:{self.user.id}:status", "online")
             await redis_client.delete(f"user:{self.user.id}:status")
             await self.channel_layer.group_discard("online", self.channel_name)
             await self.close()
