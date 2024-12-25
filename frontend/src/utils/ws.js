@@ -6,16 +6,16 @@ export function createWebSocketManager(url) {
     onMessage: null,
     onClose: null,
     onError: null,
-    // WebSocket 초기화 함수
   };
 
+  // WebSocket 초기화 함수
   function init() {
-    console.log("Initializing WebSocket...");
-    console.log(socket);
-    if (socket && socket.readyState === WebSocket.OPEN) {
-      console.warn("WebSocket is already open.");
+    if (socket && socket.readyState !== WebSocket.CLOSED) {
+      console.log("WebSocket is already open or connecting.");
       return;
     }
+
+    console.log("Initializing WebSocket...");
     socket = new WebSocket(url);
 
     // WebSocket 이벤트 핸들러 등록
@@ -39,7 +39,7 @@ export function createWebSocketManager(url) {
     };
 
     socket.onerror = (error) => {
-      console.log("WebSocket error:", error);
+      console.error("WebSocket error:", error);
       if (callbacks.onError) callbacks.onError(error);
       socket.close(); // 오류 발생 시 소켓 종료
     };
@@ -70,7 +70,6 @@ export function createWebSocketManager(url) {
   function close() {
     if (socket) {
       socket.close();
-      socket = null;
       console.log("WebSocket closed manually.");
     }
   }
@@ -133,9 +132,5 @@ loginSocket.on("onMessage", (event) => {
 });
 
 loginSocket.on("onOpen", () => {
-  // loginSocket.sendMessage(JSON.stringify({ action: "fetch_friend_statuses" }));
-});
-
-pongSocket.on("onOpen", () => {
-  console.log("Pong Socket Opened");
+  loginSocket.sendMessage(JSON.stringify({ action: "fetch_friend_statuses" }));
 });

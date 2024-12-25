@@ -13,8 +13,8 @@ export default class Loading extends Component {
   }
 }
 
-window.onload = async () => {
-  await loginCode();
+window.onload = () => {
+  loginCode();
 };
 
 const loginCode = async () => {

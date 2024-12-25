@@ -64,6 +64,28 @@ export default class Pong extends Component {
     board.draw(player1Score, player2Score);
 
     if (this.props.gameMode == "singleMode" && !finish) {
+      // const ws = wsConnect(
+      //   "wss://localhost:4443/ws/pong",
+      //   (event) => {
+      //     const data = JSON.parse(event.data);
+      //     switch (data.type) {
+      //       case "game_state":
+      //         updateGameState(data.content);
+      //         break;
+      //       case "game_stop":
+      //         displayWinner(data.content.winner);
+      //         break;
+      //       case "game_error":
+      //         console.error("게임 오류:", data.content.error);
+      //         break;
+      //       default:
+      //         console.log("알 수 없는 메시지 타입:", data.type);
+      //     }
+      //   },
+      //   (error) => {
+      //     console.error("WebSocket 오류:", error);
+      //   },
+      // );
     } else if (this.props.gameMode != "" && !finish) {
       if (this.props.opponent2.id == null) this.state.player1Score = 3;
       this.state.animationFrameId = requestAnimationFrame(

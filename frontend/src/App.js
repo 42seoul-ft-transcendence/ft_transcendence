@@ -11,9 +11,9 @@ import FriendView from "./pages/profile/FriendView.js";
 import SettingView from "./pages/profile/SettingView.js";
 import Loading from "./pages/LoadingView.js";
 
-import { pongSocket } from "./utils/ws.js";
+import { createWebSocketManager } from "./utils/ws.js";
 
-import PongComponent from "./components/SinglePong.js";
+const loginWs = createWebSocketManager("wss://django/ws/login-status/");
 
 import * as brackets from "./utils/tournament.js";
 
@@ -61,7 +61,6 @@ export default class App extends Component {
     const $body = this.$target.querySelector("#body");
 
     router.addRoute("#/", () => {
-      pongSocket.close();
       new Navbar($nav, profile);
       new Home($body, {
         handleNickModalClick: this.handleNickModalClick.bind(this),
@@ -79,16 +78,12 @@ export default class App extends Component {
 
     router.addRoute("#/game", () => {
       new Navbar($nav, profile);
-      if (this.state.gameMode === "singleMode") {
-        new PongComponent($body);
-      } else {
-        new Game($body, {
-          gameMode: this.state.gameMode,
-          opponent1: this.state.opponent1,
-          opponent2: this.state.opponent2,
-          handlePongNextGameClick: this.handlePongNextGameClick.bind(this),
-        });
-      }
+      new Game($body, {
+        gameMode: this.state.gameMode,
+        opponent1: this.state.opponent1,
+        opponent2: this.state.opponent2,
+        handlePongNextGameClick: this.handlePongNextGameClick.bind(this),
+      });
     });
 
     router.addRoute("#/tournament", () => {

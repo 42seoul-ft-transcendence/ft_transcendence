@@ -49,32 +49,31 @@ class LoginStatusConsumer(AsyncWebsocketConsumer):
         action = data.get("action")
 
         if action == "fetch_friend_statuses":
-            # await self.send_friend_statuses()
-            print(action)
+            await self.send_friend_statuses()
 
-    # async def send_friend_statuses(self):
-    #     """
-    #     Send the list of friends with their online/offline status.
-    #     """
-    #     friendships = await sync_to_async(Friendship.objects.filter)(
-    #         (models.Q(requester=self.user) | models.Q(receiver=self.user)) &
-    #         models.Q(status="accepted")
-    #     )
+    async def send_friend_statuses(self):
+        """
+        Send the list of friends with their online/offline status.
+        """
+        friendships = await sync_to_async(Friendship.objects.filter)(
+            (models.Q(requester=self.user) | models.Q(receiver=self.user)) &
+            models.Q(status="accepted")
+        )
 
-    #     friend_ids = set(
-    #         friendship.requester.id if friendship.receiver == self.user else friendship.receiver.id
-    #         for friendship in friendships
-    #     )
+        friend_ids = set(
+            friendship.requester.id if friendship.receiver == self.user else friendship.receiver.id
+            for friendship in friendships
+        )
 
-    #     redis_keys = [f"user:{friend_id}:status" for friend_id in friend_ids]
-    #     statuses = await redis_client.mget(*redis_keys)
+        redis_keys = [f"user:{friend_id}:status" for friend_id in friend_ids]
+        statuses = await redis_client.mget(*redis_keys)
 
-    #     friend_data = [
-    #         {
-    #             "id": friend_id,
-    #             "status": "online" if status == b"online" else "offline",
-    #         }
-    #         for friend_id, status in zip(friend_ids, statuses)
-    #     ]
+        friend_data = [
+            {
+                "id": friend_id,
+                "status": "online" if status == b"online" else "offline",
+            }
+            for friend_id, status in zip(friend_ids, statuses)
+        ]
 
-    #     await self.send(json.dumps({"friends": friend_data}))
+        await self.send(json.dumps({"friends": friend_data}))

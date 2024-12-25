@@ -57,7 +57,6 @@ export default class Router extends Component {
         const modal = bootstrap.Modal.getInstance($modalElement);
         modal.hide(); // 모달 닫기
       }
-      this.alreadyRoute = true;
       this.checkRoutes();
     };
 
@@ -65,7 +64,6 @@ export default class Router extends Component {
       window.location.hash = "#/";
     }
 
-    // if (this.alreadyRoute) return;
-    // this.checkRoutes();
+    this.checkRoutes();
   }
 }
