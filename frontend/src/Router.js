@@ -34,7 +34,6 @@ export default class Router extends Component {
     const currentRoute = this.state.routes.find((route) => {
       return route.fragment === window.location.hash;
     });
-
     if (
       !currentRoute ||
       (this.state.authenticated && window.location.hash === "#/login")
@@ -54,6 +53,13 @@ export default class Router extends Component {
     };
 
     window.onload = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+
+      if (urlParams.has("code")) {
+        loginCode();
+        return;
+      }
+
       this.checkRoutes();
     };
 
@@ -65,6 +71,48 @@ export default class Router extends Component {
   }
 }
 
-// window.onload = async () => {
-//   await loginCode();
-// };
+const loginCode = async () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  console.log(urlParams);
+
+  if (urlParams.has("code")) {
+    history.replaceState(null, "", "/");
+    const code = urlParams.get("code");
+
+    try {
+      const res = await fetch(`/api/login/oauth/callback/?code=${code}`, {
+        method: "get",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!res.ok) throw new Error("HTTP status " + res.status);
+
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("image/png")) {
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+
+        console.log(url);
+        new TwoFAView(document.querySelector("#body"), {
+          qrUrl: url,
+        });
+
+        return;
+      }
+
+      const resJson = await res.json();
+
+      wsConnect(resJson.websocket_url, (event) => {
+        console.log(event);
+      });
+      console.log(resJson);
+
+      window.location.hash = "/#/";
+    } catch (error) {
+      console.error(error);
+    }
+  }
+};
