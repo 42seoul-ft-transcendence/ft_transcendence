@@ -1,5 +1,4 @@
 from django.db import models
-from django.conf import settings
 
 class Friendship(models.Model):
     STATUS_CHOICES = [
@@ -10,11 +9,12 @@ class Friendship(models.Model):
     ]
 
     id = models.BigAutoField(primary_key=True)
+    # settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="sent_requests"
     requester = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="sent_requests"
+        'authentication.User', on_delete=models.CASCADE, related_name="sent_requests"
     )
     receiver = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="received_requests"
+        'authentication.User', on_delete=models.CASCADE, related_name="received_requests"
     )
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="pending")
     created_at = models.DateTimeField(auto_now_add=True)
