@@ -10,7 +10,7 @@ from asgiref.sync import async_to_sync
 from django.db import models
 from django.core.cache import cache
 
-from ..authentication.consumers import redis_client
+from authentication.consumers import redis_client
 
 User = get_user_model()
 

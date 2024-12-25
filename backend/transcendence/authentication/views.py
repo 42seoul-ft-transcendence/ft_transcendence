@@ -233,18 +233,13 @@ class Verify2FAView(View):
         return render(request, 'authentication.html')
 
     def post(self, request):
-        print(request.user)
-        print(request.body)
         try:
             data = json.loads(request.body)
-            username = request.user.username
-            otp_code = data.get("otp_code")
+            username = data.get("username")
+            otp_code = int(data.get("otp_code"))
         except json.JSONDecodeError:
             return HttpResponseBadRequest("Invalid JSON.")
-
-        print(otp_code)
-        print(username)
-
+        
         if not username or not otp_code:
             return HttpResponseBadRequest("Username and OTP code are required.")
 
@@ -254,6 +249,8 @@ class Verify2FAView(View):
             return HttpResponseBadRequest("User not found.")
 
         totp = pyotp.TOTP(user.otp_secret)
+        print(otp_code)
+        print(type(otp_code))
         if not totp.verify(otp_code):
             return HttpResponseBadRequest("Invalid OTP code.")
 
@@ -294,7 +291,9 @@ class Toggle2FAView(View):
 
         if not two_factor:
             if not user.otp_secret:
-                user.otp_secret = pyotp.random_base32()
+                temp = pyotp.random_base32()
+                print(temp)
+                user.otp_secret = temp
             user.two_factor = True
             message = "2FA enabled"
         else:

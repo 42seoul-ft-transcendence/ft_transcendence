@@ -90,25 +90,22 @@ const loginCode = async () => {
 
       if (!res.ok) throw new Error("HTTP status " + res.status);
 
-      const contentType = res.headers.get("content-type");
-      if (contentType && contentType.includes("image/png")) {
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
+      console.log(res);
+      const resJson = await res.json();
+      console.log(resJson);
 
-        console.log(url);
+      if (resJson.qr_url) {
+        console.log("2FA");
         new TwoFAView(document.querySelector("#body"), {
-          qrUrl: url,
+          qr_url: resJson.qr_image,
+          username: resJson.username,
         });
-
         return;
       }
-
-      const resJson = await res.json();
 
       wsConnect(resJson.websocket_url, (event) => {
         console.log(event);
       });
-      console.log(resJson);
 
       window.location.hash = "/#/";
     } catch (error) {
