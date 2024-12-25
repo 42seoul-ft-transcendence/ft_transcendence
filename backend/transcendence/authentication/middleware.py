@@ -14,7 +14,6 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
         "/login/verify-2fa/",
         "/login/"
         ]
-
     def process_request(self, request):
         """
         요청이 들어올 때 Authorization 헤더를 확인하고 JWT 검증
@@ -29,10 +28,9 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
 
         if access_token:
             try:
-                # Decode and verify access token
                 payload = decode_jwt(access_token)
                 user = User.objects.get(id=payload.get("user_id"))
-                request.user = user  # Set authenticated user
+                request.user = user
             except Exception:
                 return JsonResponse(
                     {"error": "Invalid or expired access token. Please login again."},
@@ -43,3 +41,22 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
                 {"error": "Invalid or expired access token. Please login again."},
                 status=401
             )
+
+        # request.user = AnonymousUser()
+        #
+        # token = request.COOKIES.get("access_token")
+        # if token:
+        #     try:
+        #         payload = decode_jwt(token)
+        #         user = User.objects.get(id=payload.get("user_id"))
+        #         request.user = user
+        #     except Exception:
+        #         return JsonResponse(
+        #             {"error": "Invalid or expired token. Please login again."},
+        #             status=401
+        #         )
+        # else:
+        #     return JsonResponse(
+        #         {"error": "Invalid or expired token. Please login again."},
+        #         status=401
+        #     )
