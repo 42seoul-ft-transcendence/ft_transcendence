@@ -105,36 +105,3 @@ class RespondFriendRequestView(LoginRequiredMixin, View):
             "message": f"Friend request {action}",
             "status": friendship.status,
         })
-
-
-class FriendshipListView(LoginRequiredMixin, View):
-    """
-    친구 목록 조회
-    """
-    async def get(self, request):
-        user = request.user
-
-        # DB에서 친구 목록 조회
-        friendships = await sync_to_async(Friendship.objects.filter)(
-            (models.Q(requester=user) | models.Q(receiver=user)) &
-            models.Q(status="accepted")
-        )
-
-        friend_ids = set(
-            friendship.requester.id if friendship.receiver == user else friendship.receiver.id
-            for friendship in friendships
-        )
-
-        redis_keys = [f"user:{friend_id}:status" for friend_id in friend_ids]
-        statuses = await redis_client.mget(redis_keys)
-
-        friend_data = []
-        for friend_id, status in zip(friend_ids, statuses):
-            friend = await sync_to_async(User.objects.get)(id=friend_id)
-            is_online = status == b"online"
-            friend_data.append({
-                "id": friend.id,
-                "status": "online" if is_online else "offline",
-            })
-
-        return JsonResponse({"friends": friend_data})
