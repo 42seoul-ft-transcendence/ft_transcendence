@@ -1,4 +1,5 @@
 import Component from "../core/Component.js";
+import { apiCall } from "../utils/api.js";
 import { getTranslation } from "../utils/translations.js";
 
 export default class SettingInfo extends Component {
@@ -11,17 +12,21 @@ export default class SettingInfo extends Component {
         <tbody style="opacity: 0.9;">
           <!-- Language Row -->
           <tr>
-            <th scope="row" class="text-start align-middle px-3">${getTranslation("language")}</th>
-            <td>
-              <select id="languageSelect" name="language" class="form-select">
-                <option value="english">🇺🇸 English</option>
+            <th scope="row" class="text-start align-middle px-3">${getTranslation(
+              "language",
+            )}</th>
+            <td class="text-end">
+              <select id="languageSelect" name="language" class="form-select w-100">
+                <option value="english" >🇺🇸 English</option>
                 <option value="korean">🇰🇷 한국어</option>
                 <option value="japanese">🇯🇵 日本語</option>
               </select>
             </td>
           </tr>
           <tr>
-            <th scope="row" class="text-start align-middle px-3">${getTranslation("twoFactor")}</th>
+            <th scope="row" class="text-start align-middle px-3">${getTranslation(
+              "twoFactor",
+            )}</th>
             <td class="d-flex justify-content-end align-items-center">
               <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" role="switch" id="2faSwitch"
@@ -48,6 +53,29 @@ export default class SettingInfo extends Component {
 
   setEvent() {
     this.addEvent("change", ".form-select", (e) => this.changeLanguage(e));
+
+    this.addEvent("click", ".form-check-input", async (e) => {
+      console.log(e.target.checked);
+      if (e.target.checked) {
+        try {
+          const data = await apiCall("/api/login/toggle-2fa/", "post");
+          console.log(data);
+        } catch (e) {
+          console.error(e);
+        }
+      } else {
+      }
+    });
+
+    this.addEvent("click", "#logoutBtn", async (e) => {
+      try {
+        const data = await apiCall("/api/login/logout/", "get");
+        console.log(data);
+        window.location.href = "#/login";
+      } catch (e) {
+        console.error(e);
+      }
+    });
   }
 
   changeLanguage(e) {

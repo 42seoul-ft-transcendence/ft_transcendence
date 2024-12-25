@@ -1,3 +1,4 @@
+import json
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.views import View
 from django.shortcuts import get_object_or_404, render
@@ -19,7 +20,12 @@ class SendFriendRequestView(LoginRequiredMixin, View):
         return render(request, 'friendship.html')
 
     def post(self, request):
-        receiver_id = request.POST.get("receiver")
+        try:
+            data = json.loads(request.body)
+            receiver_id = data.get("receiver")
+        except json.JSONDecodeError:
+            return HttpResponseBadRequest("Invalid JSON.")
+
         if not receiver_id:
             return HttpResponseBadRequest("Receiver ID is required.")
 

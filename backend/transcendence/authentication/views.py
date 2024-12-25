@@ -3,6 +3,7 @@ import base64
 import requests
 import pyotp
 import qrcode
+import json
 from io import BytesIO
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -58,7 +59,7 @@ class LandingPageView(View):
         if token:
             try:
                 payload = decode_jwt(token)
-                return JsonResponse({"authenticated": True, "redirect": "/home/"})
+                return JsonResponse({"authenticated": True, "redirect": "/"})
             except Exception:
                 return JsonResponse({"authenticated": False, "redirect": "/login/"})
         else:
@@ -232,8 +233,17 @@ class Verify2FAView(View):
         return render(request, 'authentication.html')
 
     def post(self, request):
-        username = request.user.username
-        otp_code = request.POST.get("otp_code")
+        print(request.user)
+        print(request.body)
+        try:
+            data = json.loads(request.body)
+            username = request.user.username
+            otp_code = data.get("otp_code")
+        except json.JSONDecodeError:
+            return HttpResponseBadRequest("Invalid JSON.")
+
+        print(otp_code)
+        print(username)
 
         if not username or not otp_code:
             return HttpResponseBadRequest("Username and OTP code are required.")

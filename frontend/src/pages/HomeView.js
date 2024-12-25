@@ -46,12 +46,16 @@ export default class Home extends Component {
   }
 
   setEvent() {
-    this.addEvent("click", "#oneToOne", this.handleOneToOneClick.bind(this));
+    this.addEvent(
+      "click",
+      "#oneToOneBtn",
+      this.props.handleOneToOneClick.bind(this),
+    );
   }
 
-  handleOneToOneClick() {
-    window.location.hash = "#/game";
-  }
+  // handleOneToOneClick() {
+  //   window.location.hash = "#/game";
+  // }
 
   handleTotalPlayerClick(number) {
     this.setState({ totalPlayer: number, userName: [] });

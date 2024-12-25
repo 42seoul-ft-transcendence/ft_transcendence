@@ -1,5 +1,6 @@
 // import Component from "/frontend/src/core/Component.js";
 import Component from "../core/Component.js";
+import Loading from "./LoadingView.js";
 
 export default class Login extends Component {
   template() {
@@ -22,6 +23,7 @@ export default class Login extends Component {
     this.addEvent("click", "#loginButton", () => {
       console.log("42 login button clicked");
       window.location.href = "/api/login/oauth/redirect/";
+      new Loading(this.$target);
     });
   }
 }

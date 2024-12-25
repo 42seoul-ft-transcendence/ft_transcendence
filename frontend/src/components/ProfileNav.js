@@ -41,6 +41,7 @@ export default class ProfileNav extends Component {
       event.preventDefault();
 
       window.location.hash = "#/profile/" + event.target.dataset.name;
+      this.props.appRender();
     });
   }
 }
