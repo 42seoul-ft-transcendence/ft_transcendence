@@ -1,7 +1,7 @@
 import Component from "./core/Component.js";
 import TwoFAView from "./pages/TwoFAView.js";
-import { wsConnect } from "./utils/ws.js";
 import { apiCall } from "./utils/api.js";
+import { loginSocket } from "./utils/ws.js";
 
 export default class Router extends Component {
   setup() {
@@ -23,6 +23,7 @@ export default class Router extends Component {
     const data = await apiCall("/api/login/", "get");
 
     console.log(data);
+
     if (!data.authenticated) {
       window.location.hash = "#/login";
       this.state.routes[1].component();
@@ -30,6 +31,7 @@ export default class Router extends Component {
     }
 
     this.state.authenticated = true;
+    loginSocket.init();
 
     const currentRoute = this.state.routes.find((route) => {
       return route.fragment === window.location.hash;
@@ -49,17 +51,12 @@ export default class Router extends Component {
 
   start() {
     window.onhashchange = () => {
-      this.checkRoutes();
-    };
-
-    window.onload = () => {
-      const urlParams = new URLSearchParams(window.location.search);
-
-      if (urlParams.has("code")) {
-        loginCode();
-        return;
+      const $modalElement = document.querySelector(".modal.show");
+      if ($modalElement) {
+        console.log("mo`dal");
+        const modal = bootstrap.Modal.getInstance($modalElement);
+        modal.hide(); // 모달 닫기
       }
-
       this.checkRoutes();
     };
 
@@ -67,49 +64,6 @@ export default class Router extends Component {
       window.location.hash = "#/";
     }
 
-    // this.checkRoutes();
+    this.checkRoutes();
   }
 }
-
-const loginCode = async () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  console.log(urlParams);
-
-  if (urlParams.has("code")) {
-    history.replaceState(null, "", "/");
-    const code = urlParams.get("code");
-
-    try {
-      const res = await fetch(`/api/login/oauth/callback/?code=${code}`, {
-        method: "get",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!res.ok) throw new Error("HTTP status " + res.status);
-
-      console.log(res);
-      const resJson = await res.json();
-      console.log(resJson);
-
-      if (resJson.qr_url) {
-        console.log("2FA");
-        new TwoFAView(document.querySelector("#body"), {
-          qr_url: resJson.qr_image,
-          username: resJson.username,
-        });
-        return;
-      }
-
-      wsConnect(resJson.websocket_url, (event) => {
-        console.log(event);
-      });
-
-      window.location.hash = "/#/";
-    } catch (error) {
-      console.error(error);
-    }
-  }
-};

@@ -4,6 +4,7 @@ import FriendCard from "../../components/FriendCard.js";
 import { getTranslation } from "../../utils/translations.js";
 import FriendRequest from "../../components/FriendRequest.js";
 import { apiCall } from "../../utils/api.js";
+import { loginSocket } from "../../utils/ws.js";
 
 const data = {
   users: [
@@ -90,7 +91,29 @@ export default class FriendView extends Component {
     };
     try {
       const receivedFriends = await apiCall("/api/friendship/received/", "get");
-      const listFriends = await apiCall("/api/friendship/list/", "get");
+      // const listSock = wsConnect(
+      //   "wss://localhost:4443/ws/login-status/",
+      //   (event) => {
+      //     const data = JSON.parse(event.data);
+
+      //     if (data.friends) {
+      //       console.log("Friend statuses:", data.friends);
+      //       // 친구 상태를 UI에 반영
+      //       data.friends.forEach((friend) => {
+      //         console.log(`Friend ID: ${friend.id}, Status: ${friend.status}`);
+      //       });
+      //     }
+      //   },
+      //   (ws) => {
+      //     console.log("WebSocket connected");
+
+      //     // 친구 상태 요청
+      //     ws.send(JSON.stringify({ action: "fetch_friend_statuses" }));
+      //   },
+      // );
+      loginSocket.sendMessage(
+        JSON.stringify({ action: "fetch_friend_statuses" }),
+      );
 
       console.log(receivedFriends);
       console.log(listFriends);

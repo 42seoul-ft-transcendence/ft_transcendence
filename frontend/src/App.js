@@ -11,6 +11,10 @@ import FriendView from "./pages/profile/FriendView.js";
 import SettingView from "./pages/profile/SettingView.js";
 import Loading from "./pages/LoadingView.js";
 
+import { createWebSocketManager } from "./utils/ws.js";
+
+const loginWs = createWebSocketManager("wss://django/ws/login-status/");
+
 import * as brackets from "./utils/tournament.js";
 
 const data = {

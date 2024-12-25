@@ -1,7 +1,7 @@
 import Component from "../core/Component.js";
 import * as game from "../utils/game/game.js";
 import { getTranslation } from "../utils/translations.js";
-import { wsConnect } from "../utils/ws.js";
+import { pongSocket } from "../utils/ws.js";
 
 export default class Pong extends Component {
   setup() {
@@ -64,29 +64,28 @@ export default class Pong extends Component {
     board.draw(player1Score, player2Score);
 
     if (this.props.gameMode == "singleMode" && !finish) {
-      const ws = wsConnect(
-        "wss://localhost:4443/ws/pong",
-        (event) => {
-          const data = JSON.parse(event.data);
-
-          switch (data.type) {
-            case "game_state":
-              updateGameState(data.content);
-              break;
-            case "game_stop":
-              displayWinner(data.content.winner);
-              break;
-            case "game_error":
-              console.error("게임 오류:", data.content.error);
-              break;
-            default:
-              console.log("알 수 없는 메시지 타입:", data.type);
-          }
-        },
-        (error) => {
-          console.error("WebSocket 오류:", error);
-        },
-      );
+      // const ws = wsConnect(
+      //   "wss://localhost:4443/ws/pong",
+      //   (event) => {
+      //     const data = JSON.parse(event.data);
+      //     switch (data.type) {
+      //       case "game_state":
+      //         updateGameState(data.content);
+      //         break;
+      //       case "game_stop":
+      //         displayWinner(data.content.winner);
+      //         break;
+      //       case "game_error":
+      //         console.error("게임 오류:", data.content.error);
+      //         break;
+      //       default:
+      //         console.log("알 수 없는 메시지 타입:", data.type);
+      //     }
+      //   },
+      //   (error) => {
+      //     console.error("WebSocket 오류:", error);
+      //   },
+      // );
     } else if (this.props.gameMode != "" && !finish) {
       if (this.props.opponent2.id == null) this.state.player1Score = 3;
       this.state.animationFrameId = requestAnimationFrame(
@@ -167,3 +166,117 @@ export default class Pong extends Component {
     });
   }
 }
+
+// pongSocket.on('onMessage', (event) => {
+//   const data = JSON.parse(event.data);
+//   handleServerMessage(data);
+
+// socket.onmessage = (event) => {
+//   const message = JSON.parse(event.data);
+//   handleServerMessage(message);
+// };
+
+// socket.onclose = () => {
+//   console.log('WebSocket connection closed');
+// };
+
+// function handleServerMessage(message) {
+//   switch (message.type) {
+//     case 'game_start':
+//       initializeGame(message.content.players);
+//       break;
+//     case 'game_state':
+//       updateGameState(message.content);
+//       break;
+//     case 'game_stop':
+//       displayWinner(message.content.winner);
+//       break;
+//     default:
+//       console.error('Unknown message type:', message.type);
+//   }
+// }
+// 3. 게임 화면 그리기
+// Canvas API를 사용하여 공과 패들을 렌더링합니다.
+
+// HTML:
+// html
+// 코드 복사
+// <canvas id="pongCanvas" width="800" height="400"></canvas>
+// JavaScript:
+// javascript
+// 코드 복사
+// const canvas = document.getElementById('pongCanvas');
+// const ctx = canvas.getContext('2d');
+
+// let gameState = {
+//   ball: { x: 0.5, y: 0.5 },
+//   pad_1: { y: 0.4, height: 0.2 },
+//   pad_2: { y: 0.6, height: 0.2 },
+//   scores: { player1: 0, player2: 0 }
+// };
+
+// function initializeGame(players) {
+//   console.log('Game started with players:', players);
+// }
+
+// function updateGameState(state) {
+//   gameState = state;
+//   drawGame();
+// }
+
+// function drawGame() {
+//   // Clear canvas
+//   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+//   // Draw ball
+//   ctx.beginPath();
+//   ctx.arc(
+//     gameState.ball.x * canvas.width,
+//     gameState.ball.y * canvas.height,
+//     10, 0, Math.PI * 2
+//   );
+//   ctx.fillStyle = 'red';
+//   ctx.fill();
+//   ctx.closePath();
+
+//   // Draw paddles
+//   ctx.fillStyle = 'blue';
+//   ctx.fillRect(10, gameState.pad_1.y * canvas.height, 10, gameState.pad_1.height * canvas.height);
+//   ctx.fillRect(
+//     canvas.width - 20,
+//     gameState.pad_2.y * canvas.height,
+//     10,
+//     gameState.pad_2.height * canvas.height
+//   );
+
+//   // Draw scores
+//   ctx.font = '20px Arial';
+//   ctx.fillText(`Player 1: ${gameState.scores.player1}`, 20, 20);
+//   ctx.fillText(`Player 2: ${gameState.scores.player2}`, canvas.width - 140, 20);
+// }
+
+// function displayWinner(winner) {
+//   alert(`Game Over! Winner: ${winner}`);
+// }
+// 4. 키보드 입력 처리
+// 플레이어가 패들을 움직일 수 있도록 키보드 이벤트를 처리하고, WebSocket을 통해 백엔드로 패들 이동 데이터를 보냅니다.
+
+// javascript
+// 코드 복사
+// document.addEventListener('keydown', (event) => {
+//   let direction = null;
+//   if (event.key === 'ArrowUp') {
+//     direction = 'up';
+//   } else if (event.key === 'ArrowDown') {
+//     direction = 'down';
+//   }
+
+//   if (direction) {
+//     socket.send(
+//       JSON.stringify({
+//         type: 'game_move',
+//         content: { pad_n: 'pad_1', direction: direction }
+//       })
+//     );
+//   }
+// });
