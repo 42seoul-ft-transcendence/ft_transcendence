@@ -59,6 +59,7 @@ class LandingPageView(View):
         if token:
             try:
                 payload = decode_jwt(token)
+                print(payload)
                 return JsonResponse({"authenticated": True, "redirect": "/"})
             except Exception:
                 return JsonResponse({"authenticated": False, "redirect": "/login/"})

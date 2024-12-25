@@ -11,16 +11,19 @@ class Pong(AsyncWebsocketConsumer):
         self.connected = True
         self.redis = redis.Redis(host="redis")
 
+        print("start connect")
         try:
             self.user = self.scope.get("user")
             if not self.user or self.user.is_anonymous:
                 raise ValueError("Invalid user")
 
             self.room_id = await self.assign_room()
+            print(room_id)
 
-            await self.accept()
             await self.channel_layer.group_add(self.room_id, self.channel_name)
+            await self.accept()
 
+            print("accepted")
             if await self.redis.llen(f"room_{self.room_id}_players") == 2:
                 await self.start_game()
         except Exception as e:
@@ -28,10 +31,13 @@ class Pong(AsyncWebsocketConsumer):
 
     async def assign_room(self):
         """Assigns the user to an existing room or creates a new one."""
+        print("start assign_room")
         rooms = await self.redis.keys("room_*_players")
         for room in rooms:
             if await self.redis.llen(room) < 2:
                 await self.redis.rpush(room, self.user.id)
+                print(user.id)
+                print("assign_room")
                 return room.decode('utf-8')
         new_room = f"room_{self.user.id}"
         await self.redis.rpush(f"room_{new_room}_players", self.user.id)
@@ -39,6 +45,7 @@ class Pong(AsyncWebsocketConsumer):
 
     async def start_game(self):
         """Start the game when 2 players are connected."""
+        print("start game") 
         players = await self.redis.lrange(f"room_{self.room_id}_players", 0, -1)
         self.scores = {player.decode('utf-8'): 0 for player in players}
         await self.send_message("group", "game_start", {"players": players})
