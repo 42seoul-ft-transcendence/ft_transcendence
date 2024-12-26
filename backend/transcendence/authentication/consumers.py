@@ -91,7 +91,7 @@ class LoginStatusConsumer(AsyncWebsocketConsumer):
                 "id": friend["id"],
                 "username": friend["username"],
                 "avatar": friend["avatar"],
-                "state_message": friend["state_message"],
+                "status_message": friend["status_message"],
                 "status": "online" if status == b"online" else "offline",
             }
             for friend, status in zip(friend_ids, statuses)
