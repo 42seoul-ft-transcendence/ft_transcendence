@@ -74,8 +74,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     def save_avatar_from_url(self, url):
         response = requests.get(url)
         if response.status_code == 200:
+            print(f"Downloading avatar from {url}")
+            print(f"Saving avatar to avatars/{self.username}.png")
             file_name = f"{self.username}.png"
             avatar_path = os.path.join("avatars", file_name)
             self.avatar.save(avatar_path, ContentFile(response.content), save=True)
         else:
+            self.avatar = "avatars/default.png"
             raise Exception("Failed to download avatar from url")

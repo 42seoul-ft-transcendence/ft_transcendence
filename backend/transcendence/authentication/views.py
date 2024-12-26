@@ -1,4 +1,5 @@
 import base64
+import os
 
 import requests
 import pyotp
@@ -7,6 +8,7 @@ import json
 from io import BytesIO
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.files.base import ContentFile
 from django.views import View
 from django.shortcuts import redirect
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
@@ -351,3 +353,17 @@ class UpdateStatusMessageView(LoginRequiredMixin, View):
         user.save()
 
         return JsonResponse({"message": "status message updated.", "status_message": status_message})
+
+class UploadAvatarView(LoginRequiredMixin, View):
+    def post(self, request):
+        avatar = request.FILES.get("avatar")
+        user = request.user
+        file_name = f"{user.username}.png"
+        avatar_path = os.path.join(settings.MEDIA_ROOT, file_name)
+
+        if avatar is None:
+            return JsonResponse({"error": "Avatar not found."}, status=400)
+
+        user.avatar.save(avatar_path, ContentFile(avatar.read()), save=True)
+
+        return JsonResponse({"message": "Avatar uploaded"}, status=200 )
