@@ -129,7 +129,3 @@ loginSocket.on("onMessage", (event) => {
     case "user_id":
   }
 });
-
-loginSocket.on("onOpen", () => {
-  // loginSocket.sendMessage(JSON.stringify({ action: "fetch_friend_statuses" }));
-});

@@ -76,44 +76,42 @@ export default class Pong extends Component {
       const data = await apiCall("/api/game/start/", "post");
       console.log(data);
 
-      if (data.status === "created" || data.status === "waiting") {
-        loginSocket.on("onMessage", (event) => {
-          const data = JSON.parse(event.data);
+      loginSocket.on("onMessage", (event) => {
+        const data = JSON.parse(event.data);
 
-          switch (data.type) {
-            case "get_user":
-              this.opponent1.id = data.user_id;
-              this.opponent1.name = data.username;
-              this.opponent1.position = 0;
-              break;
-          }
-        });
+        switch (data.type) {
+          case "get_user":
+            this.opponent1.id = data.user_id;
+            this.opponent1.name = data.username;
+            this.opponent1.position = 0;
+            break;
+        }
+      });
 
-        pongSocket.init(`pong/${data.room_id}/`);
-        pongSocket.on("onMessage", (event) => {
-          const message = JSON.parse(event.data);
+      pongSocket.init(`pong/${data.room_id}/`);
+      pongSocket.on("onMessage", (event) => {
+        const message = JSON.parse(event.data);
 
-          switch (message.type) {
-            case "game.start":
-              this.state.animationFrameId = requestAnimationFrame(
-                this.update.bind(this),
-              );
-              break;
-            case "game.update":
-              console.log("Game state updated:", message);
-              this.handleGameUpdate(message);
-              break;
-            case "game.end":
-              console.log("Game ended:", message);
-              // this.handleGameEnd(message);
-              break;
-            default:
-              console.error("Unknown message type:", message.type);
-          }
-        });
-      } else if (data.status === "in_room") {
-        alert("이미 방에 참여 중입니다.");
-      }
+        switch (message.type) {
+          case "game.start":
+            this.state.animationFrameId = requestAnimationFrame(
+              this.update.bind(this),
+            );
+            break;
+          case "game.update":
+            console.log("Game state updated:", message);
+            if (message.player_id === this.state.opponent2.id) {
+              this.state.player2.velocityY = message.direction;
+            }
+            break;
+          case "game.end":
+            console.log("Game ended:", message);
+            // this.handleGameEnd(message);
+            break;
+          default:
+            console.error("Unknown message type:", message.type);
+        }
+      });
     } else if (this.props.gameMode !== "" && !finish) {
       if (this.props.opponent2.id == null) this.state.player1Score = 3;
       this.state.animationFrameId = requestAnimationFrame(
@@ -178,11 +176,25 @@ export default class Pong extends Component {
 
   setEvent() {
     document.addEventListener("keydown", (e) => {
-      if (e.code == "KeyW") this.state.player1.velocityY = -3;
-      else if (e.code == "KeyS") this.state.player1.velocityY = 3;
+      if (this.props.gameMode === "singleMode") {
+        if (pongSocket.getStatus() === "OPEN") {
+          if (e.code == "ArrowUp")
+            pongSocket.sendMessage(
+              JSON.stringify({
+                type: "move",
+                direction: -3,
+                player_id: this.state.opponent1.id,
+              }),
+            );
+          else if (e.code == "ArrowDown") this.state.player2.velocityY = 3;
+        }
+      } else {
+        if (e.code == "KeyW") this.state.player1.velocityY = -3;
+        else if (e.code == "KeyS") this.state.player1.velocityY = 3;
 
-      if (e.code == "ArrowUp") this.state.player2.velocityY = -3;
-      else if (e.code == "ArrowDown") this.state.player2.velocityY = 3;
+        if (e.code == "ArrowUp") this.state.player2.velocityY = -3;
+        else if (e.code == "ArrowDown") this.state.player2.velocityY = 3;
+      }
     });
 
     this.addEvent("click", "#nextBtn", () => {
