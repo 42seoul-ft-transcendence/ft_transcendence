@@ -79,16 +79,16 @@ export default class App extends Component {
 
     router.addRoute("#/game", () => {
       new Navbar($nav, profile);
-      if (this.state.gameMode === "singleMode") {
-        new PongComponent($body);
-      } else {
-        new Game($body, {
-          gameMode: this.state.gameMode,
-          opponent1: this.state.opponent1,
-          opponent2: this.state.opponent2,
-          handlePongNextGameClick: this.handlePongNextGameClick.bind(this),
-        });
-      }
+      // if (this.state.gameMode === "singleMode") {
+      //   new PongComponent($body);
+      // } else {
+      new Game($body, {
+        gameMode: this.state.gameMode,
+        opponent1: this.state.opponent1,
+        opponent2: this.state.opponent2,
+        handlePongNextGameClick: this.handlePongNextGameClick.bind(this),
+      });
+      // }
     });
 
     router.addRoute("#/tournament", () => {

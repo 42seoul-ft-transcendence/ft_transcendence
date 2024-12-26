@@ -8,6 +8,7 @@ import { loginSocket } from "../../utils/ws.js";
 
 export default class FriendView extends Component {
   setup() {
+    console.log("FriendView setup");
     this.state = {
       friendCount: 0,
       friendData: [],
@@ -16,37 +17,15 @@ export default class FriendView extends Component {
     };
 
     // this.state.requestData = await apiCall("/api/friendship/received/", "get");
-    loginSocket.init();
-    loginSocket.sendMessage(
-      JSON.stringify({ action: "fetch_friend_statuses" }),
-    );
 
-    loginSocket.on("onMessage", async (event) => {
-      const data = JSON.parse(event.data);
-      console.log(data.type);
-
-      switch (data.type) {
-        case "friend_statuses":
-          const requestData = await apiCall("/api/friendship/received/", "get");
-
-          console.log("requestData", requestData);
-          const requestCount = requestData.received_requests.length;
-
-          this.setState({
-            requestData: requestData.received_requests,
-            requestCount,
-          });
-      }
-
-      // switch (message.type) {
-      //   case "friend_status":
-      //     console.log("Friend status updated:", message.content);
-      //     this.setState({ friendData: message.content });
-      //     break;
-      //   default:
-      //     console.error("Unknown message type:", message.type);
-      // }
-    });
+    // switch (message.type) {
+    //   case "friend_status":
+    //     console.log("Friend status updated:", message.content);
+    //     this.setState({ friendData: message.content });
+    //     break;
+    //   default:
+    //     console.error("Unknown message type:", message.type);
+    // }
 
     // this.setState({
     //   requestData: requestData,
@@ -56,8 +35,6 @@ export default class FriendView extends Component {
 
   template() {
     const { friendCount, requestCount } = this.state;
-
-    console.log("??");
 
     let temp = /* html */ `
 			<div class="container nav-section"></div>
@@ -119,37 +96,64 @@ export default class FriendView extends Component {
 
     this.$target.querySelectorAll(".accept-btn").forEach((card) => {
       card.onclick = (e) => {
-        const username = e.target.getAttribute("data-id");
-        console.log(username);
+        const request_id = e.target.getAttribute("data-id");
         const $card = e.target.closest("[id^=friendRequest]");
         if ($card) $card.remove();
       };
     });
 
     this.$target.querySelectorAll(".reject-btn").forEach((card) => {
-      card.onclick = (e) => {
-        const username = e.target.getAttribute("data-id");
-        console.log(username);
+      card.onclick = async (e) => {
+        const request_id = e.target.getAttribute("data-id");
+
+        await apiCall(`/api/friendship/respond/${request_id}`, "post", {});
         const $card = e.target.closest("[id^=friendRequest]");
         if ($card) $card.remove();
       };
     });
 
-    this.$target.querySelector("#addFriendBtn").onclick = async () => {
-      const input = this.$target.querySelector("#addFriendInput");
-      const username = input.value;
-      console.log("?");
+    this.$target
+      .querySelector("#addFriendBtn")
+      .addEventListener("click", async () => {
+        const input = this.$target.querySelector("#addFriendInput");
+        const username = input.value;
 
-      try {
-        const data = await apiCall("/api/friendship/send/", "post", {
-          receiver: username,
-        });
-        console.log(data);
-      } catch (e) {
-        console.error(e);
+        try {
+          const data = await apiCall("/api/friendship/send/", "post", {
+            receiver: username,
+          });
+          console.log(data);
+        } catch (e) {
+          console.error(e);
+        }
+      });
+
+    loginSocket.init();
+    loginSocket.sendMessage(
+      JSON.stringify({ action: "fetch_friend_statuses" }),
+    );
+    loginSocket.on("onMessage", async (event) => {
+      const data = JSON.parse(event.data);
+      console.log(data.type);
+
+      switch (data.type) {
+        case "friend_statuses":
+          const requestData = await apiCall("/api/friendship/received/", "get");
+
+          console.log("requestData", requestData);
+          const requestCount = requestData.received_requests.length;
+
+          this.setState({
+            requestData: requestData.received_requests,
+            requestCount,
+          });
+          console.log(this.$target.querySelector("#addFriendBtn").onclick);
+          break;
       }
-    };
+    });
   }
+
+  handle;
 }
 
 const data = {

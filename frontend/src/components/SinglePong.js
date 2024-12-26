@@ -18,8 +18,6 @@ export default class PongComponent extends Component {
     this.gameManager = null;
 
     const data = await apiCall("/api/game/start/", "post");
-
-    console.log(data);
   }
 
   mounted() {

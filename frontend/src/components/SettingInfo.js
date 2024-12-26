@@ -79,6 +79,8 @@ export default class SettingInfo extends Component {
     console.log(e);
 
     localStorage.setItem("lang", lang);
+    window.location.hash = "";
+    window.location.hash = "#/profile/setting";
     this.props.handleLangChange();
   }
 }

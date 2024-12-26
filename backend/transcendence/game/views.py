@@ -65,7 +65,7 @@ class GameStartView(LoginRequiredMixin, View):
                 if redis_conn.llen(room) == 2:
                     redis_conn.set(f"{room.decode('utf-8')}_host", players[0])
                     redis_conn.set(f"{room.decode('utf-8')}_guest", user.id)
-                    async_to_sync(channel_layer.group_send)(user.decode('utf-8'), {"type": "game.start"})
+                    async_to_sync(channel_layer.group_send)(room.decode('utf-8'), {"type": "game.start"})
                 return JsonResponse({"room_id": room.decode('utf-8'), "status": "waiting"})
 
         new_room = f"room_{user.id}"

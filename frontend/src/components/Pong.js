@@ -1,5 +1,6 @@
 import Component from "../core/Component.js";
 import * as game from "../utils/game/game.js";
+import { apiCall } from "../utils/api.js";
 
 import { getTranslation } from "../utils/translations.js";
 
@@ -20,7 +21,10 @@ export default class Pong extends Component {
       finish: false,
     };
 
-    if (!this.props.opponent1 && !this.props.opponent2)
+    if (
+      !(!this.props.opponent1 && !this.props.opponent2) ||
+      this.props.gameMode !== "singleMode"
+    )
       window.location.hash = "#/";
   }
 
@@ -64,6 +68,8 @@ export default class Pong extends Component {
     board.draw(player1Score, player2Score);
 
     if (this.props.gameMode == "singleMode" && !finish) {
+      const data = await apiCall("/api/game/start/", "post");
+      console.log(data);
     } else if (this.props.gameMode != "" && !finish) {
       if (this.props.opponent2.id == null) this.state.player1Score = 3;
       this.state.animationFrameId = requestAnimationFrame(

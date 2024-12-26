@@ -31,4 +31,21 @@ export default class FriendRequest extends Component {
 		</div>
 		`;
   }
+
+  setEvent() {
+    this.addEvent("click", ".accept-btn", (e) => this.acceptFriendRequest(e));
+    this.addEvent("click", ".reject-btn", (e) => this.rejectFriendRequest(e));
+  }
+
+  async acceptFriendRequest(e) {
+    const request_id = e.target.dataset.id;
+    const data = await apiCall(
+      `/api/friendship/accept/${request_id}/`,
+      "post",
+      {
+        action: "accept",
+      },
+    );
+    console.log(data);
+  }
 }
