@@ -78,8 +78,11 @@ class RespondFriendRequestView(LoginRequiredMixin, View):
         # action = request.POST.get("action")
 
         action = json.loads(request.body).get("action")
+        print(action)
         friendship = get_object_or_404(Friendship, id=friendship_id)
 
+        print(friendship.receiver)
+        print(request.user)
         # 요청자가 receiver일 때만 상태 변경 가능
         if friendship.receiver != request.user:
             return HttpResponseBadRequest("You are not authorized to respond to this request.")
@@ -87,6 +90,7 @@ class RespondFriendRequestView(LoginRequiredMixin, View):
         # 상태 전이 로직
         if friendship.status == "pending":
             if action == "accept":
+                print("ASDFAS")
                 friendship.status = "accepted"
             elif action == "deny":
                 friendship.status = "denied"

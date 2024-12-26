@@ -1,5 +1,6 @@
 import Component from "../core/Component.js";
 import { getTranslation } from "../utils/translations.js";
+import { apiCall } from "../utils/api.js";
 
 export default class FriendRequest extends Component {
   template() {
@@ -40,7 +41,7 @@ export default class FriendRequest extends Component {
   async acceptFriendRequest(e) {
     const request_id = e.target.dataset.id;
     const data = await apiCall(
-      `/api/friendship/accept/${request_id}/`,
+      `/api/friendship/respond/${request_id}/`,
       "post",
       {
         action: "accept",

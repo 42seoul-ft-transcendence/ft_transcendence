@@ -1,20 +1,28 @@
 import Component from "../../core/Component.js";
 import ProfileNav from "../../components/ProfileNav.js";
 import FriendCard from "../../components/FriendCard.js";
-import { getTranslation } from "../../utils/translations.js";
 import FriendRequest from "../../components/FriendRequest.js";
+
+import { getTranslation } from "../../utils/translations.js";
 import { apiCall } from "../../utils/api.js";
 import { loginSocket } from "../../utils/ws.js";
 
 export default class FriendView extends Component {
-  setup() {
-    console.log("FriendView setup");
+  async setup() {
     this.state = {
       friendCount: 0,
       friendData: [],
       requestCount: 0,
       requestData: [],
     };
+
+    const requestData = await apiCall("/api/friendship/received/", "get");
+    const requestCount = requestData.received_requests.length;
+
+    this.setState({
+      requestData: requestData.received_requests,
+      requestCount,
+    });
 
     // this.state.requestData = await apiCall("/api/friendship/received/", "get");
 
@@ -77,14 +85,12 @@ export default class FriendView extends Component {
 
     friendData.length &&
       friendData.forEach((list, index) => {
-        new FriendCard(
-          this.$target.querySelector(`#friendCard${index} `),
-          list,
-        );
+        new FriendCard(this.$target.querySelector(`#friendCard${index}`), list);
       });
   }
 
-  setEvent() {
+  async setEvent() {
+    console.log("Start");
     this.$target.querySelectorAll(".delete-friend-btn").forEach((card) => {
       card.onclick = (e) => {
         const username = e.target.getAttribute("data-id");
@@ -112,48 +118,59 @@ export default class FriendView extends Component {
       };
     });
 
-    this.$target
-      .querySelector("#addFriendBtn")
-      .addEventListener("click", async () => {
-        const input = this.$target.querySelector("#addFriendInput");
-        const username = input.value;
+    this.addEvent("click", "#addFriendBtn", async () => {
+      const input = this.$target.querySelector("#addFriendInput");
+      const username = input.value;
 
-        try {
-          const data = await apiCall("/api/friendship/send/", "post", {
-            receiver: username,
-          });
-          console.log(data);
-        } catch (e) {
-          console.error(e);
-        }
-      });
+      try {
+        const data = await apiCall("/api/friendship/send/", "post", {
+          receiver: username,
+        });
+        console.log(data);
+      } catch (e) {
+        console.error(e);
+      }
+    });
+
+    // this.$target.querySelector("#addFriendBtn").onclick = async () => {
+    //   const input = this.$target.querySelector("#addFriendInput");
+    //   const username = input.value;
+
+    //   try {
+    //     const data = await apiCall("/api/friendship/send/", "post", {
+    //       receiver: username,
+    //     });
+    //     console.log(data);
+    //   } catch (e) {
+    //     console.error(e);
+    //   }
+    // };
 
     loginSocket.init();
     loginSocket.sendMessage(
       JSON.stringify({ action: "fetch_friend_statuses" }),
     );
-    loginSocket.on("onMessage", async (event) => {
-      const data = JSON.parse(event.data);
-      console.log(data.type);
 
-      switch (data.type) {
-        case "friend_statuses":
-          const requestData = await apiCall("/api/friendship/received/", "get");
+    // loginSocket.on("onMessage", async (event) => {
+    //   const data = JSON.parse(event.data);
 
-          console.log("requestData", requestData);
-          const requestCount = requestData.received_requests.length;
+    //   switch (data.type) {
+    //     case "friend_statuses":
+    //       // const requestData = await apiCall("/api/friendship/received/", "get");
 
-          this.setState({
-            requestData: requestData.received_requests,
-            requestCount,
-          });
-          console.log(this.$target.querySelector("#addFriendBtn").onclick);
-          break;
-      }
-    });
+    //       // const requestCount = requestData.received_requests.length;
+
+    //       // this.setState({
+    //       //   requestData: requestData.received_requests,
+    //       //   requestCount,
+    //       // });
+
+    //       break;
+    //   }
+    // });
+
+    console.log(this.$target.querySelector("#addFriendBtn").onclick);
   }
-
-  handle;
 }
 
 const data = {
