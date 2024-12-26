@@ -80,7 +80,7 @@ class LoginStatusConsumer(AsyncWebsocketConsumer):
             User.objects.filter(id__in=friend_ids).values("id", "username", "avatar", "state_message")
         )
 
-        redis_keys = [f"user:{friend_id}:status" for friend_id in friend_ids]
+        redis_keys = [f"user:{friend['id']}:status" for friend in friends]
 
         if redis_keys:
             statuses = await redis_client.mget(*redis_keys)
