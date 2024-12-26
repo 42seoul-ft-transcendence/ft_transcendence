@@ -367,3 +367,22 @@ class UploadAvatarView(LoginRequiredMixin, View):
         user.avatar.save(avatar_path, ContentFile(avatar.read()), save=True)
 
         return JsonResponse({"message": "Avatar uploaded"}, status=200 )
+
+class SettingView(LoginRequiredMixin, View):
+    def post(self, request):
+        user = request.user
+        avatar = user.avatar
+        email = user.email
+        username = user.username
+        status_message = user.status_message
+        two_factor = user.two_factor
+
+        data = {
+            "avatar": avatar,
+            "email": email,
+            "username": username,
+            "status_message": status_message,
+            "two_factor": two_factor,
+        }
+
+        return JsonResponse(data, status=200)
