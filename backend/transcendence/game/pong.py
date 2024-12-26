@@ -31,6 +31,8 @@ class PongGameConsumer(AsyncWebsocketConsumer):
                 self.room_id,
                 {
                     "type": "game.start",
+                    "host": await self.redis_conn.lpop(f"{self.room_id}_host"),
+                    "guest": await self.redis_conn.lpop(f"{self.room_id}_guest"),
                 },
             )
 
