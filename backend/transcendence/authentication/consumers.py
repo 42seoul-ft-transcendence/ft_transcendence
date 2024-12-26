@@ -47,18 +47,21 @@ class LoginStatusConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         data = json.loads(text_data)
         action = data.get("action")
+        print(action)
 
         if action == "fetch_friend_statuses":
-            # await self.send_friend_statuses()
+            await self.send_friend_statuses()
             print(action)
 
     async def send_friend_statuses(self):
         """
         Send the list of friends with their online/offline status.
         """
-        friendships = await sync_to_async(Friendship.objects.filter)(
-            (models.Q(requester=self.user) | models.Q(receiver=self.user)) &
-            models.Q(status="accepted")
+        friendships = await sync_to_async(list)(
+            Friendship.objects.filter(
+                (models.Q(requester=self.user) | models.Q(receiver=self.user)) &
+                models.Q(status="accepted")
+            )
         )
 
         friend_ids = set(
@@ -66,8 +69,16 @@ class LoginStatusConsumer(AsyncWebsocketConsumer):
             for friendship in friendships
         )
 
+        if not friend_ids:
+            await self.send(json.dumps({"type": "friend_statuses", "friends": []}))
+            return
+
         redis_keys = [f"user:{friend_id}:status" for friend_id in friend_ids]
-        statuses = await redis_client.mget(*redis_keys)
+
+        if redis_keys:
+            statuses = await redis_client.mget(*redis_keys)
+        else:
+            statuses = []
 
         friend_data = [
             {
@@ -77,4 +88,4 @@ class LoginStatusConsumer(AsyncWebsocketConsumer):
             for friend_id, status in zip(friend_ids, statuses)
         ]
 
-        await self.send(json.dumps({"friends": friend_data}))
+        await self.send(json.dumps({"type": "friend_statuses", "friends": friend_data}))

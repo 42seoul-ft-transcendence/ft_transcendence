@@ -35,7 +35,7 @@ class LogoutView(View):
             async_to_sync(channel_layer.group_send)(
                 "online",
                 {
-                    "type": "user.disconnect",
+                    "type": "disconnect",
                     "user_id": user.id,
                 }
             )

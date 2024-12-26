@@ -6,83 +6,8 @@ import FriendRequest from "../../components/FriendRequest.js";
 import { apiCall } from "../../utils/api.js";
 import { loginSocket } from "../../utils/ws.js";
 
-const data = {
-  users: [
-    {
-      id: 1,
-      profileImage: "https://ui-avatars.com/api/?name=John+Doe&size=150",
-      message: "...................",
-      username: "john_doe",
-      winLossRecord: {
-        wins: 10,
-        losses: 3,
-      },
-    },
-    {
-      id: 2,
-      profileImage: "https://via.placeholder.com/150",
-      message: "WWWWWWWWW",
-      username: "jane_smith",
-      winLossRecord: {
-        wins: 8,
-        losses: 5,
-      },
-    },
-    {
-      id: 3,
-      profileImage: "https://via.placeholder.com/150",
-      message: "ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ",
-      username: "max_king",
-      winLossRecord: {
-        wins: 3,
-        losses: 9,
-      },
-    },
-    {
-      id: 4,
-      profileImage: "https://via.placeholder.com/150",
-      message: "dddddddddddihi",
-      username: "sara_connor",
-      winLossRecord: {
-        wins: 12,
-        losses: 0,
-      },
-    },
-    {
-      id: 5,
-      profileImage: "https://via.placeholder.com/150",
-      message: "プレイヤープレイヤープレイヤープレイ",
-      username: "tony_stark",
-      winLossRecord: {
-        wins: 7,
-        losses: 2,
-      },
-    },
-  ],
-  requests: [
-    {
-      id: 1,
-      profileImage: "https://ui-avatars.com/api/?name=John+Doe&size=150",
-      username: "john_doe",
-      message: "let's play a game!",
-    },
-    {
-      id: 2,
-      profileImage: "https://via.placeholder.com/150",
-      username: "jane_smith",
-      message: "let's play a game!",
-    },
-    {
-      id: 3,
-      profileImage: "https://via.placeholder.com/150",
-      username: "max_king",
-      message: "let's play a game!",
-    },
-  ],
-};
-
 export default class FriendView extends Component {
-  async setup() {
+  setup() {
     this.state = {
       friendCount: 0,
       friendData: [],
@@ -90,15 +15,49 @@ export default class FriendView extends Component {
       requestData: [],
     };
 
-    let requestData = await apiCall("/api/friendship/received/", "get");
-    this.setState({
-      requestData: requestData,
-      requestCount: requestData.length,
+    // this.state.requestData = await apiCall("/api/friendship/received/", "get");
+    loginSocket.init();
+    loginSocket.sendMessage(
+      JSON.stringify({ action: "fetch_friend_statuses" }),
+    );
+
+    loginSocket.on("onMessage", async (event) => {
+      const data = JSON.parse(event.data);
+      console.log(data.type);
+
+      switch (data.type) {
+        case "friend_statuses":
+          const requestData = await apiCall("/api/friendship/received/", "get");
+
+          console.log("requestData", requestData);
+          const requestCount = requestData.received_requests.length;
+
+          this.setState({
+            requestData: requestData.received_requests,
+            requestCount,
+          });
+      }
+
+      // switch (message.type) {
+      //   case "friend_status":
+      //     console.log("Friend status updated:", message.content);
+      //     this.setState({ friendData: message.content });
+      //     break;
+      //   default:
+      //     console.error("Unknown message type:", message.type);
+      // }
     });
+
+    // this.setState({
+    //   requestData: requestData,
+    //   requestCount: requestData.length,
+    // });
   }
 
   template() {
     const { friendCount, requestCount } = this.state;
+
+    console.log("??");
 
     let temp = /* html */ `
 			<div class="container nav-section"></div>
@@ -179,6 +138,7 @@ export default class FriendView extends Component {
     this.$target.querySelector("#addFriendBtn").onclick = async () => {
       const input = this.$target.querySelector("#addFriendInput");
       const username = input.value;
+      console.log("?");
 
       try {
         const data = await apiCall("/api/friendship/send/", "post", {
@@ -191,3 +151,78 @@ export default class FriendView extends Component {
     };
   }
 }
+
+const data = {
+  users: [
+    {
+      id: 1,
+      profileImage: "https://ui-avatars.com/api/?name=John+Doe&size=150",
+      message: "...................",
+      username: "john_doe",
+      winLossRecord: {
+        wins: 10,
+        losses: 3,
+      },
+    },
+    {
+      id: 2,
+      profileImage: "https://via.placeholder.com/150",
+      message: "WWWWWWWWW",
+      username: "jane_smith",
+      winLossRecord: {
+        wins: 8,
+        losses: 5,
+      },
+    },
+    {
+      id: 3,
+      profileImage: "https://via.placeholder.com/150",
+      message: "ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ",
+      username: "max_king",
+      winLossRecord: {
+        wins: 3,
+        losses: 9,
+      },
+    },
+    {
+      id: 4,
+      profileImage: "https://via.placeholder.com/150",
+      message: "dddddddddddihi",
+      username: "sara_connor",
+      winLossRecord: {
+        wins: 12,
+        losses: 0,
+      },
+    },
+    {
+      id: 5,
+      profileImage: "https://via.placeholder.com/150",
+      message: "プレイヤープレイヤープレイヤープレイ",
+      username: "tony_stark",
+      winLossRecord: {
+        wins: 7,
+        losses: 2,
+      },
+    },
+  ],
+  requests: [
+    {
+      id: 1,
+      profileImage: "https://ui-avatars.com/api/?name=John+Doe&size=150",
+      username: "john_doe",
+      message: "let's play a game!",
+    },
+    {
+      id: 2,
+      profileImage: "https://via.placeholder.com/150",
+      username: "jane_smith",
+      message: "let's play a game!",
+    },
+    {
+      id: 3,
+      profileImage: "https://via.placeholder.com/150",
+      username: "max_king",
+      message: "let's play a game!",
+    },
+  ],
+};
