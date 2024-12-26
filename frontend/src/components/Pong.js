@@ -24,14 +24,17 @@ export default class Pong extends Component {
     };
 
     if (
-      !(!this.props.opponent1 && !this.props.opponent2) ||
-      this.props.gameMode !== "singleMode"
+      this.props.gameMode === "" &&
+      !this.props.opponent1 &&
+      !this.props.opponent2
     )
       window.location.hash = "#/";
   }
 
   template() {
     const { opponent1, opponent2 } = this.state;
+
+    console.log(opponent1, opponent2);
 
     return /* html */ `
       <div class="canvas-container position-relative">
@@ -70,19 +73,55 @@ export default class Pong extends Component {
 
     board.draw(player1Score, player2Score);
 
-    if (this.props.gameMode == "singleMode" && !finish) {
+    if (this.props.gameMode === "singleMode" && !finish) {
       const data = await apiCall("/api/game/start/", "post");
-      this.pongSocket = createWebSocketManager(
-        `wss://localhost:4443/ws/pong/${data.room_id}/`,
-      );
-      this.pongSocket.init();
       console.log(data);
-    } else if (this.props.gameMode != "" && !finish) {
+
+      if (data.status === "created" || data.status === "waiting") {
+        this.state.pongSocket = createWebSocketManager(
+          `wss://localhost:4443/ws/pong/${data.room_id}/`,
+        );
+        this.state.pongSocket.init();
+        this.state.pongSocket.on("onMessage", (event) => {
+          const message = JSON.parse(event.data);
+
+          switch (message.type) {
+            case "game.start":
+              this.state.animationFrameId = requestAnimationFrame(
+                this.update.bind(this),
+              );
+              break;
+            case "game.update":
+              console.log("Game state updated:", message);
+              this.handleGameUpdate(message);
+              break;
+            case "game.end":
+              console.log("Game ended:", message);
+              // this.handleGameEnd(message);
+              break;
+            default:
+              console.error("Unknown message type:", message.type);
+          }
+        });
+      } else if (data.status === "in_room") {
+        alert("이미 방에 참여 중입니다.");
+      }
+    } else if (this.props.gameMode !== "" && !finish) {
       if (this.props.opponent2.id == null) this.state.player1Score = 3;
       this.state.animationFrameId = requestAnimationFrame(
         this.update.bind(this),
       );
     }
+  }
+
+  handleGameUpdate(message) {
+    // 게임 상태 업데이트 로직을 여기에 추가합니다.
+    // 예: 플레이어 위치, 공 위치 등
+  }
+
+  handleGameEnd(message) {
+    // 게임 종료 로직을 여기에 추가합니다.
+    // 예: 승자 표시, 점수 업데이트 등
   }
 
   update() {

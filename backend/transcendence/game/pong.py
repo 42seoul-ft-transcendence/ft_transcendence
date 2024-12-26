@@ -10,7 +10,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
         self.connected = True
-        print(self.scope['url_route']['kwargs'])
+        print(self.scope)
         self.room_id = self.scope['url_route']['kwargs']['room_id']
         self.player_id = str(self.scope["user"].id)
 
@@ -32,6 +32,8 @@ class PongGameConsumer(AsyncWebsocketConsumer):
                 self.room_id,
                 {
                     "type": "game.start",
+                    "host": await self.redis_conn.get(f"{self.room_id}_host"),
+                    "guest": await self.redis_conn.get(f"{self.room_id}_guest"),
                 },
             )
 
@@ -225,3 +227,4 @@ class PongGameConsumer(AsyncWebsocketConsumer):
     #             self.y = max(self.y - 0.05, 0)
     #         elif direction == "down":
     #             self.y = min(self.y + 0.05, 1 - self.height)
+    {'type': 'websocket', 'path': '/ws/pong/room_1/', 'raw_path': b'/ws/pong/room_1/', 'root_path': '', 'headers': [(b'upgrade', b'websocket'), (b'connection', b'upgrade'), (b'host', b'localhost'), (b'x-real-ip', b'192.168.65.1'), (b'x-forwarded-for', b'192.168.65.1'), (b'x-forwarded-proto', b'https'), (b'pragma', b'no-cache'), (b'cache-control', b'no-cache'), (b'user-agent', b'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'), (b'origin', b'https://localhost:4443'), (b'sec-websocket-version', b'13'), (b'accept-encoding', b'gzip, deflate, br, zstd'), (b'accept-language', b'ko-KR,ko;q=0.9'), (b'cookie', b'access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6InN1bWlucGFyIiwiZXhwIjoxNzM1MjU1ODU1LCJ0eXBlIjoiYWNjZXNzIn0.SMaW5ukQd6FcK61BM3PJulwZzO2vnA4Ze57jq0wGqj8; refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6InN1bWlucGFyIiwiZXhwIjoxNzM1ODE3NDU1LCJ0eXBlIjoicmVmcmVzaCJ9.E2OgJAteQiMZvN6yKTugMoP6X5FeF82w-y3EoP4rRxY; sessionid=u8gsiqoqdhnx6bix7mxz09mndxiy4fpq; csrftoken=UIXZwZQ2XWasbXL09nqlff5EUsL1Ma2b'), (b'sec-websocket-key', b'kEVFGFbfbjfEo6KcgLAmFw=='), (b'sec-websocket-extensions', b'permessage-deflate; client_max_window_bits')], 'query_string': b'', 'client': ['172.29.0.6', 56828], 'server': ['172.29.0.5', 8000], 'subprotocols': [], 'asgi': {'version': '3.0'}, 'cookies': {'access_token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6InN1bWlucGFyIiwiZXhwIjoxNzM1MjU1ODU1LCJ0eXBlIjoiYWNjZXNzIn0.SMaW5ukQd6FcK61BM3PJulwZzO2vnA4Ze57jq0wGqj8', 'refresh_token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6InN1bWlucGFyIiwiZXhwIjoxNzM1ODE3NDU1LCJ0eXBlIjoicmVmcmVzaCJ9.E2OgJAteQiMZvN6yKTugMoP6X5FeF82w-y3EoP4rRxY', 'sessionid': 'u8gsiqoqdhnx6bix7mxz09mndxiy4fpq', 'csrftoken': 'UIXZwZQ2XWasbXL09nqlff5EUsL1Ma2b'}, 'session': <django.utils.functional.LazyObject object at 0xffff9c34e5b0>, 'user': <channels.auth.UserLazyObject object at 0xffff9c34ecd0>, 'path_remaining': '', 'url_route': {'args': (), 'kwargs': {'room_id': 'room_1'}}
