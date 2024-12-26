@@ -16,12 +16,9 @@ class Pong(models.Model):
     host_score = models.PositiveSmallIntegerField(default=0)
     guest_score = models.PositiveSmallIntegerField(default=0)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="ONGOING")
+    winner = models.CharField(max_length=50, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    def end_game(self, winner):
-        self.status = "COMPLETED" if winner else "FORFEIT"
-        self.save()
 
     def __str__(self):
         return f"{self.host.username} vs {self.guest.username} - {self.host_score}:{self.guest_score}"
