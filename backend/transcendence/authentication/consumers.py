@@ -54,13 +54,14 @@ class LoginStatusConsumer(AsyncWebsocketConsumer):
 
         if action == "fetch_friend_statuses":
             await self.send_friend_statuses()
-        elif action == "get_user_id":
-            await self.get_user_id()
+        elif action == "get_user":
+            await self.get_user()
 
-    async def get_user_id(self):
+    async def get_user(self):
         user_id = self.scope["user"].id
+        username = self.scope["user"].username
 
-        await self.send(json.dumps({"type": "user_id", "user_id": user_id}))
+        await self.send(json.dumps({"type": "user_id", "user_id": user_id, "username": username}))
 
 
     async def send_friend_statuses(self):

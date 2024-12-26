@@ -53,7 +53,8 @@ class GameStartView(LoginRequiredMixin, View):
         for room in existing_rooms:
             players = redis_conn.lrange(room, 0, -1)
             if str(user.id).encode('utf-8') in players:
-                return JsonResponse({"room_id": room.decode('utf-8'), "status": "in_room"})
+                redis_conn.delete(room)
+                # return JsonResponse({"room_id": room.decode('utf-8'), "status": "in_room"})
 
         for room in existing_rooms:
             if redis_conn.llen(room) < 2:
