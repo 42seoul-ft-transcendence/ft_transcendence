@@ -122,12 +122,11 @@ export const pongSocket = createWebSocketManager();
 loginSocket.on("onMessage", (event) => {
   const data = JSON.parse(event.data);
 
-  if (data.friends) {
-    console.log("Friend statuses:", data.friends);
-    // 친구 상태를 UI에 반영
-    data.friends.forEach((friend) => {
-      console.log(`Friend ID: ${friend.id}, Status: ${friend.status}`);
-    });
+  switch (data.type) {
+    case "friend_statuses":
+      console.log("Friend statuses:", data.friends);
+      break;
+    case "user_id":
   }
 });
 

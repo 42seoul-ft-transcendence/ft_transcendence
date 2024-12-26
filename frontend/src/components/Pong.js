@@ -2,7 +2,7 @@ import Component from "../core/Component.js";
 import * as game from "../utils/game/game.js";
 
 import { getTranslation } from "../utils/translations.js";
-import { pongSocket } from "../utils/ws.js";
+import { pongSocket, loginSocket } from "../utils/ws.js";
 import { apiCall } from "../utils/api.js";
 
 export default class Pong extends Component {
@@ -77,6 +77,18 @@ export default class Pong extends Component {
       console.log(data);
 
       if (data.status === "created" || data.status === "waiting") {
+        loginSocket.on("onMessage", (event) => {
+          const data = JSON.parse(event.data);
+
+          switch (data.type) {
+            case "get_user":
+              this.opponent1.id = data.user_id;
+              this.opponent1.name = data.username;
+              this.opponent1.position = 0;
+              break;
+          }
+        });
+
         pongSocket.init(`pong/${data.room_id}/`);
         pongSocket.on("onMessage", (event) => {
           const message = JSON.parse(event.data);
