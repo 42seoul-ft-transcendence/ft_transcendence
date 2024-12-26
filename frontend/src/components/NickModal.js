@@ -25,8 +25,8 @@ export default class NickModal extends Component {
 				<div class="modal-content">
 					<div class="modal-header">
 						<h5 class="modal-title" id="nicknameModalLabel">${getTranslation(
-              "nickModalDescription",
-            )}</h5>
+      "nickModalDescription",
+    )}</h5>
 						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 					</div>
 					<div class="modal-body">
@@ -34,17 +34,16 @@ export default class NickModal extends Component {
       "nickname",
     )}</p>
 						<input type="text" class="form-control w-75 mx-auto" id="playerNicknameInput" placeholder="${getTranslation(
-              "enterNick",
-            )}">
+      "enterNick",
+    )}">
 						<div id="errorMessage" class="text-danger mt-2" style="display: none;"></div>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-outline-info" id="nextPlayerButton">
-              ${
-                currentPlayer == totalPlayer
-                  ? getTranslation("start")
-                  : getTranslation("next")
-              }
+              ${currentPlayer == totalPlayer
+        ? getTranslation("start")
+        : getTranslation("next")
+      }
             </button>
 					</div>
 				</div>
@@ -68,7 +67,12 @@ export default class NickModal extends Component {
       $nicknameInput.classList.add("is-invalid");
       $error.style.display = "block";
       $error.textContent = getTranslation("nickEmpty");
-    } else if (this.validateNickName(nickname)) {
+    } else if (nickname.length > 9) {
+      $nicknameInput.classList.add("is-invalid");
+      $error.style.display = "block";
+      $error.textContent = getTranslation("nickTooLong");
+    }
+    else if (this.validateNickName(nickname)) {
       $nicknameInput.classList.add("is-invalid");
       $error.style.display = "block";
       $error.textContent = getTranslation("nickDuplicate");
