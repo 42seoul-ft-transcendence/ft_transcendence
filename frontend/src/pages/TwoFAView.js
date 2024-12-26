@@ -57,9 +57,9 @@ export default class TwoFAView extends Component {
           username: this.state.username,
           otp_code: twoFA,
         });
-      } catch (e) {
-        console.error(e);
-      }
+
+        window.location.hash = "/";
+      } catch (e) {}
     });
   }
 }

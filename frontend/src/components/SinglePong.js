@@ -1,5 +1,4 @@
 import Component from "../core/Component.js";
-import WebSocketClient from "../utils/websocket.js";
 import GameRenderer from "../utils/game_render.js";
 import GameManager from "../utils/game_manager.js";
 import { pongSocket } from "../utils/ws.js";
@@ -17,7 +16,6 @@ export default class PongComponent extends Component {
     this.renderer = null;
     this.gameManager = null;
 
-    // pongSocket.close();
     pongSocket.init();
     pongSocket.on("onMessage", (message) => {
       console.log("onMessage", message);

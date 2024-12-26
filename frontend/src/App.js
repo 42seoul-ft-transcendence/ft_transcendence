@@ -104,23 +104,18 @@ export default class App extends Component {
 
     router.addRoute("#/profile/history", () => {
       new Navbar($nav, profile);
-      new HistoryView($body, {
-        appRender: this.render.bind(this),
-      });
+      new HistoryView($body);
     });
 
     router.addRoute("#/profile/friends", () => {
       new Navbar($nav, profile);
-      new FriendView($body, {
-        appRender: this.render.bind(this),
-      });
+      new FriendView($body);
     });
 
     router.addRoute("#/profile/setting", () => {
       new Navbar($nav, profile);
       new SettingView($body, {
         handleLangChange: this.handleLangChange.bind(this),
-        appRender: this.render.bind(this),
       });
     });
 

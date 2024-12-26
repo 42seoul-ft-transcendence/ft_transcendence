@@ -55,13 +55,13 @@ export default class SettingView extends Component {
   }
 
   setEvent() {
-    this.addEvent("click", ".edit-button", () => {
+    this.$target.querySelector(".edit-button").onclick = () => {
       const fileInput = document.getElementById("fileInput");
 
       fileInput.click();
-    });
+    };
 
-    this.addEvent("change", "#fileInput", (e) => {
+    this.$target.querySelector("#fileInput").onchange = (e) => {
       const file = e.target.files[0];
       const reader = new FileReader();
 
@@ -77,6 +77,6 @@ export default class SettingView extends Component {
       };
 
       reader.readAsDataURL(file);
-    });
+    };
   }
 }

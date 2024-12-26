@@ -31,13 +31,16 @@ export const apiCall = async (url, method, data = null) => {
     init.body = JSON.stringify(data);
   }
 
-  const res = await fetch(url, init);
+  try {
+    const res = await fetch(url, init);
 
-  if (!res.ok) {
-    const errorText = await res.text();
-    console.log(errorText);
-    throw new Error("HTTP status " + res.status);
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.log(errorText);
+      throw new Error("HTTP status " + res.status);
+    }
+    return await res.json();
+  } catch (error) {
+    console.error(error);
   }
-
-  return await res.json();
 };

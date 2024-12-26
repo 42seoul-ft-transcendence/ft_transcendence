@@ -84,23 +84,17 @@ const data = {
 export default class FriendView extends Component {
   async setup() {
     this.state = {
-      friendCount: data.users.length,
-      friendData: data.users,
-      requestCount: data.requests.length,
-      requestData: data.requests,
+      friendCount: 0,
+      friendData: [],
+      requestCount: 0,
+      requestData: [],
     };
-    try {
-      const receivedFriends = await apiCall("/api/friendship/received/", "get");
 
-      // loginSocket.sendMessage(
-      //   JSON.stringify({ action: "fetch_friend_statuses" }),
-      // );
-
-      console.log(receivedFriends);
-      console.log(listFriends);
-    } catch (e) {
-      console.error(e);
-    }
+    let requestData = await apiCall("/api/friendship/received/", "get");
+    this.setState({
+      requestData: requestData,
+      requestCount: requestData.length,
+    });
   }
 
   template() {
@@ -115,7 +109,7 @@ export default class FriendView extends Component {
     for (let i = 0; i < requestCount; ++i)
       temp += /* html */ `<div id="friendRequest${i}" class="col-md-4"></div>`;
     temp += /* html */ `</div>
-    <div class="row g-4 mt-1">`;
+    <div id="friendCard" class="row g-4 mt-1">`;
 
     for (let i = 0; i < friendCount; ++i)
       temp += /* html */ `<div id="friendCard${i}" class="col-md-6"></div>`;
@@ -137,41 +131,52 @@ export default class FriendView extends Component {
     new ProfileNav(this.$target.querySelector(".nav-section"), this.props);
     new FriendRequest(this.$target.querySelector("#friendRequest"));
 
-    requestData.forEach((list, index) => {
-      new FriendRequest(
-        this.$target.querySelector(`#friendRequest${index} `),
-        list,
-      );
-    });
-    friendData.forEach((list, index) => {
-      new FriendCard(this.$target.querySelector(`#friendCard${index} `), list);
-    });
+    requestData.length &&
+      requestData.forEach((list, index) => {
+        new FriendRequest(
+          this.$target.querySelector(`#friendRequest${index}`),
+          list,
+        );
+      });
+
+    friendData.length &&
+      friendData.forEach((list, index) => {
+        new FriendCard(
+          this.$target.querySelector(`#friendCard${index} `),
+          list,
+        );
+      });
   }
 
   setEvent() {
-    this.addEvent("click", ".delete-friend-btn", (e) => {
-      const username = e.target.getAttribute("data-id");
-      console.log(username);
-      const card = e.target.closest("[id^=friendCard]");
-      if (card) card.remove();
+    this.$target.querySelectorAll(".delete-friend-btn").forEach((card) => {
+      card.onclick = (e) => {
+        const username = e.target.getAttribute("data-id");
+        console.log(username);
+        const $card = e.target.closest("[id^=friendCard]");
+        if ($card) $card.remove();
+      };
     });
 
-    this.addEvent("click", ".accept-btn", (e) => {
-      const username = e.target.getAttribute("data-id");
-      console.log(username);
-
-      const card = e.target.closest("[id^=friendRequest]");
-      if (card) card.remove();
+    this.$target.querySelectorAll(".accept-btn").forEach((card) => {
+      card.onclick = (e) => {
+        const username = e.target.getAttribute("data-id");
+        console.log(username);
+        const $card = e.target.closest("[id^=friendRequest]");
+        if ($card) $card.remove();
+      };
     });
 
-    this.addEvent("click", ".reject-btn", (e) => {
-      const username = e.target.getAttribute("data-id");
-      console.log(username);
-      const card = e.target.closest("[id^=friendRequest]");
-      if (card) card.remove();
+    this.$target.querySelectorAll(".reject-btn").forEach((card) => {
+      card.onclick = (e) => {
+        const username = e.target.getAttribute("data-id");
+        console.log(username);
+        const $card = e.target.closest("[id^=friendRequest]");
+        if ($card) $card.remove();
+      };
     });
 
-    this.addEvent("click", "#addFriendBtn", async () => {
+    this.$target.querySelector("#addFriendBtn").onclick = async () => {
       const input = this.$target.querySelector("#addFriendInput");
       const username = input.value;
 
@@ -183,6 +188,6 @@ export default class FriendView extends Component {
       } catch (e) {
         console.error(e);
       }
-    });
+    };
   }
 }

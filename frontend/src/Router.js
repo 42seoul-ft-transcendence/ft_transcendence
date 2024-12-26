@@ -9,6 +9,7 @@ export default class Router extends Component {
       routes: [],
       authenticated: false,
     };
+    this.alreadyRoute = false;
   }
 
   addRoute(fragment, component) {
@@ -16,9 +17,10 @@ export default class Router extends Component {
   }
 
   async checkRoutes() {
+    console.log("checkRoutes");
     const urlParams = new URLSearchParams(window.location.search);
 
-    if (urlParams.has("code")) return;
+    if (urlParams.has("code") || this.alreadyRoute) return;
 
     const data = await apiCall("/api/login/", "get");
 
@@ -41,7 +43,6 @@ export default class Router extends Component {
       (this.state.authenticated && window.location.hash === "#/login")
     ) {
       window.location.hash = "#/";
-      // history.pushState(null, "", "#/");
       this.state.routes[0].component();
       return;
     }
@@ -52,20 +53,52 @@ export default class Router extends Component {
   start() {
     window.onhashchange = () => {
       const $modalElement = document.querySelector(".modal.show");
+
       if ($modalElement) {
-        console.log("mo`dal");
         const modal = bootstrap.Modal.getInstance($modalElement);
         modal.hide(); // 모달 닫기
       }
-      this.alreadyRoute = true;
       this.checkRoutes();
     };
 
-    if (!window.location.hash) {
-      window.location.hash = "#/";
-    }
+    window.onload = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has("code")) {
+        history.replaceState(null, "", "/");
+        const code = urlParams.get("code");
 
-    // if (this.alreadyRoute) return;
-    // this.checkRoutes();
+        try {
+          const res = await fetch(`/api/login/oauth/callback/?code=${code}`, {
+            method: "get",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (!res.ok) throw new Error("HTTP status " + res.status);
+
+          const resJson = await res.json();
+
+          if (resJson.qr_url) {
+            new TwoFAView(document.querySelector("#body"), {
+              qr_url: resJson.qr_image,
+              username: resJson.username,
+            });
+            return;
+          }
+
+          window.location.hash = "/#/";
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      if (!window.location.hash) {
+        window.location.hash = "#/";
+      }
+
+      this.checkRoutes();
+    };
   }
 }
