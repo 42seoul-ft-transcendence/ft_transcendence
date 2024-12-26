@@ -5,7 +5,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from .models import Pong
 
 class PongGameConsumer(AsyncWebsocketConsumer):
-    win_goal = 5
+    win_goal = 3
     redis_conn = redis.Redis(host='redis')
 
     async def connect(self):

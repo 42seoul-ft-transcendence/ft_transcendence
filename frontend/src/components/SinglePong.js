@@ -2,9 +2,10 @@ import Component from "../core/Component.js";
 import GameRenderer from "../utils/game_render.js";
 import GameManager from "../utils/game_manager.js";
 import { pongSocket } from "../utils/ws.js";
+import { apiCall } from "../utils/api.js";
 
 export default class PongComponent extends Component {
-  setup() {
+  async setup() {
     this.state = {
       gameState: {
         ball: { x: 0.5, y: 0.5 },
@@ -16,25 +17,9 @@ export default class PongComponent extends Component {
     this.renderer = null;
     this.gameManager = null;
 
-    pongSocket.init();
-    pongSocket.on("onMessage", (message) => {
-      console.log("onMessage", message);
-      switch (message.type) {
-        case "game_start":
-          console.log("Game started with players:", message.content.players);
-          break;
-        case "game_state":
-          console.log("Game state updated:", message.content);
-          this.gameManager.updateState(message.content);
-          break;
-        case "game_stop":
-          console.log("Game Over! Winner:", message.content.winner);
-          this.gameManager.displayWinner(message.content.winner);
-          break;
-        default:
-          console.error("Unknown message type:", message.type);
-      }
-    });
+    const data = await apiCall("/api/game/start/", "post");
+
+    console.log(data);
   }
 
   mounted() {
@@ -68,3 +53,23 @@ export default class PongComponent extends Component {
     });
   }
 }
+
+// pongSocket.init();
+// pongSocket.on("onMessage", (message) => {
+//   console.log("onMessage", message);
+//   switch (message.type) {
+//     case "game_start":
+//       console.log("Game started with players:", message.content.players);
+//       break;
+//     case "game_state":
+//       console.log("Game state updated:", message.content);
+//       this.gameManager.updateState(message.content);
+//       break;
+//     case "game_stop":
+//       console.log("Game Over! Winner:", message.content.winner);
+//       this.gameManager.displayWinner(message.content.winner);
+//       break;
+//     default:
+//       console.error("Unknown message type:", message.type);
+//   }
+// });

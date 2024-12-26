@@ -75,7 +75,9 @@ class RespondFriendRequestView(LoginRequiredMixin, View):
     친구 요청에 응답 (accept, deny, delete)
     """
     def post(self, request, friendship_id):
-        action = request.POST.get("action")
+        # action = request.POST.get("action")
+
+        action = json.loads(request.body).get("action")
         friendship = get_object_or_404(Friendship, id=friendship_id)
 
         # 요청자가 receiver일 때만 상태 변경 가능
