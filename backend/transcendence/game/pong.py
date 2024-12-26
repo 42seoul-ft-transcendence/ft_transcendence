@@ -1,6 +1,6 @@
 import asyncio
 import json
-import redis
+import redis.asyncio as redis
 from channels.generic.websocket import AsyncWebsocketConsumer
 from .models import Pong
 

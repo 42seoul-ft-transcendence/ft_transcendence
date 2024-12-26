@@ -1,9 +1,8 @@
 from django.http import JsonResponse
 from django.views import View
 from django.core.paginator import Paginator
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-import redis.asyncio as redis
+from django.contrib.auth.mixins import LoginRequiredMixin
+import redis
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
@@ -47,8 +46,7 @@ class MatchHistoryView(View):
         })
 
 
-@method_decorator(login_required, name='dispatch')
-class GameStartView(View):
+class GameStartView(LoginRequiredMixin, View):
     def post(self, request):
         user = request.user
         redis_conn = redis.Redis(host="redis")
