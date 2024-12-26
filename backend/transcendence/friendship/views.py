@@ -63,7 +63,6 @@ class ReceivedFriendRequestsView(LoginRequiredMixin, View):
                 # "requester_avatar": request.requester.avatar,
                 "requester_state_message": request.requester.status_message,
                 "created_at": request.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-                # requester_id 의 username, avatar, state_message
             }
             for request in received_requests
         ]

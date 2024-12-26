@@ -9,6 +9,9 @@ from asgiref.sync import sync_to_async
 from channels.layers import get_channel_layer
 from friendship.models import Friendship
 from django.db import models
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 redis_client = redis.asyncio.StrictRedis(host="redis", port=6379, db=0)
 
@@ -73,6 +76,10 @@ class LoginStatusConsumer(AsyncWebsocketConsumer):
             await self.send(json.dumps({"type": "friend_statuses", "friends": []}))
             return
 
+        friends = await sync_to_async(list)(
+            User.objects.filter(id__in=friend_ids).values("id", "username", "avatar", "state_message")
+        )
+
         redis_keys = [f"user:{friend_id}:status" for friend_id in friend_ids]
 
         if redis_keys:
@@ -82,10 +89,13 @@ class LoginStatusConsumer(AsyncWebsocketConsumer):
 
         friend_data = [
             {
-                "id": friend_id,
+                "id": friend["id"],
+                "username": friend["username"],
+                "avatar": friend["avatar"],
+                "status_message": friend["status_message"],
                 "status": "online" if status == b"online" else "offline",
             }
-            for friend_id, status in zip(friend_ids, statuses)
+            for friend, status in zip(friend_ids, statuses)
         ]
 
         await self.send(json.dumps({"type": "friend_statuses", "friends": friend_data}))

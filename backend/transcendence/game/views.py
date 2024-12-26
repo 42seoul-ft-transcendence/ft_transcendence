@@ -64,39 +64,14 @@ class GameStartView(View):
             if redis_conn.llen(room) < 2:
                 redis_conn.rpush(room, user.id)
                 async_to_sync(channel_layer.group_add)(room.decode('utf-8'), f"user_{user.id}")
+                if redis_conn.llen(room) == 2:
+                    redis_conn.set(f"{room.decode('utf-8')}_host", players[0])
+                    redis_conn.set(f"{room.decode('utf-8')}_guest", user.id)
+                    async_to_sync(channel_layer.group_send)(user.decode('utf-8'), {"type": "game.start"})
                 return JsonResponse({"room_id": room.decode('utf-8'), "status": "waiting"})
 
         new_room = f"room_{user.id}"
         redis_conn.rpush(f"{new_room}_players", user.id)
+        redis_conn.set(f"{new_room}_host", user.id)
         async_to_sync(channel_layer.group_add)(new_room, f"user_{user.id}")
         return JsonResponse({"room_id": new_room, "status": "created"})
-
-
-@method_decorator(login_required, name='dispatch')
-class GameStateView(View):
-    def get(self, request, room_id):
-        redis_conn = redis.Redis(host="redis")
-
-        players = redis_conn.lrange(f"room_{room_id}_players", 0, -1)
-        if not players:
-            return JsonResponse({"error": "Room not found"}, status=404)
-
-        return JsonResponse({
-            "room_id": room_id,
-            "players": [int(player.decode('utf-8')) for player in players],
-        })
-
-
-@method_decorator(login_required, name='dispatch')
-class ForceDisconnectView(View):
-    def post(self, request):
-        user = request.user
-        redis_conn = redis.Redis(host="redis")
-        channel_layer = get_channel_layer()
-
-        rooms = redis_conn.keys(f"room_*_players")
-        for room in rooms:
-            redis_conn.lrem(room, 0, user.id)
-            async_to_sync(channel_layer.group_discard)(room.decode('utf-8'), f"user_{user.id}")
-
-        return JsonResponse({"status": "disconnected"})
