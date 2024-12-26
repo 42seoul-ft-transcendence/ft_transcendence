@@ -345,7 +345,7 @@ class RefreshTokenView(View):
 
 class UpdateStatusMessageView(LoginRequiredMixin, View):
     def post(self, request):
-        status_message = request.POST.get("status_message", "").strip()
+        status_message = json.loads(request.body).get("status_message", "").strip()
         user = request.user
         user.status_message = status_message
         user.save()

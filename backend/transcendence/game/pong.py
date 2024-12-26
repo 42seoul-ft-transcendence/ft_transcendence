@@ -10,6 +10,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
         self.connected = True
+        print(self.scope['url_route']['kwargs'])
         self.room_id = self.scope['url_route']['kwargs']['room_id']
         self.player_id = str(self.scope["user"].id)
 

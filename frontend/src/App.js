@@ -61,7 +61,6 @@ export default class App extends Component {
     const $body = this.$target.querySelector("#body");
 
     router.addRoute("#/", () => {
-      pongSocket.close();
       new Navbar($nav, profile);
       new Home($body, {
         handleNickModalClick: this.handleNickModalClick.bind(this),

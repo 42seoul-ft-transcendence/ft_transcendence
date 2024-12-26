@@ -84,7 +84,7 @@ class RespondFriendRequestView(LoginRequiredMixin, View):
         print(friendship.receiver)
         print(request.user)
         # 요청자가 receiver일 때만 상태 변경 가능
-        if friendship.receiver != request.user:
+        if friendship.receiver.id != request.user.id:
             return HttpResponseBadRequest("You are not authorized to respond to this request.")
 
         # 상태 전이 로직

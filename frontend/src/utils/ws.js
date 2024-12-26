@@ -116,9 +116,7 @@ export const loginSocket = createWebSocketManager(
   "wss://localhost:4443/ws/login_status/",
 );
 
-export const pongSocket = createWebSocketManager(
-  "wss://localhost:4443/ws/pong/",
-);
+export let pongSocket;
 
 loginSocket.on("onMessage", (event) => {
   const data = JSON.parse(event.data);
@@ -134,8 +132,4 @@ loginSocket.on("onMessage", (event) => {
 
 loginSocket.on("onOpen", () => {
   // loginSocket.sendMessage(JSON.stringify({ action: "fetch_friend_statuses" }));
-});
-
-pongSocket.on("onOpen", () => {
-  console.log("Pong Socket Opened");
 });
