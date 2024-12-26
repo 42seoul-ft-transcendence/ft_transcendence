@@ -1,5 +1,6 @@
-export function createWebSocketManager(url) {
+export function createWebSocketManager() {
   let socket = null;
+  let url = "wss://localhost:4443/ws/";
   let reconnectTimeout = null;
   const callbacks = {
     onOpen: null,
@@ -9,14 +10,17 @@ export function createWebSocketManager(url) {
     // WebSocket 초기화 함수
   };
 
-  function init() {
+  function init(urlParams) {
     console.log("Initializing WebSocket...");
-    console.log(socket);
-    if (socket && socket.readyState === WebSocket.OPEN) {
+    if (
+      socket &&
+      (socket.readyState === WebSocket.OPEN ||
+        socket.readyState === WebSocket.CONNECTING)
+    ) {
       console.warn("WebSocket is already open.");
       return;
     }
-    socket = new WebSocket(url);
+    socket = new WebSocket(url + urlParams);
 
     // WebSocket 이벤트 핸들러 등록
     socket.onopen = () => {
@@ -112,11 +116,8 @@ export function createWebSocketManager(url) {
 }
 
 // WebSocket 매니저 생성 및 사용
-export const loginSocket = createWebSocketManager(
-  "wss://localhost:4443/ws/login_status/",
-);
-
-export let pongSocket;
+export const loginSocket = createWebSocketManager();
+export const pongSocket = createWebSocketManager();
 
 loginSocket.on("onMessage", (event) => {
   const data = JSON.parse(event.data);

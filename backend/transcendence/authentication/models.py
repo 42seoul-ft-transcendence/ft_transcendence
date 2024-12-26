@@ -9,10 +9,9 @@ from django.db import models
 
 class UserManager(BaseUserManager):
     def create_user(self, username, email, avatar, password=None, **extra_fields):
-        """
-        일반 사용자 생성
-        """
         if not username:
+            raise ValueError("No username provided.")
+        if username == "server":
             raise ValueError("Users must have a username.")
         if not email:
             raise ValueError("Users must have an email address.")
@@ -23,19 +22,18 @@ class UserManager(BaseUserManager):
             email=email,
             **extra_fields
         )
-        user.set_password(password)  # 암호 설정
+        user.set_password(password)
+        user.clean_fields()
 
         if avatar:
+            print(avatar)
             user.save()
             user.save_avatar_from_url(avatar)
 
-        user.save(using=self._db)
+        user.save()
         return user
 
     def create_superuser(self, username, email, avatar, password=None, **extra_fields):
-        """
-        슈퍼유저 생성
-        """
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
 
@@ -51,13 +49,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     id = models.BigAutoField(primary_key=True)
     username = models.CharField(max_length=15, unique=True)
     email = models.EmailField(unique=True)
-    avatar = models.ImageField(upload_to="media/avatars/", default="media/avatars/default.png")
+    avatar = models.ImageField(upload_to="avatars/", default="avatars/default.png")
     two_factor = models.BooleanField(default=False)
     otp_secret = models.CharField(max_length=32, blank=True, null=True)
     status_message = models.TextField(max_length=255, blank=True, null=True, default='')
-    is_active = models.BooleanField(default=True)  # 활성 사용자 여부
-    is_staff = models.BooleanField(default=False)  # 관리 패널 접근 가능 여부
-    is_superuser = models.BooleanField(default=False)  # 모든 권한 부여 여부
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
 
     objects = UserManager()
 
@@ -68,15 +66,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.username
 
     def has_perm(self, perm, obj=None):
-        """
-        특정 권한이 있는지 확인
-        """
         return True
 
     def has_module_perms(self, app_label):
-        """
-        주어진 앱의 모델에 접근할 권한이 있는지 확인
-        """
         return True
 
     def save_avatar_from_url(self, url):

@@ -1,9 +1,9 @@
 import Component from "../core/Component.js";
 import * as game from "../utils/game/game.js";
-import { apiCall } from "../utils/api.js";
 
 import { getTranslation } from "../utils/translations.js";
-import { createWebSocketManager } from "../utils/ws.js";
+import { pongSocket } from "../utils/ws.js";
+import { apiCall } from "../utils/api.js";
 
 export default class Pong extends Component {
   setup() {
@@ -20,7 +20,6 @@ export default class Pong extends Component {
       opponent1: this.props.opponent1,
       opponent2: this.props.opponent2,
       finish: false,
-      pongSocket: null,
     };
 
     if (
@@ -78,11 +77,8 @@ export default class Pong extends Component {
       console.log(data);
 
       if (data.status === "created" || data.status === "waiting") {
-        this.state.pongSocket = createWebSocketManager(
-          `wss://localhost:4443/ws/pong/${data.room_id}/`,
-        );
-        this.state.pongSocket.init();
-        this.state.pongSocket.on("onMessage", (event) => {
+        pongSocket.init(`pong/${data.room_id}/`);
+        pongSocket.on("onMessage", (event) => {
           const message = JSON.parse(event.data);
 
           switch (message.type) {

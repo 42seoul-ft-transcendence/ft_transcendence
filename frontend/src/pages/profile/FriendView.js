@@ -23,22 +23,6 @@ export default class FriendView extends Component {
       requestData: requestData.received_requests,
       requestCount,
     });
-
-    // this.state.requestData = await apiCall("/api/friendship/received/", "get");
-
-    // switch (message.type) {
-    //   case "friend_status":
-    //     console.log("Friend status updated:", message.content);
-    //     this.setState({ friendData: message.content });
-    //     break;
-    //   default:
-    //     console.error("Unknown message type:", message.type);
-    // }
-
-    // this.setState({
-    //   requestData: requestData,
-    //   requestCount: requestData.length,
-    // });
   }
 
   template() {
@@ -132,44 +116,9 @@ export default class FriendView extends Component {
       }
     });
 
-    // this.$target.querySelector("#addFriendBtn").onclick = async () => {
-    //   const input = this.$target.querySelector("#addFriendInput");
-    //   const username = input.value;
-
-    //   try {
-    //     const data = await apiCall("/api/friendship/send/", "post", {
-    //       receiver: username,
-    //     });
-    //     console.log(data);
-    //   } catch (e) {
-    //     console.error(e);
-    //   }
-    // };
-
-    loginSocket.init();
     loginSocket.sendMessage(
       JSON.stringify({ action: "fetch_friend_statuses" }),
     );
-
-    // loginSocket.on("onMessage", async (event) => {
-    //   const data = JSON.parse(event.data);
-
-    //   switch (data.type) {
-    //     case "friend_statuses":
-    //       // const requestData = await apiCall("/api/friendship/received/", "get");
-
-    //       // const requestCount = requestData.received_requests.length;
-
-    //       // this.setState({
-    //       //   requestData: requestData.received_requests,
-    //       //   requestCount,
-    //       // });
-
-    //       break;
-    //   }
-    // });
-
-    console.log(this.$target.querySelector("#addFriendBtn").onclick);
   }
 }
 
