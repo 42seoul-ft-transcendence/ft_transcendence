@@ -50,18 +50,35 @@ class GameStartView(LoginRequiredMixin, View):
         user = request.user
         redis_conn = redis.Redis(host="redis")
 
-        existing_rooms = redis_conn.keys(f"waiting_room_*")
-        for room in existing_rooms:
-            players = redis_conn.lrange(room, 0, -1)
-            if str(user.id).encode('utf-8') in players:
-                redis_conn.delete(room)
-                # return JsonResponse({"room_id": room.decode('utf-8'), "status": "in_room"})
+        existing_rooms = redis_conn.smembers("rooms_list")
+        user_id = str(user.id)
 
-        for room in existing_rooms:
-            if redis_conn.llen(room) < 2:
-                redis_conn.rpush(room, user.id)
-                return JsonResponse({"room_id": room.decode('utf-8'), "status": "joined"})
+        for room_id in existing_rooms:
+            players_key = f"{room_id.decode('utf-8')}_players"
+            players = redis_conn.lrange(players_key, 0, -1)
+            if user_id.encode('utf-8') in players:
+                redis_conn.lrem(players_key, 0, user_id)
+                if redis_conn.llen(players_key) == 0:
+                    redis_conn.srem("rooms_list", room_id)
+                    redis_conn.delete(players_key)
 
-        new_room = f"waiting_room_{user.id}"
-        redis_conn.rpush(f"{new_room}", user.id)
-        return JsonResponse({"room_id": new_room, "status": "created"})
+        for room_id in existing_rooms:
+            players_key = f"{room_id.decode('utf-8')}_players"
+            if redis_conn.llen(players_key) < 2:
+                redis_conn.rpush(players_key, user_id)
+                players = redis_conn.lrange(players_key, 0, -1)
+                return JsonResponse({
+                    "status": "joined",
+                    "room_id": room_id.decode('utf-8'),
+                    "players": [p.decode('utf-8') for p in players],
+                })
+
+        new_room_id = f"waiting_room_{user_id}"
+        redis_conn.rpush(f"{new_room_id}_players", user_id)
+        redis_conn.sadd("rooms_list", new_room_id)
+
+        return JsonResponse({
+            "status": "created",
+            "room_id": new_room_id,
+            "players": [user_id],
+        })
