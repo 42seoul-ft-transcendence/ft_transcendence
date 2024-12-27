@@ -21,6 +21,12 @@ export default class Pong extends Component {
       opponent2: this.props.opponent2,
       finish: false,
       myId: null,
+      myName: null,
+      player1Y: null,
+      player2Y: null,
+      ballX: null,
+      ballY: null,
+      myRole: null,
     };
 
     if (
@@ -31,9 +37,9 @@ export default class Pong extends Component {
       window.location.hash = "#/";
 
     if (!this.state.opponent1)
-      this.state.opponent1 = { id: null, name: 1, position: 1 };
+      this.state.opponent1 = { id: null, name: null, position: 1 };
     if (!this.state.opponent2)
-      this.state.opponent2 = { id: null, name: 1, position: 2 };
+      this.state.opponent2 = { id: null, name: null, position: 2 };
   }
 
   template() {
@@ -69,7 +75,6 @@ export default class Pong extends Component {
   async mounted() {
     const { board, player1, player2, player1Score, player2Score, finish } =
       this.state;
-    console.log("Pong Mounted");
 
     board.init();
 
@@ -89,7 +94,7 @@ export default class Pong extends Component {
         switch (data.type) {
           case "user_id":
             this.state.myId = data.user_id;
-            console.log(this.state.myId);
+            this.state.myName = data.username;
             break;
         }
       });
@@ -100,25 +105,46 @@ export default class Pong extends Component {
         const message = JSON.parse(event.data);
 
         switch (message.type) {
-          case "game.start":
-            console.log("Game started:", message);
-            this.state.opponent1.id = message.host;
-            this.state.opponent2.id = message.guest;
-            this.state.animationFrameId = requestAnimationFrame(
-              this.update.bind(this),
-            );
-            break;
-          case "game.update":
+          // case "game.start":
+          //   console.log("Game started:", message);
+          //   this.state.opponent1.id = message.host;
+          //   this.state.opponent2.id = message.guest;
+          //   if (message.host == this.state.myId) {
+          //     this.state.opponent1.name = this.state.myName;
+          //     this.state.opponent2.name = "Opponent";
+          //   } else {
+          //     this.state.opponent1.name = "Opponent";
+          //     this.state.opponent2.name = this.state.myName;
+          //   }
+          //   this.state.animationFrameId = requestAnimationFrame(
+          //     this.update.bind(this),
+          //   );
+          //   break;
+          case "assign_role":
+            this.state.myRole = message.role;
+          case "game.state":
             console.log(this.state.opponent1.id, message.player_id);
-            if (this.state.opponent1.id == message.player_id) {
-              this.state.player2.velocityY = message.direction;
-            } else {
-              this.state.player1.velocityY = message.direction;
-            }
+            // if (this.state.opponent1.id == message.player_id) {
+            //   this.state.player2.velocityY = message.direction;
+            // } else {
+            //   this.state.player1.velocityY = message.direction;
+            // }
+            // if (this.state.opponent1.id == message.player_id) {
+            //   this.state.player2.velocityY = message.direction;
+            // } else {
+            //   this.state.player1.velocityY = message.direction;
+            // }
+            this.state.ballX = message.ball.x;
+            this.state.ballY = message.ball.y;
+            this.state.player1Y = message.player1.y;
+            this.state.player2Y = message.player2.y;
+            this.state.player1Score = message.score.player1;
+            this.state.player2Score = message.score.player2;
             break;
           case "game.end":
             console.log("Game ended:", message);
             pongSocket.close();
+            cancelAnimationFrame(this.state.animationFrameId);
             break;
           default:
             console.error("Unknown message type:", message.type);
@@ -130,6 +156,22 @@ export default class Pong extends Component {
         this.update.bind(this),
       );
     }
+  }
+
+  remoteUpdate() {
+    board.clear();
+    board.draw(this.state.player1Score, this.state.player2Score);
+    player1.remoteUpdate(this.player1Y);
+    player1.draw();
+
+    player2.remoteUpdate(this.player2Y);
+    player2.draw();
+
+    ball.remoteUpdate(this.ballX, this.ballY);
+    ball.draw();
+    this.state.animationFrameId = requestAnimationFrame(
+      this.remoteUpdate.bind(this),
+    );
   }
 
   update() {
@@ -162,7 +204,7 @@ export default class Pong extends Component {
         if (this.props.gameMode === "singleMode") {
           pongSocket.sendMessage(
             JSON.stringify({
-              type: "game.end",
+              type: "end_game",
               score: {
                 host: this.state.player1Score,
                 guest: this.state.player2Score,
@@ -176,10 +218,10 @@ export default class Pong extends Component {
     ball.update(player1, player2);
     ball.draw();
 
-    if (ball.x < 0) {
+    if (ball.x <= 0) {
       ball.init();
       this.state.player2Score++;
-    } else if (ball.x + ball.width > board.width) {
+    } else if (ball.x + ball.width >= board.width) {
       ball.init();
       this.state.player1Score++;
     }
@@ -196,7 +238,7 @@ export default class Pong extends Component {
               JSON.stringify({
                 type: "move",
                 direction: -3,
-                player_id: this.state.myId,
+                player: this.state.myRole,
               }),
             );
           else if (e.code == "ArrowDown")
@@ -204,7 +246,7 @@ export default class Pong extends Component {
               JSON.stringify({
                 type: "move",
                 direction: 3,
-                player_id: this.state.myId,
+                player: this.state.myRole,
               }),
             );
         }

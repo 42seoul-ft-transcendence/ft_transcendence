@@ -1,7 +1,7 @@
 import Component from "./core/Component.js";
 import TwoFAView from "./pages/TwoFAView.js";
 import { apiCall } from "./utils/api.js";
-import { loginSocket } from "./utils/ws.js";
+import { loginSocket, pongSocket } from "./utils/ws.js";
 
 export default class Router extends Component {
   setup() {
@@ -53,6 +53,7 @@ export default class Router extends Component {
   start() {
     window.onhashchange = () => {
       const $modalElement = document.querySelector(".modal.show");
+      pongSocket.close();
 
       if ($modalElement) {
         const modal = bootstrap.Modal.getInstance($modalElement);

@@ -19,6 +19,10 @@ class Player {
     if (!(nextPlayerY < 0 || nextPlayerY + this.height > this.board.height))
       this.y += this.velocityY;
   }
+
+  remoteUpdate(y) {
+    this.y = y;
+  }
 }
 
 class Ball {
@@ -40,8 +44,8 @@ class Ball {
     try {
       this.x = board.width / 2;
       this.y = board.height / 2;
-      this.velocityX = 1 * velocity; // 속도는 동일, 방향만 랜덤
-      this.velocityY = 1 * velocity; // 속도는 동일, 방향만 랜
+      this.velocityX = 1 * this.velocity; // 속도는 동일, 방향만 랜덤
+      this.velocityY = 1 * this.velocity; // 속도는 동일, 방향만 랜
       // this.velocityX = (Math.random() > 0.5 ? 1 : -1) * this.velocity; // 속도는 동일, 방향만 랜덤
       // this.velocityY = (Math.random() > 0.5 ? 1 : -1) * this.velocity; // 속도는 동일, 방향만 랜
     } catch (err) {
@@ -69,6 +73,11 @@ class Ball {
     } else if (detectCollision(this, player2)) {
       if (this.x + this.width >= player2.x) this.velocityX *= -1;
     }
+  }
+
+  remoteUpdate(x, y) {
+    this.x = x;
+    this.y = y;
   }
 }
 
