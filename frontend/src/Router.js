@@ -17,14 +17,11 @@ export default class Router extends Component {
   }
 
   async checkRoutes() {
-    console.log("checkRoutes");
     const urlParams = new URLSearchParams(window.location.search);
 
     if (urlParams.has("code") || this.alreadyRoute) return;
 
     const data = await apiCall("/api/login/", "get");
-
-    console.log(data);
 
     if (!data.authenticated) {
       window.location.hash = "#/login";
@@ -64,6 +61,7 @@ export default class Router extends Component {
 
     window.onload = async () => {
       const urlParams = new URLSearchParams(window.location.search);
+
       if (urlParams.has("code")) {
         history.replaceState(null, "", "/");
         const code = urlParams.get("code");

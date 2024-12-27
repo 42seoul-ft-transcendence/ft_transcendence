@@ -53,10 +53,14 @@ export default class TwoFAView extends Component {
       console.log(this.state.username);
       console.log(twoFA);
       try {
-        const data = await apiCall("/api/login/verify-2fa/", "post", {
-          username: this.state.username,
-          otp_code: twoFA,
-        });
+        const data = await apiCall(
+          "/api/login/verify-2fa/",
+          "post",
+          JSON.stringify({
+            username: this.state.username,
+            otp_code: twoFA,
+          }),
+        );
 
         window.location.hash = "/";
       } catch (e) {}

@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from django.views import View
 from django.core.paginator import Paginator
 from django.contrib.auth.mixins import LoginRequiredMixin
+from authentication.utils import avatar_url
 import redis
 
 from . import models
@@ -29,8 +30,8 @@ class MatchHistoryView(View):
                 "guest": match.guest.username if match.guest else "Unknown",
                 "host_score": match.host_score,
                 "guest_score": match.guest_score,
-                "host_avatar": match.host.avatar,
-                "guest_avatar": match.guest.avatar,
+                "host_avatar": avatar_url(match.host.avatar),
+                "guest_avatar": avatar_url(match.guest.avatar),
                 "winner": match.winner,
                 "date": match.updated_at.isoformat(),
             }

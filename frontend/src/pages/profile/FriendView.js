@@ -19,15 +19,28 @@ export default class FriendView extends Component {
     const requestData = await apiCall("/api/friendship/received/", "get");
     const requestCount = requestData.received_requests.length;
 
+    loginSocket.on("onOpen", () => {
+      loginSocket.sendMessage(
+        JSON.stringify({ action: "fetch_friend_statuses" }),
+      );
+    });
+
     loginSocket.on("onMessage", (event) => {
       const data = JSON.parse(event.data);
 
       switch (data.type) {
         case "friend_statuses":
-          console.log(data);
+          this.setState({
+            friendCount: data.friends.length,
+            friendData: data.friends,
+          });
           break;
       }
     });
+
+    loginSocket.sendMessage(
+      JSON.stringify({ action: "fetch_friend_statuses" }),
+    );
 
     this.setState({
       requestData: requestData.received_requests,
@@ -52,9 +65,8 @@ export default class FriendView extends Component {
     for (let i = 0; i < friendCount; ++i)
       temp += /* html */ `<div id="friendCard${i}" class="col-md-6"></div>`;
     temp += /* html */ `
-				</div>
-			</div>`;
-    temp += /* html */ `
+        </div>
+      </div>
       <div class="container add-friend">
         <input type="text" class="form-control" id="addFriendInput" placeholder="Add a friend">
         <button id="addFriendBtn" class="btn btn-primary mt-3">test</button>
@@ -67,7 +79,6 @@ export default class FriendView extends Component {
     const { friendData, requestData } = this.state;
 
     new ProfileNav(this.$target.querySelector(".nav-section"), this.props);
-    new FriendRequest(this.$target.querySelector("#friendRequest"));
 
     requestData.length &&
       requestData.forEach((list, index) => {
@@ -84,51 +95,32 @@ export default class FriendView extends Component {
   }
 
   async setEvent() {
-    console.log("Start");
-    this.$target.querySelectorAll(".delete-friend-btn").forEach((card) => {
-      card.onclick = (e) => {
-        const username = e.target.getAttribute("data-id");
-        console.log(username);
-        const $card = e.target.closest("[id^=friendCard]");
-        if ($card) $card.remove();
-      };
-    });
-
-    this.$target.querySelectorAll(".accept-btn").forEach((card) => {
-      card.onclick = (e) => {
-        const request_id = e.target.getAttribute("data-id");
-        const $card = e.target.closest("[id^=friendRequest]");
-        if ($card) $card.remove();
-      };
-    });
-
-    this.$target.querySelectorAll(".reject-btn").forEach((card) => {
-      card.onclick = async (e) => {
-        const request_id = e.target.getAttribute("data-id");
-
-        await apiCall(`/api/friendship/respond/${request_id}`, "post", {});
-        const $card = e.target.closest("[id^=friendRequest]");
-        if ($card) $card.remove();
-      };
-    });
+    // this.$target.querySelectorAll(".delete-friend-btn").forEach((card) => {
+    //   card.onclick = (e) => {
+    //     const username = e.target.getAttribute("data-id");
+    //     console.log(username);
+    //     const $card = e.target.closest("[id^=friendCard]");
+    //     if ($card) $card.remove();
+    //   };
+    // });
 
     this.addEvent("click", "#addFriendBtn", async () => {
       const input = this.$target.querySelector("#addFriendInput");
       const username = input.value;
 
       try {
-        const data = await apiCall("/api/friendship/send/", "post", {
-          receiver: username,
-        });
+        const data = await apiCall(
+          "/api/friendship/send/",
+          "post",
+          JSON.stringify({
+            receiver: username,
+          }),
+        );
         console.log(data);
       } catch (e) {
         console.error(e);
       }
     });
-
-    loginSocket.sendMessage(
-      JSON.stringify({ action: "fetch_friend_statuses" }),
-    );
   }
 }
 

@@ -122,8 +122,9 @@ export default class Pong extends Component {
           //   break;
           case "assign_role":
             this.state.myRole = message.role;
+            break;
           case "game.state":
-            console.log(this.state.opponent1.id, message.player_id);
+            console.log("Game state:", message);
             // if (this.state.opponent1.id == message.player_id) {
             //   this.state.player2.velocityY = message.direction;
             // } else {

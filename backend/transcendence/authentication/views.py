@@ -10,13 +10,13 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.base import ContentFile
 from django.views import View
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from .utils import generate_jwt, decode_jwt
+from .utils import generate_jwt, decode_jwt, avatar_url
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
@@ -334,7 +334,7 @@ class RefreshTokenView(View):
             return response
 
         except Exception:
-            response = JsonResponse({"error": "Invalid or expired refresh token. Please login again."}, status=401)
+            re1sponse = JsonResponse({"error": "Invalid or expired refresh token. Please login again."}, status=401)
             response.delete_cookie("access_token")
             response.delete_cookie("refresh_token")
             # return response
@@ -358,19 +358,27 @@ class UploadAvatarView(LoginRequiredMixin, View):
     def post(self, request):
         avatar = request.FILES.get("avatar")
         user = request.user
-        file_name = f"{user.username}.png"
-        avatar_path = os.path.join(settings.MEDIA_ROOT, file_name)
 
         if avatar is None:
             return JsonResponse({"error": "Avatar not found."}, status=400)
+        file_name = f"{user.username}{os.path.splitext(avatar.name)[1]}"
+        
+        # 전체 경로 대신 파일명만 전달
+        user.avatar.save(file_name, ContentFile(avatar.read()), save=True)
 
-        user.avatar.save(avatar_path, ContentFile(avatar.read()), save=True)
-
-        return JsonResponse({"message": "Avatar uploaded"}, status=200 )
+        return JsonResponse({"message": "Avatar uploaded"}, status=200)
 
 class SettingView(LoginRequiredMixin, View):
     def get(self, request):
-        user = request.user
+        user_id = request.GET.get('id')
+
+        print(user_id)
+        if user_id:
+            # id로 특정 유저 조회
+            user = get_object_or_404(User, id=user_id)
+        else:
+            # id가 없으면 현재 로그인한 유저
+            user = request.user
         avatar = user.avatar
         email = user.email
         username = user.username
@@ -378,7 +386,7 @@ class SettingView(LoginRequiredMixin, View):
         two_factor = user.two_factor
 
         data = {
-            "avatar": avatar,
+            "avatar": avatar_url(avatar),
             "email": email,
             "username": username,
             "status_message": status_message,

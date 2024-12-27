@@ -40,13 +40,27 @@ export default class FriendRequest extends Component {
 
   async acceptFriendRequest(e) {
     const request_id = e.target.dataset.id;
+
     const data = await apiCall(
       `/api/friendship/respond/${request_id}/`,
       "post",
-      {
+      JSON.stringify({
         action: "accept",
-      },
+      }),
     );
-    console.log(data);
+    this.$target.remove();
+  }
+
+  async rejectFriendRequest(e) {
+    const request_id = e.target.dataset.id;
+
+    const data = await apiCall(
+      `/api/friendship/respond/${request_id}/`,
+      "post",
+      JSON.stringify({
+        action: "deny",
+      }),
+    );
+    this.$target.remove();
   }
 }

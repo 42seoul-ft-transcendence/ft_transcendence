@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Friendship
 from django.contrib.auth import get_user_model
+from authentication.utils import avatar_url
 
 User = get_user_model()
 
@@ -60,7 +61,7 @@ class ReceivedFriendRequestsView(LoginRequiredMixin, View):
                 "id": request.id,
                 "requester_id": request.requester.id,
                 "requester_username": request.requester.username,
-                # "requester_avatar": request.requester.avatar,
+                "requester_avatar": avatar_url(request.requester.avatar),
                 "requester_state_message": request.requester.status_message,
                 "created_at": request.created_at.strftime("%Y-%m-%d %H:%M:%S"),
             }
@@ -90,7 +91,6 @@ class RespondFriendRequestView(LoginRequiredMixin, View):
         # 상태 전이 로직
         if friendship.status == "pending":
             if action == "accept":
-                print("ASDFAS")
                 friendship.status = "accepted"
             elif action == "deny":
                 friendship.status = "denied"

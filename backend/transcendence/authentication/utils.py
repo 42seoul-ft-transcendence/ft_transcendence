@@ -52,3 +52,15 @@ def decode_jwt(token):
     except jwt.InvalidTokenError:
         print("Invalid token")
         raise Exception("Invalid token")
+
+def avatar_url(avatar):
+    if avatar:
+        if avatar.name.startswith(('http://', 'https://', '/')):
+            avatar_url = str(avatar)
+        else:
+            avatar_url = f"{settings.BASE_URL}{settings.MEDIA_URL}{avatar}"
+
+            
+    else:
+        avatar_url = None
+    return avatar_url

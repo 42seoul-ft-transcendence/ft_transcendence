@@ -14,12 +14,16 @@ function getCSRFToken() {
   return cookieValue;
 }
 
-export const apiCall = async (url, method, data = null) => {
+export const apiCall = async (url, method, data = null, header = null) => {
   const csrfToken = getCSRFToken();
-  const headers = {
-    "Content-Type": "application/json",
+  let headers = {
+    // "Content-Type": "application/json",
     "X-CSRFToken": csrfToken,
   };
+
+  if (header) {
+    headers = { ...headers, ...header };
+  }
 
   const init = {
     method,
@@ -28,7 +32,7 @@ export const apiCall = async (url, method, data = null) => {
   };
 
   if (data) {
-    init.body = JSON.stringify(data);
+    init.body = data;
   }
 
   try {

@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import OauthRedirect, OauthCallbackView, RefreshTokenView, Verify2FAView, Toggle2FAView, LoginPageView, \
-    LogoutView, UpdateStatusMessageView, LandingPageView, UploadAvatarView, SettingView
+    LogoutView, UpdateStatusMessageView, LandingPageView, UploadAvatarView, SettingView 
 
 urlpatterns = [
     path("", LandingPageView.as_view(), name="landing"),

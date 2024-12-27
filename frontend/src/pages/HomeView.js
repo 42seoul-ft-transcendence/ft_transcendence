@@ -53,10 +53,6 @@ export default class Home extends Component {
     );
   }
 
-  // handleOneToOneClick() {
-  //   window.location.hash = "#/game";
-  // }
-
   handleTotalPlayerClick(number) {
     this.setState({ totalPlayer: number, userName: [] });
   }

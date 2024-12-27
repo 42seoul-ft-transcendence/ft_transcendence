@@ -1,8 +1,14 @@
 import Component from "../core/Component.js";
 
 export default class Navbar extends Component {
+  setup() {
+    this.state = {
+      avatar: this.props?.avatar,
+    };
+  }
+
   template() {
-    const { profileImage } = this.props;
+    const { avatar } = this.state;
 
     return /* html */ `
 			<nav class="pong-nav navbar navbar-expand bg-warning navbar-dark px-4 py-3">
@@ -11,11 +17,12 @@ export default class Navbar extends Component {
 					<ul class="navbar-nav ms-auto">
 						<li class="nav-item">
 							<div class="icon" id="profileIcon">
-								<img src=${profileImage} alt="Profile Image">
+								<img src=${avatar} alt="Profile Image">
 							</div>
 						</li>
 					</ul>
 				</div>
+
 			</nav>
 		`;
   }

@@ -4,8 +4,16 @@ import { getTranslation } from "../utils/translations.js";
 import { apiCall } from "../utils/api.js";
 
 export default class UserInfo extends Component {
+  setup() {
+    this.state = {
+      username: this.props?.username,
+      message: this.props?.message,
+      email: this.props?.email,
+    };
+  }
+
   template() {
-    const { username, message, email } = this.props;
+    const { username, message, email } = this.state;
 
     return /* html */ `
         <!-- User Info Section -->
@@ -51,8 +59,6 @@ export default class UserInfo extends Component {
   }
 
   setEvent() {
-    const { onMessageChange } = this.props;
-
     this.addEvent("click", "#saveButton", async () => {
       const messageInput = this.$target.querySelector("#messageInput");
       const errorMessage = this.$target.querySelector("#errorMessage");
@@ -67,9 +73,13 @@ export default class UserInfo extends Component {
         console.log("메시지가 저장되었습니다:", messageInput.value); // 메시지 저장 로직 추가
 
         try {
-          const data = await apiCall("/api/login/status/update/", "post", {
-            status_message: messageInput.value,
-          });
+          const data = await apiCall(
+            "/api/login/status/update/",
+            "post",
+            JSON.stringify({
+              status_message: messageInput.value,
+            }),
+          );
 
           console.log(data);
         } catch (e) {

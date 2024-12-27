@@ -17,7 +17,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
         self.connected = True
-        self.room_id = str(uuid.uuid4())
+        self.room_id = self.scope["url_route"]["kwargs"]["room_id"]
         self.player_id = str(self.scope["user"].id)
 
         self.players_key = f"{self.room_id}_players"
@@ -42,16 +42,16 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             await self.close()
             return
 
+        await self.channel_layer.group_add(self.room_id, self.channel_name)
+        await self.accept()
+
         await self.send(
             text_data=json.dumps({
                 "type": "assign_role",
                 "role": role,
             })
         )
-        await self.channel_layer.group_add(self.room_id, self.channel_name)
-        await self.accept()
 
-        print(len(players))
         if len(players) == 1:
             asyncio.create_task(self.game_loop())
 
@@ -96,7 +96,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
     async def save_game_result(self, winner, forfeit):
         try:
             pong_game = Pong.objects.create(
-                id=self.room_id,
+                id = str(uuid.uuid4()),
                 host=User.objects.get(id=int(self.player1.player_id)),
                 guest=User.objects.get(id=int(self.player2.player_id)),
                 host_score=self.scores["player1"],
