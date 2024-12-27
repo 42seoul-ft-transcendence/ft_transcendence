@@ -109,3 +109,19 @@ class RespondFriendRequestView(LoginRequiredMixin, View):
             "message": f"Friend request {action}",
             "status": friendship.status,
         })
+
+class VerifyFriendshipView(LoginRequiredMixin, View):
+    def get(self, request):
+        user = request.user
+        target = request.GET.get("target")
+
+        received_requests = Friendship.objects.filter(
+            (models.Q(requester=self.user) & models.Q(receiver=(User.objects.get(id=target))) & models.Q(status="accepted")) |
+            (models.Q(requester=(User.objects.get(id=target))) & models.Q(receiver=target) & models.Q(status="accepted"))
+        )
+
+
+        if received_requests:
+            return JsonResponse({"message": "Friend request accepted.", "status": True})
+        return JsonResponse({"message": "Friend request denied.", "status": False})
+

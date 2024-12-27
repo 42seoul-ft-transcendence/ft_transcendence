@@ -7,7 +7,6 @@ class Pong(models.Model):
     STATUS_CHOICES = [
         ("ONGOING", "Ongoing"),
         ("COMPLETED", "Completed"),
-        ("FORFEIT", "Forfeit"),
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
