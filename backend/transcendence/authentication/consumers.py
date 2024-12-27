@@ -66,6 +66,8 @@ class LoginStatusConsumer(AsyncWebsocketConsumer):
             "type": "user_id",
             "user_id": user_id,
             "username": username,
+            "avatar": user.avatar,
+            "status_message": user.status_message
         }))
 
 

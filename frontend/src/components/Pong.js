@@ -20,6 +20,7 @@ export default class Pong extends Component {
       opponent1: this.props.opponent1,
       opponent2: this.props.opponent2,
       finish: false,
+      myId: null,
     };
 
     if (
@@ -28,6 +29,11 @@ export default class Pong extends Component {
       !this.props.opponent2
     )
       window.location.hash = "#/";
+
+    if (!this.state.opponent1)
+      this.state.opponent1 = { id: null, name: 1, position: 1 };
+    if (!this.state.opponent2)
+      this.state.opponent2 = { id: null, name: 1, position: 2 };
   }
 
   template() {
@@ -79,14 +85,15 @@ export default class Pong extends Component {
       loginSocket.on("onMessage", (event) => {
         const data = JSON.parse(event.data);
 
+        console.log("loginSocket onMessage", data);
         switch (data.type) {
-          case "get_user":
-            this.opponent1.id = data.user_id;
-            this.opponent1.name = data.username;
-            this.opponent1.position = 0;
+          case "user_id":
+            this.state.myId = data.user_id;
+            console.log(this.state.myId);
             break;
         }
       });
+      loginSocket.sendMessage(JSON.stringify({ action: "get_user" }));
 
       pongSocket.init(`pong/${data.room_id}/`);
       pongSocket.on("onMessage", (event) => {
@@ -94,14 +101,19 @@ export default class Pong extends Component {
 
         switch (message.type) {
           case "game.start":
+            console.log("Game started:", message);
+            this.state.opponent1.id = message.host;
+            this.state.opponent2.id = message.guest;
             this.state.animationFrameId = requestAnimationFrame(
               this.update.bind(this),
             );
             break;
           case "game.update":
-            console.log("Game state updated:", message);
-            if (message.player_id === this.state.opponent2.id) {
+            console.log(this.state.opponent1.id, message.player_id);
+            if (this.state.opponent1.id == message.player_id) {
               this.state.player2.velocityY = message.direction;
+            } else {
+              this.state.player1.velocityY = message.direction;
             }
             break;
           case "game.end":
@@ -118,16 +130,6 @@ export default class Pong extends Component {
         this.update.bind(this),
       );
     }
-  }
-
-  handleGameUpdate(message) {
-    // 게임 상태 업데이트 로직을 여기에 추가합니다.
-    // 예: 플레이어 위치, 공 위치 등
-  }
-
-  handleGameEnd(message) {
-    // 게임 종료 로직을 여기에 추가합니다.
-    // 예: 승자 표시, 점수 업데이트 등
   }
 
   update() {
@@ -183,10 +185,17 @@ export default class Pong extends Component {
               JSON.stringify({
                 type: "move",
                 direction: -3,
-                player_id: this.state.opponent1.id,
+                player_id: this.state.myId,
               }),
             );
-          else if (e.code == "ArrowDown") this.state.player2.velocityY = 3;
+          else if (e.code == "ArrowDown")
+            pongSocket.sendMessage(
+              JSON.stringify({
+                type: "move",
+                direction: 3,
+                player_id: this.state.myId,
+              }),
+            );
         }
       } else {
         if (e.code == "KeyW") this.state.player1.velocityY = -3;

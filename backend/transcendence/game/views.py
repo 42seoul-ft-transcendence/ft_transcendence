@@ -52,15 +52,23 @@ class GameStartView(LoginRequiredMixin, View):
 
         existing_rooms = redis_conn.keys(f"room_*")
         for room in existing_rooms:
-            players = redis_conn.lrange(room, 0, -1)
-            if str(user.id).encode('utf-8') in players:
+            try:
+                players = redis_conn.lrange(room, 0, -1)
+                if str(user.id).encode('utf-8') in players:
+                    redis_conn.delete(room)
+                    # return JsonResponse({"room_id": room.decode('utf-8'), "status": "in_room"})
+            except redis.exceptions.ResponseError:
+                # 키가 리스트가 아닌 경우 키를 삭제
                 redis_conn.delete(room)
-                # return JsonResponse({"room_id": room.decode('utf-8'), "status": "in_room"})
 
         for room in existing_rooms:
-            if redis_conn.llen(room) < 2:
-                redis_conn.rpush(room, user.id)
-                return JsonResponse({"room_id": room.decode('utf-8'), "status": "joined"})
+            try:
+                if redis_conn.llen(room) < 2:
+                    redis_conn.rpush(room, user.id)
+                    return JsonResponse({"room_id": room.decode('utf-8'), "status": "joined"})
+            except redis.exceptions.ResponseError:
+                # 키가 리스트가 아닌 경우 키를 삭제
+                redis_conn.delete(room)
 
         new_room = f"room_{user.id}"
         redis_conn.rpush(f"{new_room}", user.id)

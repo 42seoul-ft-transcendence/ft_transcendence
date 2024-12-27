@@ -1,6 +1,6 @@
 export function createWebSocketManager() {
   let socket = null;
-  let url = "wss://localhost:4443/ws/";
+  let url = `wss://${window.location.host}/ws/`;
   let reconnectTimeout = null;
   const callbacks = {
     onOpen: null,
@@ -118,14 +118,3 @@ export function createWebSocketManager() {
 // WebSocket 매니저 생성 및 사용
 export const loginSocket = createWebSocketManager();
 export const pongSocket = createWebSocketManager();
-
-loginSocket.on("onMessage", (event) => {
-  const data = JSON.parse(event.data);
-
-  switch (data.type) {
-    case "friend_statuses":
-      console.log("Friend statuses:", data.friends);
-      break;
-    case "user_id":
-  }
-});

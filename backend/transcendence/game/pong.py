@@ -10,7 +10,6 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
         self.connected = True
-        print(self.scope)
         self.room_id = self.scope['url_route']['kwargs']['room_id']
         self.player_id = str(self.scope["user"].id)
 
@@ -27,7 +26,9 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(self.room_id, self.channel_name)
         await self.accept()
 
+        print(players)
         if len(players) == 1:
+            print("here")
             await self.channel_layer.group_send(
                 self.room_id,
                 {
@@ -74,6 +75,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         )
 
     async def game_start(self, event):
+        print("?????????????????????")
         await self.send(text_data=json.dumps({"type": "game.start"}))
 
     async def game_update(self, event):

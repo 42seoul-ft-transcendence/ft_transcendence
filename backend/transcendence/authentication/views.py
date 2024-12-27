@@ -115,7 +115,7 @@ class OauthCallbackView(View):
 
             response = JsonResponse({
                 "message": "Login successful",
-                "websocket_url": "wss://localhost:4443/ws/login_status/",
+                "websocket_url": "wss://django/ws/login_status/",
                 "access_token": response_data["access_token"],
                 "refresh_token": response_data["refresh_token"],
             })
@@ -369,7 +369,7 @@ class UploadAvatarView(LoginRequiredMixin, View):
         return JsonResponse({"message": "Avatar uploaded"}, status=200 )
 
 class SettingView(LoginRequiredMixin, View):
-    def post(self, request):
+    def get(self, request):
         user = request.user
         avatar = user.avatar
         email = user.email
