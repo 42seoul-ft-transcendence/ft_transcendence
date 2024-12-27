@@ -71,6 +71,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     def has_module_perms(self, app_label):
         return True
 
+    @property
+    def avatar_url(self):
+        if self.avatar and hasattr(self.avatar, 'url'):
+            return self.avatar.url
+        return None
+
     def save_avatar_from_url(self, url):
         response = requests.get(url)
         if response.status_code == 200:
