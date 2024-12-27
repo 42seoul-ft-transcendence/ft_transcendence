@@ -13,39 +13,46 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         self.room_id = self.scope['url_route']['kwargs']['room_id']
         self.player_id = str(self.scope["user"].id)
 
-        players = await self.redis_conn.lrange(f"{self.room_id}_players", 0, -1)
+        len_waiting_ = len("waiting_")
+        self.base_room_id = self.room_id[len_waiting_:]
+        self.game_room_id = f"game_{self.base_room_id}"
+        self.players_key = f"{self.game_room_id}_players"
+        self.host_key = f"{self.game_room_id}_host"
+        self.guest_key = f"{self.game_room_id}_guest"
+
+        players = await self.redis_conn.lrange(self.players_key, 0, -1)
 
         if len(players) < 2 and self.player_id not in [p.decode("utf-8") for p in players]:
-            await self.redis_conn.rpush(f"{self.room_id}_players", self.player_id)
+            await self.redis_conn.rpush(self.players_key, self.player_id)
 
         if len(players) == 0:
-            await self.redis_conn.set(f"{self.room_id}_host", self.player_id)
+            await self.redis_conn.set(self.host_key, self.player_id)
         elif len(players) == 1:
-            await self.redis_conn.set(f"{self.room_id}_guest", self.player_id)
+            await self.redis_conn.set(self.guest_key, self.player_id)
 
-        await self.channel_layer.group_add(self.room_id, self.channel_name)
+        await self.channel_layer.group_add(self.game_room_id, self.channel_name)
         await self.accept()
 
         print(players)
         if len(players) == 1:
             print("here")
             await self.channel_layer.group_send(
-                self.room_id,
+                self.game_room_id,
                 {
                     "type": "game.start",
-                    "host": await self.redis_conn.get(f"{self.room_id}_host"),
-                    "guest": await self.redis_conn.get(f"{self.room_id}_guest"),
+                    "host": await self.redis_conn.get(self.host_key),
+                    "guest": await self.redis_conn.get(self.guest_key),
                 },
             )
 
     async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(self.room_id, self.channel_name)
-        players = await self.redis_conn.lrange(f"{self.room_id}_players", 0, -1)
+        await self.channel_layer.group_discard(self.game_room_id, self.channel_name)
+        players = await self.redis_conn.lrange(self.players_key, 0, -1)
 
         if len(players) <= 1:
-            await self.redis_conn.delete(f"{self.room_id}_players")
-            await self.redis_conn.delete(f"{self.room_id}_host")
-            await self.redis_conn.delete(f"{self.room_id}_guest")
+            await self.redis_conn.delete(self.players_key)
+            await self.redis_conn.delete(self.host_key)
+            await self.redis_conn.delete(self.guest_key)
 
     async def receive(self, text_data):
         try:
@@ -66,7 +73,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 
     async def handle_move(self, player_id, direction):
         await self.channel_layer.group_send(
-            self.room_id,
+            self.game_room_id,
             {
                 "type": "game.update",
                 "player_id": player_id,
@@ -75,8 +82,15 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         )
 
     async def game_start(self, event):
-        print("?????????????????????")
-        await self.send(text_data=json.dumps({"type": "game.start"}))
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "type": "game.start",
+                    "host": event["host"].decode("utf-8"),
+                    "guest": event["guest"].decode("utf-8"),
+                }
+            )
+        )
 
     async def game_update(self, event):
         await self.send(
@@ -92,21 +106,23 @@ class PongGameConsumer(AsyncWebsocketConsumer):
     async def end_game(self, data):
         winner = data.get("winner")
         forfeit = data.get("forfeit")
+        scores = data.get("score")
 
         await self.channel_layer.group_send(
-            self.room_id,
+            self.game_room_id,
             {
                 "type": "game.end",
                 "winner": winner,
                 "forfeit": forfeit,
+                "scores": scores,
             },
         )
 
         self.save_game_result(data)
 
-        await self.redis_conn.delete(f"{self.room_id}_players")
-        await self.redis_conn.delete(f"{self.room_id}_host")
-        await self.redis_conn.delete(f"{self.room_id}_guest")
+        await self.redis_conn.delete(self.players_key)
+        await self.redis_conn.delete(self.host_key)
+        await self.redis_conn.delete(self.guest_key)
 
     async def game_end(self, event):
         await self.send(
@@ -121,7 +137,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
     def save_game_result(self, data):
         try:
             scores = data.get("scores")
-            pong_game = Pong.objects.get(id=self.room_id)
+            pong_game = Pong.objects.get(id=self.game_room_id)
             pong_game.host = data.get("host")
             pong_game.guest = data.get("guest")
             pong_game.host_score = scores["host"]
@@ -130,7 +146,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             pong_game.status = "FORFEIT" if data.get("forfeit") else "COMPLETED"
             pong_game.save()
         except Pong.DoesNotExist:
-            print(f"Game with room_id {self.room_id} does not exist")
+            print(f"Game with room_id {self.game_room_id} does not exist")
 
     # async def game_loop(self):
     #     fps = 0.033

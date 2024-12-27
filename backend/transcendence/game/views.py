@@ -50,7 +50,7 @@ class GameStartView(LoginRequiredMixin, View):
         user = request.user
         redis_conn = redis.Redis(host="redis")
 
-        existing_rooms = redis_conn.keys(f"room_*")
+        existing_rooms = redis_conn.keys(f"waiting_room_*")
         for room in existing_rooms:
             try:
                 players = redis_conn.lrange(room, 0, -1)
@@ -70,6 +70,6 @@ class GameStartView(LoginRequiredMixin, View):
                 # 키가 리스트가 아닌 경우 키를 삭제
                 redis_conn.delete(room)
 
-        new_room = f"room_{user.id}"
+        new_room = f"waiting_room_{user.id}"
         redis_conn.rpush(f"{new_room}", user.id)
         return JsonResponse({"room_id": new_room, "status": "created"})
