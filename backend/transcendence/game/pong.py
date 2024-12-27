@@ -35,7 +35,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 
         print(len(players))
         if len(players) == 1:
-            print("here")
+            await self.redis_conn.delete(self.room_id)
             await self.channel_layer.group_send(
                 self.game_room_id,
                 {
