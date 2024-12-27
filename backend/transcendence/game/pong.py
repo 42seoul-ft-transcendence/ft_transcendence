@@ -21,6 +21,9 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         self.guest_key = f"{self.game_room_id}_guest"
 
         players = await self.redis_conn.lrange(self.players_key, 0, -1)
+        if not players:
+            await self.redis_conn.delete(self.host_key)
+            await self.redis_conn.delete(self.guest_key)
 
         if len(players) < 2 and self.player_id not in [p.decode("utf-8") for p in players]:
             await self.redis_conn.rpush(self.players_key, self.player_id)
@@ -45,6 +48,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             )
 
     async def disconnect(self, close_code):
+        await self.redis_conn.delete(self.room_id)
         await self.channel_layer.group_discard(self.game_room_id, self.channel_name)
         players = await self.redis_conn.lrange(self.players_key, 0, -1)
 
@@ -103,7 +107,6 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         )
 
     async def end_game(self, data):
-        winner = data.get("winner")
         forfeit = data.get("forfeit")
         scores = data.get("score")
 
@@ -111,7 +114,6 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             self.game_room_id,
             {
                 "type": "game.end",
-                "winner": winner,
                 "forfeit": forfeit,
                 "scores": scores,
             },
@@ -128,7 +130,6 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             text_data=json.dumps(
                 {
                     "type": "game.end",
-                    "winner": event["winner"],
                 }
             )
         )
@@ -141,7 +142,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             pong_game.guest = data.get("guest")
             pong_game.host_score = scores["host"]
             pong_game.guest_score = scores["guest"]
-            pong_game.winner = data.get("winner")
+            pong_game.winner = pong_game.host if pong_game.host_score == self.win_goal else pong_game.guest
             pong_game.status = "FORFEIT" if data.get("forfeit") else "COMPLETED"
             pong_game.save()
         except Pong.DoesNotExist:
