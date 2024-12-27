@@ -118,6 +118,7 @@ export default class Pong extends Component {
             break;
           case "game.end":
             console.log("Game ended:", message);
+            pongSocket.close();
             break;
           default:
             console.error("Unknown message type:", message.type);
@@ -158,6 +159,17 @@ export default class Pong extends Component {
         cancelAnimationFrame(this.state.animationFrameId);
 
         this.$target.querySelector("#nextBtn").classList.remove("d-none");
+        if (this.props.gameMode === "singleMode") {
+          pongSocket.sendMessage(
+            JSON.stringify({
+              type: "game.end",
+              score: {
+                host: this.state.player1Score,
+                guest: this.state.player2Score,
+              },
+            }),
+          );
+        }
         return;
       }
     }

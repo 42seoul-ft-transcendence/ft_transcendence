@@ -46,6 +46,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             )
 
     async def disconnect(self, close_code):
+        await self.redis_conn.delete(self.room_id)
         await self.channel_layer.group_discard(self.game_room_id, self.channel_name)
         players = await self.redis_conn.lrange(self.players_key, 0, -1)
 
