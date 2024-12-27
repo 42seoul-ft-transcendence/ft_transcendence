@@ -33,7 +33,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(self.game_room_id, self.channel_name)
         await self.accept()
 
-        print(players)
+        print(len(players))
         if len(players) == 1:
             print("here")
             await self.channel_layer.group_send(

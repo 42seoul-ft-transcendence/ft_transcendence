@@ -40,8 +40,10 @@ class Ball {
     try {
       this.x = board.width / 2;
       this.y = board.height / 2;
-      this.velocityX = (Math.random() > 0.5 ? 1 : -1) * this.velocity; // 속도는 동일, 방향만 랜덤
-      this.velocityY = (Math.random() > 0.5 ? 1 : -1) * this.velocity; // 속도는 동일, 방향만 랜
+      this.velocityX = 1 * velocity; // 속도는 동일, 방향만 랜덤
+      this.velocityY = 1 * velocity; // 속도는 동일, 방향만 랜
+      // this.velocityX = (Math.random() > 0.5 ? 1 : -1) * this.velocity; // 속도는 동일, 방향만 랜덤
+      // this.velocityY = (Math.random() > 0.5 ? 1 : -1) * this.velocity; // 속도는 동일, 방향만 랜
     } catch (err) {
       console.log(err);
     }

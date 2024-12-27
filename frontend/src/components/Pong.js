@@ -118,7 +118,6 @@ export default class Pong extends Component {
             break;
           case "game.end":
             console.log("Game ended:", message);
-            // this.handleGameEnd(message);
             break;
           default:
             console.error("Unknown message type:", message.type);
@@ -178,7 +177,7 @@ export default class Pong extends Component {
 
   setEvent() {
     document.addEventListener("keydown", (e) => {
-      if (this.props.gameMode === "singleMode") {
+      if (this.props.gameMode === "singleMode" && !this.state.finish) {
         if (pongSocket.getStatus() === "OPEN") {
           if (e.code == "ArrowUp")
             pongSocket.sendMessage(
