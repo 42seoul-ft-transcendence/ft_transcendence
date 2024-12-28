@@ -292,6 +292,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
                 winner=winner_user.username,
                 status="COMPLETED",
             )
+            pong.save()
             print("Game saved", pong.id)
         except Exception as e:
             print(e)
@@ -341,6 +342,8 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             self.velocity_y = 0
 
         def move(self):
+            if self.y <= 0 or self.y + self.height >= 500:
+                return
             self.y += self.velocity_y
 
         def reset(self):
