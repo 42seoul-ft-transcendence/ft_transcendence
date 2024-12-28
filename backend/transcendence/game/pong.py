@@ -57,11 +57,11 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 
         if self.host:
             await self.redis_conn.set(self.room_id, 1)
-            self.board_width = 800
-            self.board_height = 400
+            self.board_width = 700
+            self.board_height = 500
             self.ball = self.Ball(self.board_width // 2, self.board_height // 2, 5)
-            self.player1 = self.Player(20, self.board_height // 2 - 50, 100)
-            self.player2 = self.Player(self.board_width - 30, self.board_height // 2 - 50, 100)
+            self.player1 = self.Player(20, self.board_height // 2, 100)
+            self.player2 = self.Player(self.board_width - 20, self.board_height // 2, 100)
 
             self.scores = {"player1": 0, "player2": 0}
             self.player1_id = self.user.id
@@ -92,7 +92,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         self.connected = False
 
         players = await self.redis_conn.lrange(f"{self.room_id}_players", 0, -1)
-        if self.user.id.encode() in players:
+        if str(self.user.id).encode("utf-8") in players:
             await self.redis_conn.lrem(f"{self.room_id}_players", 0, self.user.id)
 
         remainders = await self.redis_conn.lrange(f"{self.room_id}_players", 0, -1)
@@ -224,10 +224,14 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         while True:
             try:
                 self.ball.update(self.board_height, self.player1, self.player2)
-                if self.ball.x <= 0:
+                if self.ball.x < 0:
                     self.scores["player2"] += 1
-                elif self.ball.x >= self.board_width - self.ball.width:
+                    self.reset_game()
+                    await asyncio.sleep(0.05)
+                elif self.ball.x > self.board_width - self.ball.width:
                     self.scores["player1"] += 1
+                    self.reset_game()
+                    await asyncio.sleep(0.05)
 
                 if self.scores["player1"] >= self.win_goal or self.scores["player2"] >= self.win_goal:
                     winner = "player1" if self.scores["player1"] >= self.win_goal else "player2"
@@ -317,8 +321,8 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             )
 
         def reset(self):
-            self.x = 400
-            self.y = 200
+            self.x = 350
+            self.y = 250
             self.velocity_x = self.velocity * (1 if random.random() > 0.5 else -1)
             self.velocity_y = self.velocity * (1 if random.random() > 0.5 else -1)
 
@@ -334,5 +338,5 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             self.y += self.velocity_y
 
         def reset(self):
-            self.y = 150
+            self.y = 200
             self.velocity_y = 0

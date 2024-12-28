@@ -122,6 +122,14 @@ export default class Pong extends Component {
       const wsData = JSON.parse(event.data);
 
       switch (wsData.type) {
+        case "game_start":
+          console.log("Game started:", wsData);
+          this.state.board.init();
+          this.state.ball.init();
+          this.state.requestAnimationFrameId = requestAnimationFrame(
+            this.remoteUpdate.bind(this),
+          );
+          break;
         case "assign_role":
           console.log("Role assigned:", wsData);
           this.state.myRole = wsData.role;
@@ -132,11 +140,13 @@ export default class Pong extends Component {
           this.state.ballY = message.ball.y;
           this.state.player1Y = message.player1.y;
           this.state.player2Y = message.player2.y;
-          this.state.player1Score = message.score.player1;
-          this.state.player2Score = message.score.player2;
+          this.state.player1Score = message.scores.player1;
+          this.state.player2Score = message.scores.player2;
+          this.state.ball.remoteUpdate(message.ball.x, message.ball.y);
           break;
         case "game_stop":
           pongSocket.close();
+          cancelAnimationFrame(this.state.animationFrameId);
           console.log(wsData);
           //   pongSocket.sendMessage(JSON.stringify({ type: "game_stop" }));
           //   cancelAnimationFrame(this.state.animationFrameId);
@@ -148,15 +158,18 @@ export default class Pong extends Component {
   }
 
   remoteUpdate() {
+    const { board, player1, player2, ball, player1Y, player2Y, ballX, ballY } =
+      this.state;
+
     board.clear();
     board.draw(this.state.player1Score, this.state.player2Score);
-    player1.remoteUpdate(this.player1Y);
+    player1.remoteUpdate(player1Y);
     player1.draw();
 
-    player2.remoteUpdate(this.player2Y);
+    player2.remoteUpdate(player2Y);
     player2.draw();
 
-    ball.remoteUpdate(this.ballX, this.ballY);
+    ball.remoteUpdate(ballX, ballY);
     ball.draw();
     this.state.animationFrameId = requestAnimationFrame(
       this.remoteUpdate.bind(this),
@@ -190,17 +203,6 @@ export default class Pong extends Component {
         cancelAnimationFrame(this.state.animationFrameId);
 
         this.$target.querySelector("#nextBtn").classList.remove("d-none");
-        if (this.props.gameMode === "singleMode") {
-          pongSocket.sendMessage(
-            JSON.stringify({
-              type: "end_game",
-              score: {
-                host: this.state.player1Score,
-                guest: this.state.player2Score,
-              },
-            }),
-          );
-        }
         return;
       }
     }
@@ -225,17 +227,21 @@ export default class Pong extends Component {
           if (e.code == "ArrowUp")
             pongSocket.sendMessage(
               JSON.stringify({
-                type: "move",
-                direction: -3,
-                player: this.state.myRole,
+                type: "game_move",
+                content: {
+                  direction: -3,
+                  player: this.state.myRole,
+                },
               }),
             );
           else if (e.code == "ArrowDown")
             pongSocket.sendMessage(
               JSON.stringify({
-                type: "move",
-                direction: 3,
-                player: this.state.myRole,
+                type: "game_move",
+                content: {
+                  direction: 3,
+                  player: this.state.myRole,
+                },
               }),
             );
         }
