@@ -119,6 +119,10 @@ class VerifyFriendshipView(LoginRequiredMixin, View):
 
         if not target:
             return JsonResponse({"error": "Target user ID is required"}, status=400)
+
+        if str(user.id) == target:
+            return JsonResponse({"is_friend": True})
+
         try:
             target_user = User.objects.get(id=target)
             is_friend = Friendship.objects.filter(

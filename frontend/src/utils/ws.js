@@ -2,6 +2,7 @@ export function createWebSocketManager() {
   let socket = null;
   let url = `wss://${window.location.host}/ws/`;
   let reconnectTimeout = null;
+  let prevUrl = "";
   const callbacks = {
     onOpen: null,
     onMessage: null,
@@ -21,7 +22,6 @@ export function createWebSocketManager() {
       return;
     }
     socket = new WebSocket(url + urlParams);
-    url = url + urlParams;
 
     // WebSocket 이벤트 핸들러 등록
     socket.onopen = () => {
@@ -30,7 +30,7 @@ export function createWebSocketManager() {
     };
 
     socket.onmessage = (event) => {
-      console.log("Message received:", event.data);
+      // console.log("Message received:", event.data);
       if (callbacks.onMessage) callbacks.onMessage(event);
     };
 

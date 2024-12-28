@@ -8,7 +8,6 @@ import HistoryProfile from "../../components/HistoryProfile.js";
 export default class HistoryView extends Component {
   async setup() {
     this.state = {
-      matchCount: test.length,
       history: test,
       profile: null,
       is_friend: true,
@@ -42,7 +41,7 @@ export default class HistoryView extends Component {
       return;
     }
 
-    if (viewId) {
+    if (viewId && profile.id !== viewId) {
       try {
         const res = await apiCall(
           `/api/friendship/is-friend//?target=${viewId}`,
@@ -60,7 +59,10 @@ export default class HistoryView extends Component {
         : "/api/game/match-history/";
 
       const res = await apiCall(url, "get");
-      this.state.history = res.matches;
+      console.log(res);
+      this.state.history = this.transformMatches(res.matches, profile.id);
+      console.log(this.state.history);
+      profile.winLossRecord = this.calculateStatistics(this.state.history);
     } catch (e) {
       console.error(e);
     }
@@ -69,7 +71,7 @@ export default class HistoryView extends Component {
   }
 
   template() {
-    const { matchCount } = this.state;
+    const { history } = this.state;
 
     let temp = /* html */ `
       <div class="container nav-section"></div>
@@ -77,7 +79,7 @@ export default class HistoryView extends Component {
         <div id="historySection"></div>
         <div class="row gy-4">
       `;
-    for (let i = 0; i < matchCount; ++i)
+    for (let i = 0; i < history.length; ++i)
       temp += /* html */ `<div id="historyCard${i}" class="col-md-6"></div>`;
     temp +=
       /* html */
@@ -104,6 +106,50 @@ export default class HistoryView extends Component {
         match,
       );
     });
+  }
+
+  transformMatches(matches, myId) {
+    return matches.map((match) => {
+      const isHostMe = match.host.id === myId; // host가 me인지 확인
+
+      return {
+        me: {
+          id: isHostMe ? match.host.id : match.guest.id,
+          name: isHostMe ? match.host.username : match.guest.username,
+          score: isHostMe ? match.host.score : match.guest.score,
+          profileImage: isHostMe ? match.host.avatar : match.guest.avatar,
+        },
+        oppenent: {
+          id: isHostMe ? match.guest.id : match.host.id,
+          name: isHostMe ? match.guest.username : match.host.username,
+          score: isHostMe ? match.guest.score : match.host.score,
+          profileImage: isHostMe ? match.guest.avatar : match.host.avatar,
+        },
+        date: new Date(match.date).toISOString().split("T")[0], // 날짜를 YYYY/MM/DD 형식으로 변환
+        result:
+          match.winner ===
+          (isHostMe ? match.host.username : match.guest.username)
+            ? "win"
+            : "loss",
+      };
+    });
+  }
+
+  calculateStatistics(transformedMatches) {
+    const stats = {
+      wins: 0,
+      losses: 0,
+    };
+
+    transformedMatches.forEach((match) => {
+      if (match.result === "win") {
+        stats.wins += 1;
+      } else {
+        stats.losses += 1;
+      }
+    });
+
+    return stats;
   }
 }
 

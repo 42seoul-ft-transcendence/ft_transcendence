@@ -192,11 +192,11 @@ class PongGameConsumer(AsyncWebsocketConsumer):
                 self.player1.move()
                 self.player2.move()
                 if self.ball.x < 0:
-                    self.info.score[0] += 1
+                    self.info.score[1] += 1
                     self.reset_game()
                     await asyncio.sleep(0.1)
                 elif self.ball.x > self.board_width - self.ball.width:
-                    self.info.score[1] += 1
+                    self.info.score[0] += 1
                     self.reset_game()
                     await asyncio.sleep(0.1)
 

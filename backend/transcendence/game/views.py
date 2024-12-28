@@ -26,12 +26,18 @@ class MatchHistoryView(View):
 
         match_data = [
             {
-                "host": match.host.username if match.host else "Unknown",
-                "guest": match.guest.username if match.guest else "Unknown",
-                "host_score": match.host_score,
-                "guest_score": match.guest_score,
-                "host_avatar": avatar_url(match.host.avatar),
-                "guest_avatar": avatar_url(match.guest.avatar),
+                "host": {
+                    "id": match.host.id,
+                    "username": match.host.username,
+                    "avatar": avatar_url(match.host.avatar),
+                    "score": match.host_score,
+                },
+                "guest": {
+                    "id": match.guest.id,
+                    "username": match.guest.username,
+                    "avatar": avatar_url(match.guest.avatar),
+                    "score": match.guest_score,
+                },
                 "winner": match.winner,
                 "date": match.updated_at.isoformat(),
             }

@@ -1,6 +1,7 @@
 import Component from "../core/Component.js";
 
 import { getTranslation } from "../utils/translations.js";
+import { apiCall } from "../utils/api.js";
 
 export default class HistoryProfile extends Component {
   setup() {
