@@ -5,7 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from authentication.utils import avatar_url
 import redis
 
-from . import models
+from django.db import models
 from .models import Pong
 
 
@@ -16,8 +16,8 @@ class MatchHistoryView(View):
 
         if target:
             matches = matches.filter(
-                models.Q(host__username__icontains=target) |
-                models.Q(guest__username__icontains=target)
+                models.Q(host__id__icontains=target) |
+                models.Q(guest__id__icontains=target)
             )
 
         page = request.GET.get('page', 1)

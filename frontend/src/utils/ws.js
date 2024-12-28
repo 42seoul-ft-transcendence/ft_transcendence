@@ -21,7 +21,7 @@ export function createWebSocketManager() {
       return;
     }
     socket = new WebSocket(url + urlParams);
-    // url = urlParams;
+    url = urlParams;
 
     // WebSocket 이벤트 핸들러 등록
     socket.onopen = () => {
