@@ -21,7 +21,6 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         try:
             self.user = self.scope.get('user')
             if not self.user and self.user.is_anonymous:
-                print("error1")
                 raise ValueError("Invalid user")
             else:
                 print(f"User {self.user.id} is attempting to connect.")
@@ -33,11 +32,8 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             await self.close()
             return
 
-        print("error2")
         await self.accept()
-        print("error3")
         await self.channel_layer.group_add(self.room_id, self.channel_name)
-        print("error4")
         self.valid = True
 
         await self.send_message(
@@ -48,7 +44,6 @@ class PongGameConsumer(AsyncWebsocketConsumer):
                 "username": self.user.username,
             }
         )
-        print("error5")
         await self.send_message(
             "client",
             "assign_role",
@@ -56,15 +51,11 @@ class PongGameConsumer(AsyncWebsocketConsumer):
                 "role": "player1" if self.host else "player2",
             }
         )
-        print("error6")
 
     async def initialize_game(self):
-        print("init1")
         self.room_id = f"game_{self.scope['url_route']['kwargs']['room_id']}"
         self.host = await self.redis_conn.get(self.room_id) is None
-        print("init2")
         players = await self.redis_conn.lrange(f"{self.room_id}_players", 0, -1)
-        print("init3")
 
         if self.host:
             await self.redis_conn.set(self.room_id, 1)
@@ -74,20 +65,14 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             self.ball = self.Ball(self.board_width // 2, self.board_height // 2, 5)
             self.player1 = self.Player(20, self.board_height // 2, 100)
             self.player2 = self.Player(self.board_width - 20, self.board_height // 2, 100)
-            print("init4")
 
         else:
-            print("init5")
             if str(self.user.id).encode("utf-8") in players:
-                print("init6")
                 raise ConnectionRefusedError("User already connected to the room")
             if len(players) >= 2:
-                print("init7")
                 raise ConnectionRefusedError("Room is full")
 
-        print("init8")
         await self.redis_conn.rpush(f"{self.room_id}_players", self.user.id)
-        print("init9")
 
     async def send_message(self, destination="client", msg_type="", args=None):
         message = {"type": msg_type, "content": args} if msg_type else args
@@ -100,7 +85,6 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             print(e)
 
     async def disconnect(self, close_code):
-        print("%%%%%%%%%%%%%%%%DISCONNECT CALL%%%%%%%%%%%%%%%%%%%%%%%%%")
         self.connected = False
 
         if hasattr(self, "host") and self.host:
@@ -288,18 +272,26 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             if self.y <= 0 or self.y + self.height >= board_height:
                 self.velocity_y *= -1
 
-            if self.detect_collision(player1):
+            if self.detect_collision(player1, True):
                 self.velocity_x = abs(self.velocity_x)
             elif self.detect_collision(player2):
                 self.velocity_x = -abs(self.velocity_x)
 
-        def detect_collision(self, player):
-            return (
-                    self.x < player.x + player.width
-                    and self.x + self.width > player.x
-                    and self.y < player.y + player.height
-                    and self.y + self.height > player.y
-            )
+        def detect_collision(self, player, left=False):
+            if left:
+                return (
+                        self.x <= player.x + player.width
+                        and self.x + self.width >= player.x
+                        and self.y < player.y + player.height
+                        and self.y + self.height > player.y
+                )
+            else:
+                return (
+                        self.x + self.width >= player.x
+                        and self.x <= player.x + player.width
+                        and self.y < player.y + player.height
+                        and self.y + self.height > player.y
+                )
 
         def reset(self):
             self.x = 350
