@@ -2,7 +2,7 @@ export function createWebSocketManager() {
   let socket = null;
   let url = `wss://${window.location.host}/ws/`;
   let reconnectTimeout = null;
-  let prevUrl = "";
+  let prevParam = "";
   const callbacks = {
     onOpen: null,
     onMessage: null,
@@ -21,11 +21,14 @@ export function createWebSocketManager() {
       console.warn("WebSocket is already open.");
       return;
     }
+    if (urlParams) prevParam = urlParams;
+    else urlParams = prevParam;
+
     socket = new WebSocket(url + urlParams);
 
     // WebSocket 이벤트 핸들러 등록
     socket.onopen = () => {
-      console.log("WebSocket connected.");
+      // console.log("WebSocket connected.");
       if (callbacks.onOpen) callbacks.onOpen();
     };
 
@@ -35,7 +38,7 @@ export function createWebSocketManager() {
     };
 
     socket.onclose = (event) => {
-      console.warn("WebSocket closed:", event.reason);
+      // console.warn("WebSocket closed:", event.reason);
       if (callbacks.onClose) callbacks.onClose(event);
       if (!event.wasClean) {
         console.log("Reconnecting WebSocket...");
@@ -44,7 +47,7 @@ export function createWebSocketManager() {
     };
 
     socket.onerror = (error) => {
-      console.log("WebSocket error:", error);
+      // console.log("WebSocket error:", error);
       if (callbacks.onError) callbacks.onError(error);
       socket.close(); // 오류 발생 시 소켓 종료
     };
@@ -65,7 +68,7 @@ export function createWebSocketManager() {
   function sendMessage(message) {
     if (socket && socket.readyState === WebSocket.OPEN) {
       socket.send(message);
-      console.log("Message sent:", message);
+      // console.log("Message sent:", message);
     } else {
       console.warn("WebSocket is not open. Cannot send message.");
     }
@@ -75,6 +78,10 @@ export function createWebSocketManager() {
   function close() {
     if (socket) {
       socket.close();
+      callbacks.onOpen = null;
+      callbacks.onMessage = null;
+      callbacks.onError = null;
+      callbacks.onClose = null;
       socket = null;
       console.log("WebSocket closed manually.");
     }

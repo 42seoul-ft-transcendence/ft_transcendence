@@ -68,10 +68,6 @@ export default class FriendView extends Component {
     temp += /* html */ `
         </div>
       </div>
-      <div class="container add-friend">
-        <input type="text" class="form-control" id="addFriendInput" placeholder="Add a friend">
-        <button id="addFriendBtn" class="btn btn-primary mt-3">test</button>
-      </div>
     `;
     return temp;
   }

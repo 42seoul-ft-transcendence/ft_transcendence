@@ -2,7 +2,7 @@ import Component from "../core/Component.js";
 import * as game from "../utils/game/game.js";
 
 import { getTranslation } from "../utils/translations.js";
-import { pongSocket, loginSocket } from "../utils/ws.js";
+import { pongSocket } from "../utils/ws.js";
 import { apiCall } from "../utils/api.js";
 
 export default class Pong extends Component {
@@ -20,8 +20,6 @@ export default class Pong extends Component {
       opponent1: this.props.opponent1,
       opponent2: this.props.opponent2,
       finish: false,
-      myId: null,
-      myName: null,
       player1Y: null,
       player2Y: null,
       ballX: null,
@@ -40,14 +38,6 @@ export default class Pong extends Component {
       this.state.opponent1 = { id: null, name: null, position: 1 };
     if (!this.state.opponent2)
       this.state.opponent2 = { id: null, name: null, position: 2 };
-
-    // pongSocket.on("onOpen", () => {
-    //   pongSocket.sendMessage(
-    //     JSON.stringify({
-    //       type: "game_ready",
-    //     }),
-    //   );
-    // });
   }
 
   template() {
@@ -103,21 +93,6 @@ export default class Pong extends Component {
     const res = await apiCall("/api/game/start/", "post");
     this.state.finish = true;
 
-    console.log("remoteGameMounted", res);
-    loginSocket.on("onMessage", (event) => {
-      const data = JSON.parse(event.data);
-
-      console.log("loginSocket onMessage", data);
-      switch (data.type) {
-        case "user_id":
-          this.state.myId = data.user_id;
-          this.state.myName =
-            data.username.length === 1 ? data.username[0] : data.username[1];
-          break;
-      }
-    });
-    loginSocket.sendMessage(JSON.stringify({ action: "get_user" }));
-
     pongSocket.init(`pong/${res.room_id}/`);
     pongSocket.on("onMessage", (event) => {
       const wsData = JSON.parse(event.data);
@@ -136,11 +111,11 @@ export default class Pong extends Component {
           console.log("Role assigned:", wsData);
           this.state.myRole = wsData.content.role;
           if (this.state.myRole === "player1") {
-            console.log(this.state.myName);
-            this.state.opponent1.name = this.state.myName;
+            this.state.opponent1.name = "You";
           } else {
-            this.state.opponent2.name = this.state.myName;
+            this.state.opponent2.name = "You";
           }
+          this.render();
           break;
         case "game_state":
           const message = wsData.content;
@@ -154,16 +129,6 @@ export default class Pong extends Component {
           break;
         case "game_stop":
           pongSocket.close();
-          // console.log("Game stopped:", wsData.content.winner);
-          // console.log("My ID:", this.state.myId);
-          // wsData.content.winner === this.state.myId
-          //   ? (this.state.player2Score = 3)
-          //   : (this.state.player1Score = 3);
-
-          // this.finishGame();
-          console.log(wsData);
-          //   pongSocket.sendMessage(JSON.stringify({ type: "game_stop" }));
-          //   cancelAnimationFrame(this.state.animationFrameId);
           break;
         default:
           console.warn("Unknown message type:", wsData.type);
@@ -241,19 +206,20 @@ export default class Pong extends Component {
   }
 
   setEvent() {
-    document.addEventListener("keydown", (e) => {
+    document.onkeydown = (e) => {
       if (this.props.gameMode === "singleMode") {
         if (pongSocket.getStatus() === "OPEN") {
+          const test = JSON.stringify({
+            type: "game_move",
+            content: {
+              direction: -10,
+              player: this.state.myRole,
+            },
+          });
+
+          console.log(test);
           if (e.code == "ArrowUp") {
-            pongSocket.sendMessage(
-              JSON.stringify({
-                type: "game_move",
-                content: {
-                  direction: -10,
-                  player: this.state.myRole,
-                },
-              }),
-            );
+            pongSocket.sendMessage(test);
           } else if (e.code == "ArrowDown")
             pongSocket.sendMessage(
               JSON.stringify({
@@ -272,7 +238,7 @@ export default class Pong extends Component {
         if (e.code == "ArrowUp") this.state.player2.velocityY = -3;
         else if (e.code == "ArrowDown") this.state.player2.velocityY = 3;
       }
-    });
+    };
 
     this.addEvent("click", "#nextBtn", () => {
       const { opponent1, opponent2, player1Score, player2Score } = this.state;

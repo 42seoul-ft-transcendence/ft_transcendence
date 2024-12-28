@@ -44,6 +44,5 @@ export default class FriendCard extends Component {
       }),
     );
     this.$target.remove();
-    this.props.handleFriendRequestFinish(request_id);
   }
 }

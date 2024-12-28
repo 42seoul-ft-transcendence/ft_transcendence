@@ -11,6 +11,7 @@ import FriendView from "./pages/profile/FriendView.js";
 import SettingView from "./pages/profile/SettingView.js";
 
 import * as brackets from "./utils/tournament.js";
+import { pongSocket } from "./utils/ws.js";
 
 const data = {
   avatar: "https://robohash.org/JohnDoe.png?size=150x150",
@@ -44,6 +45,7 @@ export default class App extends Component {
     const $nav = this.$target.querySelector("#nav");
     const $body = this.$target.querySelector("#body");
 
+    pongSocket.close();
     router.addRoute("#/", () => {
       new Navbar($nav, profile);
       new Home($body, {
