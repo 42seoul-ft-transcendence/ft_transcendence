@@ -61,7 +61,7 @@ export default class SettingInfo extends Component {
         const data = await apiCall("/api/login/toggle-2fa/", "post");
         console.log(data);
       } catch (e) {
-        console.error(e);
+        console.warn(e);
       }
     });
 
@@ -71,7 +71,7 @@ export default class SettingInfo extends Component {
         console.log(data);
         window.location.href = "#/login";
       } catch (e) {
-        console.error(e);
+        console.warn(e);
       }
     });
   }

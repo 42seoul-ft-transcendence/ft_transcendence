@@ -1,9 +1,11 @@
 import Component from "../core/Component.js";
+
 import { getTranslation } from "../utils/translations.js";
+import { apiCall } from "../utils/api.js";
 
 export default class FriendCard extends Component {
   template() {
-    const { status_message, username, avatar, id, status } = this.props;
+    const { status_message, username, avatar, id, status } = this.props.list;
 
     return /* html */ `
 		<!-- Friend Card -->
@@ -28,5 +30,20 @@ export default class FriendCard extends Component {
     this.addEvent("click", ".friend-profile-pic", () => {
       window.location.hash = `#/profile/history?id=${this.props.id}`;
     });
+
+    this.addEvent("click", "#deleteBtn", (e) => this.deleteFriendRequest(e));
+  }
+
+  async deleteFriendRequest(e) {
+    const request_id = e.target.dataset.id;
+    const data = await apiCall(
+      `/api/friendship/respond/${request_id}/`,
+      "post",
+      JSON.stringify({
+        action: "delete",
+      }),
+    );
+    this.$target.remove();
+    this.props.handleFriendRequestFinish(request_id);
   }
 }

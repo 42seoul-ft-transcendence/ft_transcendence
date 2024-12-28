@@ -83,7 +83,7 @@ export default class UserInfo extends Component {
 
           console.log(data);
         } catch (e) {
-          console.error(e);
+          console.warn(e);
         }
       }
     });

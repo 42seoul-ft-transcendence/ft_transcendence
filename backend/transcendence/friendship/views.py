@@ -90,6 +90,7 @@ class RespondFriendRequestView(LoginRequiredMixin, View):
         if friendship.receiver.id != request.user.id:
             return HttpResponseBadRequest("You are not authorized to respond to this request.")
 
+        print( friendship.status)
         # 상태 전이 로직
         if friendship.status == "pending":
             if action == "accept":

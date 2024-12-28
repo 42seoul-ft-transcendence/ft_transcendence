@@ -135,6 +135,12 @@ export default class Pong extends Component {
         case "assign_role":
           console.log("Role assigned:", wsData);
           this.state.myRole = wsData.content.role;
+          if (this.state.myRole === "player1") {
+            console.log(this.state.myName);
+            this.state.opponent1.name = this.state.myName;
+          } else {
+            this.state.opponent2.name = this.state.myName;
+          }
           break;
         case "game_state":
           const message = wsData.content;
@@ -148,13 +154,19 @@ export default class Pong extends Component {
           break;
         case "game_stop":
           pongSocket.close();
-          cancelAnimationFrame(this.state.animationFrameId);
+          // console.log("Game stopped:", wsData.content.winner);
+          // console.log("My ID:", this.state.myId);
+          // wsData.content.winner === this.state.myId
+          //   ? (this.state.player2Score = 3)
+          //   : (this.state.player1Score = 3);
+
+          // this.finishGame();
           console.log(wsData);
           //   pongSocket.sendMessage(JSON.stringify({ type: "game_stop" }));
           //   cancelAnimationFrame(this.state.animationFrameId);
           break;
         default:
-          console.error("Unknown message type:", wsData.type);
+          console.warn("Unknown message type:", wsData.type);
       }
     });
   }
@@ -170,6 +182,11 @@ export default class Pong extends Component {
 
     player2.remoteUpdate(player2Y);
     player2.draw();
+
+    if (this.state.player1Score == 3 || this.state.player2Score == 3) {
+      this.finishGame();
+      return;
+    }
 
     ball.remoteUpdate(ballX, ballY);
     ball.draw();
@@ -192,21 +209,22 @@ export default class Pong extends Component {
     player2.draw();
 
     if (this.state.player1Score == 3 || this.state.player2Score == 3) {
-      let winWidth;
+      // let winWidth;
 
-      if (this.state.animationFrameId) {
-        this.state.finish = true;
-        if (this.state.player1Score == 3) winWidth = board.width / 5 - 20;
-        else winWidth = (board.width * 4) / 5 - 60;
+      // if (this.state.animationFrameId) {
+      //   this.state.finish = true;
+      //   if (this.state.player1Score == 3) winWidth = board.width / 5 - 20;
+      //   else winWidth = (board.width * 4) / 5 - 60;
 
-        board.context.fillStyle = "White";
-        board.context.fillText("WIN", winWidth, 125);
+      //   board.context.fillStyle = "White";
+      //   board.context.fillText("WIN", winWidth, 125);
 
-        cancelAnimationFrame(this.state.animationFrameId);
+      //   cancelAnimationFrame(this.state.animationFrameId);
 
-        this.$target.querySelector("#nextBtn").classList.remove("d-none");
-        return;
-      }
+      //   this.$target.querySelector("#nextBtn").classList.remove("d-none");
+      this.finishGame();
+      return;
+      // }
     }
     ball.update(player1, player2);
     ball.draw();
@@ -273,5 +291,19 @@ export default class Pong extends Component {
       this.props.handlePongNextGameClick(opponent1, opponent2);
       window.location.hash = "#/tournament";
     });
+  }
+
+  finishGame() {
+    let winWidth;
+    const { board, player1Score } = this.state;
+    this.state.finish = true;
+
+    if (player1Score == 3) winWidth = board.width / 5 - 20;
+    else winWidth = (board.width * 4) / 5 - 60;
+
+    board.context.fillStyle = "White";
+    board.context.fillText("WIN", winWidth, 125);
+
+    cancelAnimationFrame(this.state.animationFrameId);
   }
 }

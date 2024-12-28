@@ -58,12 +58,12 @@ export default class Avatar extends Component {
         );
 
         if (res.ok) {
-          console.log("Avatar upload success");
+          console.warn("Avatar upload success");
         } else {
-          console.error("Failed to upload avatar");
+          console.warn("Failed to upload avatar");
         }
       } catch (e) {
-        console.error(e);
+        console.warn(e);
       }
     });
   }

@@ -40,7 +40,7 @@ export const apiCall = async (url, method, data = null, header = null) => {
 
     if (!res.ok) {
       const errorText = await res.text();
-      console.log(errorText);
+      console.warn(errorText);
       throw new Error("HTTP status " + res.status);
     }
     return await res.json();

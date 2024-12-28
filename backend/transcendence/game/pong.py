@@ -200,13 +200,13 @@ class PongGameConsumer(AsyncWebsocketConsumer):
                     self.reset_game()
                     await asyncio.sleep(0.1)
 
+                await self.send_game_state()
+                await asyncio.sleep(self.frame_rate)
                 if self.info.score[0] >= self.win_goal or self.info.score[1] >= self.win_goal:
                     winner = self.get_winner()
                     await self.send_message("group", "game_stop", {"winner": winner})
                     break
 
-                await self.send_game_state()
-                await asyncio.sleep(self.frame_rate)
             except Exception as e:
                 print(e)
                 break

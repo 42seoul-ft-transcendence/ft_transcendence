@@ -1,68 +1,96 @@
-{% extends "./extends/base.html" %}
-
-{% load i18n %}
-{% block content %}
+{% extends "./extends/base.html" %} {% load i18n %} {% block content %}
 <div class="container-fluid">
-	<div class="row justify-content-center align-items-center w-35 h-100">
-		<div class="col-12 col-md-3" id="main-pong-column">
-			<div game-menu="main" class="row">
-				<a class="btn pong-selection-buttons pong-btn-scnd-color text-decoration-none mb-4 w-100 fw-bold"
-					data-route href="/pong/local">{% trans "Local Game" %}</a>
-				<button class="btn pong-selection-buttons mt-4 w-100 fw-bold" menu-id="online">
-					{% trans "Online Play"%}
-				</button>
-			</div>
+  <div class="row justify-content-center align-items-center w-35 h-100">
+    <div class="col-12 col-md-3" id="main-pong-column">
+      <div game-menu="main" class="row">
+        <a
+          class="btn pong-selection-buttons pong-btn-scnd-color text-decoration-none mb-4 w-100 fw-bold"
+          data-route
+          href="/pong/local"
+          >{% trans "Local Game" %}</a
+        >
+        <button
+          class="btn pong-selection-buttons mt-4 w-100 fw-bold"
+          menu-id="online"
+        >
+          {% trans "Online Play"%}
+        </button>
+      </div>
 
-			<div game-menu="online" class="row">
-				<a class="btn pong-selection-buttons pong-btn-scnd-color text-decoration-none mb-2 w-100 fw-bold"
-					data-route href="/pong/online">
-					{% trans "Create a Room" %}</a>
-				<button class="btn pong-selection-buttons text-decoration-none mt-2 mb-4 w-100 fw-bold"
-					menu-id="join">{% trans "Join a Room" %}</button>
-				<hr class="row-divider">
-				<a class="btn pong-selection-buttons pong-btn-scnd-color text-decoration-none my-4 w-100 fw-bold"
-					data-route href="/tournaments">{% trans "Join a Tournament" %}</a>
-			</div>
+      <div game-menu="online" class="row">
+        <a
+          class="btn pong-selection-buttons pong-btn-scnd-color text-decoration-none mb-2 w-100 fw-bold"
+          data-route
+          href="/pong/online"
+        >
+          {% trans "Create a Room" %}</a
+        >
+        <button
+          class="btn pong-selection-buttons text-decoration-none mt-2 mb-4 w-100 fw-bold"
+          menu-id="join"
+        >
+          {% trans "Join a Room" %}
+        </button>
+        <hr class="row-divider" />
+        <a
+          class="btn pong-selection-buttons pong-btn-scnd-color text-decoration-none my-4 w-100 fw-bold"
+          data-route
+          href="/tournaments"
+          >{% trans "Join a Tournament" %}</a
+        >
+      </div>
 
-			<div game-menu="join" class="row w-100">
-				<form class="form-group my-4 w-100" id="join-form">
-					<div class="form-floating w-100 room-input-container mb-4">
-						<input class="form-control w-100 room-input font" type="text" id="join-id" placeholder="Room Id"
-							autocomplete="off">
-						<label id="join-label" for="join-id" class="room-input">{% trans "Room ID" %}</label>
-					</div>
-					<button type="submit"
-						class="btn pong-selection-buttons pong-btn-scnd-color text-decoration-none mb-4 w-100 fw-bold">
-						{% trans "Join" %}
-					</button>
-				</form>
-			</div>
+      <div game-menu="join" class="row w-100">
+        <form class="form-group my-4 w-100" id="join-form">
+          <div class="form-floating w-100 room-input-container mb-4">
+            <input
+              class="form-control w-100 room-input font"
+              type="text"
+              id="join-id"
+              placeholder="Room Id"
+              autocomplete="off"
+            />
+            <label id="join-label" for="join-id" class="room-input"
+              >{% trans "Room ID" %}</label
+            >
+          </div>
+          <button
+            type="submit"
+            class="btn pong-selection-buttons pong-btn-scnd-color text-decoration-none mb-4 w-100 fw-bold"
+          >
+            {% trans "Join" %}
+          </button>
+        </form>
+      </div>
 
-			<button class="btn pong-selection-buttons px-3 w-90 h-90 mx-auto fw-bold" id="back-btn" menu-id="main">
-				{% trans "Back" %}</button>
-		</div>
-	</div>
+      <button
+        class="btn pong-selection-buttons px-3 w-90 h-90 mx-auto fw-bold"
+        id="back-btn"
+        menu-id="main"
+      >
+        {% trans "Back" %}
+      </button>
+    </div>
+  </div>
 </div>
 
 <script>
-	const menuClass = "game-menu";
-	const backBtn = document.getElementById("back-btn");
+  const menuClass = "game-menu";
+  const backBtn = document.getElementById("back-btn");
 
-	backBtn.addEventListener("click", () => {
-		document.getElementById("join-id").value = '';
-	});
+  backBtn.addEventListener("click", () => {
+    document.getElementById("join-id").value = "";
+  });
 
-	document.getElementById("join-form").addEventListener("submit", e => {
-		e.preventDefault();
-		const roomId = document.getElementById('join-id').value.trim();
-		document.getElementById('join-id').value = "";
-		if (roomId !== "")
-			route(`/pong/online/${roomId}`);
-		else
-			console.error('Room ID cannot be empty.');
-	});
+  document.getElementById("join-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const roomId = document.getElementById("join-id").value.trim();
+    document.getElementById("join-id").value = "";
+    if (roomId !== "") route(`/pong/online/${roomId}`);
+    else console.warn("Room ID cannot be empty.");
+  });
 
-	showMenu("main", menuClass, backBtn);
-	addBtnToMenusEvents(menuClass, backBtn);
+  showMenu("main", menuClass, backBtn);
+  addBtnToMenusEvents(menuClass, backBtn);
 </script>
 {% endblock %}

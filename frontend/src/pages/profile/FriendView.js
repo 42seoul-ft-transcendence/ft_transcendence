@@ -95,7 +95,10 @@ export default class FriendView extends Component {
 
     friendData.length &&
       friendData.forEach((list, index) => {
-        new FriendCard(this.$target.querySelector(`#friendCard${index}`), list);
+        new FriendCard(this.$target.querySelector(`#friendCard${index}`), {
+          list,
+          handleFriendRequestFinish: this.handleFriendRequestFinish.bind(this),
+        });
       });
   }
 
@@ -123,92 +126,17 @@ export default class FriendView extends Component {
         );
         console.log(data);
       } catch (e) {
-        console.error(e);
+        console.warn(e);
       }
     });
   }
 
   handleFriendRequestFinish(target_id) {
     this.setState({
-      requestList: this.state.requestList.filter(
-        (request) => request.requester_id !== id,
+      requestData: this.state.requestData.filter(
+        (request) => request.requester_id !== target_id,
       ),
       requestCount: this.state.requestCount - 1,
     });
   }
 }
-
-const data = {
-  users: [
-    {
-      id: 1,
-      profileImage: "https://ui-avatars.com/api/?name=John+Doe&size=150",
-      message: "...................",
-      username: "john_doe",
-      winLossRecord: {
-        wins: 10,
-        losses: 3,
-      },
-    },
-    {
-      id: 2,
-      profileImage: "https://via.placeholder.com/150",
-      message: "WWWWWWWWW",
-      username: "jane_smith",
-      winLossRecord: {
-        wins: 8,
-        losses: 5,
-      },
-    },
-    {
-      id: 3,
-      profileImage: "https://via.placeholder.com/150",
-      message: "ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ",
-      username: "max_king",
-      winLossRecord: {
-        wins: 3,
-        losses: 9,
-      },
-    },
-    {
-      id: 4,
-      profileImage: "https://via.placeholder.com/150",
-      message: "dddddddddddihi",
-      username: "sara_connor",
-      winLossRecord: {
-        wins: 12,
-        losses: 0,
-      },
-    },
-    {
-      id: 5,
-      profileImage: "https://via.placeholder.com/150",
-      message: "プレイヤープレイヤープレイヤープレイ",
-      username: "tony_stark",
-      winLossRecord: {
-        wins: 7,
-        losses: 2,
-      },
-    },
-  ],
-  requests: [
-    {
-      id: 1,
-      profileImage: "https://ui-avatars.com/api/?name=John+Doe&size=150",
-      username: "john_doe",
-      message: "let's play a game!",
-    },
-    {
-      id: 2,
-      profileImage: "https://via.placeholder.com/150",
-      username: "jane_smith",
-      message: "let's play a game!",
-    },
-    {
-      id: 3,
-      profileImage: "https://via.placeholder.com/150",
-      username: "max_king",
-      message: "let's play a game!",
-    },
-  ],
-};

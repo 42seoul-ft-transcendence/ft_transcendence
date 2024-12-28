@@ -68,6 +68,6 @@ export default class PongComponent extends Component {
 //       this.gameManager.displayWinner(message.content.winner);
 //       break;
 //     default:
-//       console.error("Unknown message type:", message.type);
+//       console.warn("Unknown message type:", message.type);
 //   }
 // });

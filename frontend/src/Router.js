@@ -89,7 +89,7 @@ export default class Router extends Component {
 
           window.location.hash = "/#/";
         } catch (error) {
-          console.error(error);
+          console.warn(error);
         }
       }
 

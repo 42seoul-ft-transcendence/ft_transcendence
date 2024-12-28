@@ -8,7 +8,7 @@ import HistoryProfile from "../../components/HistoryProfile.js";
 export default class HistoryView extends Component {
   async setup() {
     this.state = {
-      history: test,
+      history: null,
       profile: null,
       is_friend: true,
     };
@@ -36,7 +36,7 @@ export default class HistoryView extends Component {
         },
       };
     } catch (e) {
-      console.error(e);
+      console.warn(e);
       window.location.hash = "#/profile/history";
       return;
     }
@@ -49,7 +49,7 @@ export default class HistoryView extends Component {
         );
         this.state.is_friend = res.is_friend;
       } catch (e) {
-        console.error(e);
+        console.warn(e);
       }
     }
 
@@ -64,7 +64,7 @@ export default class HistoryView extends Component {
       console.log(this.state.history);
       profile.winLossRecord = this.calculateStatistics(this.state.history);
     } catch (e) {
-      console.error(e);
+      console.warn(e);
     }
 
     this.setState({ profile });
@@ -79,8 +79,10 @@ export default class HistoryView extends Component {
         <div id="historySection"></div>
         <div class="row gy-4">
       `;
-    for (let i = 0; i < history.length; ++i)
-      temp += /* html */ `<div id="historyCard${i}" class="col-md-6"></div>`;
+    if (history) {
+      for (let i = 0; i < history.length; ++i)
+        temp += /* html */ `<div id="historyCard${i}" class="col-md-6"></div>`;
+    }
     temp +=
       /* html */
       `
@@ -100,12 +102,13 @@ export default class HistoryView extends Component {
       is_friend: this.state.is_friend,
     });
 
-    history.forEach((match, index) => {
-      new HistoryCard(
-        this.$target.querySelector(`#historyCard${index}`),
-        match,
-      );
-    });
+    history &&
+      history.forEach((match, index) => {
+        new HistoryCard(
+          this.$target.querySelector(`#historyCard${index}`),
+          match,
+        );
+      });
   }
 
   transformMatches(matches, myId) {
@@ -152,110 +155,3 @@ export default class HistoryView extends Component {
     return stats;
   }
 }
-
-const test = [
-  {
-    me: {
-      name: "You",
-      score: 3,
-      profileImage: "https://robohash.org/JohnDoe.png?size=150x150",
-    },
-    oppenent: {
-      name: "are",
-      score: 1,
-      profileImage: "https://ui-avatars.com/api/?name=John+Doe&size=150",
-    },
-    date: "2024/12/07",
-  },
-  {
-    me: {
-      name: "good",
-      score: 2,
-      profileImage: "https://robohash.org/JohnDoe.png?size=150x150",
-    },
-    oppenent: {
-      name: "gril",
-      score: 3,
-      profileImage: "https://api.dicebear.com/7.x/pixel-art/svg?seed=JohnDoe",
-    },
-    date: "2024/12/17",
-  },
-  {
-    me: {
-      name: "Youasdf",
-      score: 1,
-      profileImage: "https://robohash.org/JohnDoe.png?size=150x150",
-    },
-    oppenent: {
-      name: "Yosadfdsgu",
-      score: 3,
-      profileImage: "https://picsum.photos/150",
-    },
-    date: "2024/10/17",
-  },
-  {
-    me: {
-      name: "u111",
-      score: 3,
-      profileImage: "https://robohash.org/JohnDoe.png?size=150x150",
-    },
-    oppenent: {
-      name: "You123",
-      score: 0,
-      profileImage: "https://picsum.photos/150",
-    },
-    date: "2024/11/17",
-  },
-  {
-    me: {
-      name: "You",
-      score: 3,
-      profileImage: "https://robohash.org/JohnDoe.png?size=150x150",
-    },
-    oppenent: {
-      name: "are",
-      score: 1,
-      profileImage: "https://ui-avatars.com/api/?name=John+Doe&size=150",
-    },
-    date: "2024/12/07",
-  },
-  {
-    me: {
-      name: "good",
-      score: 2,
-      profileImage: "https://robohash.org/JohnDoe.png?size=150x150",
-    },
-    oppenent: {
-      name: "gril",
-      score: 3,
-      profileImage: "https://api.dicebear.com/7.x/pixel-art/svg?seed=JohnDoe",
-    },
-    date: "2024/12/17",
-  },
-  {
-    me: {
-      name: "Youasdf",
-      score: 1,
-      profileImage: "https://robohash.org/JohnDoe.png?size=150x150",
-    },
-    oppenent: {
-      name: "Yosadfdsgu",
-      score: 3,
-      profileImage: "https://picsum.photos/150",
-    },
-    date: "2024/10/17",
-  },
-  {
-    me: {
-      name: "u111",
-      score: 3,
-      profileImage: "https://robohash.org/JohnDoe.png?size=150x150",
-    },
-    oppenent: {
-      name: "You123",
-      score: 0,
-      profileImage: "https://picsum.photos/150",
-    },
-    date: "2024/11/17",
-  },
-];

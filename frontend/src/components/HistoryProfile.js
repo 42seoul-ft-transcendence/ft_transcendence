@@ -45,7 +45,7 @@ export default class HistoryProfile extends Component {
           }),
         );
       } catch (e) {
-        console.error(e);
+        console.warn(e);
       }
     });
   }
