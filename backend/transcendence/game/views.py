@@ -71,7 +71,8 @@ class GameStartView(LoginRequiredMixin, View):
                 return JsonResponse({
                     "status": "joined",
                     "room_id": room_id.decode('utf-8'),
-                    "players": [p.decode('utf-8') for p in players],
+                    # "players": [p.decode('utf-8') for p in players],
+                    "players": [user_id]
                 })
 
         new_room_id = f"waiting_room_{user_id}"

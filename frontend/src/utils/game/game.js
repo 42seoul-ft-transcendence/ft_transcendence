@@ -6,6 +6,7 @@ class Player {
     this.height = 50;
     this.velocityY = 0;
     this.board = board;
+    this.smoothFactor = 0.2;
   }
 
   draw() {
@@ -21,7 +22,7 @@ class Player {
   }
 
   remoteUpdate(y) {
-    this.y = y;
+    this.y += Math.round((y - this.y) * this.smoothFactor);
   }
 }
 
@@ -38,7 +39,7 @@ class Ball {
     this.velocityY = 1 * velocity; // 속도는 동일, 방향만 랜
     this.board = board;
     this.isResetting = false;
-    this.smoothFactor = 0.1;
+    this.smoothFactor = 0.2;
   }
 
   init() {

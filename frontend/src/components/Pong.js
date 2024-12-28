@@ -105,6 +105,7 @@ export default class Pong extends Component {
     const res = await apiCall("/api/game/start/", "post");
     this.state.finish = true;
 
+    console.log(res);
     loginSocket.on("onMessage", (event) => {
       const data = JSON.parse(event.data);
 
@@ -227,13 +228,6 @@ export default class Pong extends Component {
       if (this.props.gameMode === "singleMode") {
         if (pongSocket.getStatus() === "OPEN") {
           if (e.code == "ArrowUp") {
-            // const message = {
-            //   type: "game_move",
-            //   content: {
-            //     direction: -3,
-            //     player: this.state.myRole,
-            //   },
-            // };
             pongSocket.sendMessage(
               JSON.stringify({
                 type: "game_move",
