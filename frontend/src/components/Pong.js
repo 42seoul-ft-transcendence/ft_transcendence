@@ -40,6 +40,14 @@ export default class Pong extends Component {
       this.state.opponent1 = { id: null, name: null, position: 1 };
     if (!this.state.opponent2)
       this.state.opponent2 = { id: null, name: null, position: 2 };
+
+    // pongSocket.on("onOpen", () => {
+    //   pongSocket.sendMessage(
+    //     JSON.stringify({
+    //       type: "game_ready",
+    //     }),
+    //   );
+    // });
   }
 
   template() {
@@ -84,79 +92,59 @@ export default class Pong extends Component {
     board.draw(player1Score, player2Score);
 
     if (this.props.gameMode === "singleMode" && !finish) {
-      const data = await apiCall("/api/game/start/", "post");
-      console.log(data);
-
-      loginSocket.on("onMessage", (event) => {
-        const data = JSON.parse(event.data);
-
-        console.log("loginSocket onMessage", data);
-        switch (data.type) {
-          case "user_id":
-            this.state.myId = data.user_id;
-            this.state.myName = data.username;
-            break;
-        }
-      });
-      loginSocket.sendMessage(JSON.stringify({ action: "get_user" }));
-
-      pongSocket.init(`pong/${data.room_id}/`);
-      pongSocket.on("onMessage", (event) => {
-        const message = JSON.parse(event.data);
-
-        switch (message.type) {
-          // case "game.start":
-          //   console.log("Game started:", message);
-          //   this.state.opponent1.id = message.host;
-          //   this.state.opponent2.id = message.guest;
-          //   if (message.host == this.state.myId) {
-          //     this.state.opponent1.name = this.state.myName;
-          //     this.state.opponent2.name = "Opponent";
-          //   } else {
-          //     this.state.opponent1.name = "Opponent";
-          //     this.state.opponent2.name = this.state.myName;
-          //   }
-          //   this.state.animationFrameId = requestAnimationFrame(
-          //     this.update.bind(this),
-          //   );
-          //   break;
-          case "assign_role":
-            this.state.myRole = message.role;
-            break;
-          case "game.state":
-            console.log("Game state:", message);
-            // if (this.state.opponent1.id == message.player_id) {
-            //   this.state.player2.velocityY = message.direction;
-            // } else {
-            //   this.state.player1.velocityY = message.direction;
-            // }
-            // if (this.state.opponent1.id == message.player_id) {
-            //   this.state.player2.velocityY = message.direction;
-            // } else {
-            //   this.state.player1.velocityY = message.direction;
-            // }
-            this.state.ballX = message.ball.x;
-            this.state.ballY = message.ball.y;
-            this.state.player1Y = message.player1.y;
-            this.state.player2Y = message.player2.y;
-            this.state.player1Score = message.score.player1;
-            this.state.player2Score = message.score.player2;
-            break;
-          case "game.end":
-            console.log("Game ended:", message);
-            pongSocket.close();
-            cancelAnimationFrame(this.state.animationFrameId);
-            break;
-          default:
-            console.error("Unknown message type:", message.type);
-        }
-      });
+      await this.remoteGameMounted();
     } else if (this.props.gameMode !== "" && !finish) {
       if (this.props.opponent2.id == null) this.state.player1Score = 3;
       this.state.animationFrameId = requestAnimationFrame(
         this.update.bind(this),
       );
     }
+  }
+
+  async remoteGameMounted() {
+    const res = await apiCall("/api/game/start/", "post");
+
+    loginSocket.on("onMessage", (event) => {
+      const data = JSON.parse(event.data);
+
+      console.log("loginSocket onMessage", data);
+      switch (data.type) {
+        case "user_id":
+          this.state.myId = data.user_id;
+          this.state.myName = data.username;
+          break;
+      }
+    });
+    loginSocket.sendMessage(JSON.stringify({ action: "get_user" }));
+
+    pongSocket.init(`pong/${res.room_id}/`);
+    pongSocket.on("onMessage", (event) => {
+      const wsData = JSON.parse(event.data);
+
+      switch (wsData.type) {
+        case "assign_role":
+          console.log("Role assigned:", wsData);
+          this.state.myRole = wsData.role;
+          break;
+        case "game_state":
+          const message = wsData.content;
+          this.state.ballX = message.ball.x;
+          this.state.ballY = message.ball.y;
+          this.state.player1Y = message.player1.y;
+          this.state.player2Y = message.player2.y;
+          this.state.player1Score = message.score.player1;
+          this.state.player2Score = message.score.player2;
+          break;
+        case "game_stop":
+          pongSocket.close();
+          console.log(wsData);
+          //   pongSocket.sendMessage(JSON.stringify({ type: "game_stop" }));
+          //   cancelAnimationFrame(this.state.animationFrameId);
+          break;
+        default:
+          console.error("Unknown message type:", wsData.type);
+      }
+    });
   }
 
   remoteUpdate() {
