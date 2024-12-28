@@ -1,6 +1,7 @@
 import Component from "../core/Component.js";
 import { getTranslation } from "../utils/translations.js";
 import { apiCall } from "../utils/api.js";
+import { loginSocket } from "../utils/ws.js";
 
 export default class FriendRequest extends Component {
   template() {
@@ -9,7 +10,7 @@ export default class FriendRequest extends Component {
       requester_avatar,
       requester_state_message,
       requester_username,
-    } = this.props;
+    } = this.props?.list;
 
     return /* html */ `
 		<!-- Friend Request Card -->
@@ -40,7 +41,6 @@ export default class FriendRequest extends Component {
 
   async acceptFriendRequest(e) {
     const request_id = e.target.dataset.id;
-
     const data = await apiCall(
       `/api/friendship/respond/${request_id}/`,
       "post",
@@ -49,11 +49,11 @@ export default class FriendRequest extends Component {
       }),
     );
     this.$target.remove();
+    this.props.render();
   }
 
   async rejectFriendRequest(e) {
     const request_id = e.target.dataset.id;
-
     const data = await apiCall(
       `/api/friendship/respond/${request_id}/`,
       "post",

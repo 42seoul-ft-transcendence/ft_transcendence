@@ -33,11 +33,11 @@ export default class Router extends Component {
     loginSocket.init("login_status/");
 
     const currentRoute = this.state.routes.find((route) => {
-      return route.fragment === window.location.hash;
+      return route.fragment === window.location.hash.split("?")[0];
     });
     if (
       !currentRoute ||
-      (this.state.authenticated && window.location.hash === "#/login")
+      (this.state.authenticated && window.location.hash === "#/login/")
     ) {
       window.location.hash = "#/";
       this.state.routes[0].component();

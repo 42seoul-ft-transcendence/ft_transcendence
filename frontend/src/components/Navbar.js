@@ -5,6 +5,7 @@ export default class Navbar extends Component {
     this.state = {
       avatar: this.props?.avatar,
     };
+    console.log(this.state);
   }
 
   template() {

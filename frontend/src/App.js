@@ -1,7 +1,7 @@
 import Component from "./core/Component.js";
 import Router from "./Router.js";
-import Login from "./pages/LoginView.js";
 
+import Login from "./pages/LoginView.js";
 import Home from "./pages/HomeView.js";
 import Game from "./pages/GameView.js";
 import Tournament from "./pages/TournamentView.js";
@@ -9,8 +9,6 @@ import Navbar from "./components/Navbar.js";
 import HistoryView from "./pages/profile/HistoryView.js";
 import FriendView from "./pages/profile/FriendView.js";
 import SettingView from "./pages/profile/SettingView.js";
-
-import { loginSocket, pongSocket } from "./utils/ws.js";
 
 import * as brackets from "./utils/tournament.js";
 
@@ -29,7 +27,6 @@ export default class App extends Component {
       opponent1: null,
       opponent2: null,
       profile: data,
-      viewId: 0,
     };
   }
 

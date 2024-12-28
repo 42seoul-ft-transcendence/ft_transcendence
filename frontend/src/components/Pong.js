@@ -53,8 +53,6 @@ export default class Pong extends Component {
   template() {
     const { opponent1, opponent2 } = this.state;
 
-    console.log(opponent1, opponent2);
-
     return /* html */ `
       <div class="canvas-container position-relative">
         <canvas id="board"></canvas>
@@ -113,7 +111,8 @@ export default class Pong extends Component {
       switch (data.type) {
         case "user_id":
           this.state.myId = data.user_id;
-          this.state.myName = data.username;
+          this.state.myName =
+            data.username.length === 1 ? data.username[0] : data.username[1];
           break;
       }
     });

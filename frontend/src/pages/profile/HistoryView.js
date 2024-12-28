@@ -4,6 +4,7 @@ import HistoryCard from "../../components/HistoryCard.js";
 
 import { getTranslation } from "../../utils/translations.js";
 import { apiCall } from "../../utils/api.js";
+import HistoryProfile from "../../components/HistoryProfile.js";
 
 export default class HistoryView extends Component {
   async setup() {
@@ -11,14 +12,18 @@ export default class HistoryView extends Component {
       matchCount: test.length,
       history: test,
       profile: null,
+      is_friend: true,
     };
 
-    // window.location.search
-    // const url = viewId
-    //   ? `/api/login/settings/?id=${this.state.viewId}`
-    //   : "/api/login/settings/";
+    const [hashPath, queryString] = window.location.hash.split("?");
+    const urlParams = new URLSearchParams(queryString || "");
+    const viewId = urlParams.get("id");
 
-    const resData = await apiCall("/api/login/settings/", "get");
+    const url = viewId
+      ? `/api/login/settings/?id=${viewId}`
+      : "/api/login/settings/";
+
+    const resData = await apiCall(url, "get");
 
     const profile = {
       profileImage: resData.avatar,
@@ -30,41 +35,28 @@ export default class HistoryView extends Component {
       },
     };
 
+    if (viewId) {
+      const res = await apiCall(
+        `/api/friendship/is-friend//?target=${viewId}`,
+        "get",
+      );
+      this.state.is_friend = res.is_friend;
+    }
+
     this.setState({ profile });
   }
 
   template() {
     const { matchCount } = this.state;
-    const { profile } = this.state;
 
     let temp = /* html */ `
       <div class="container nav-section"></div>
-      <div class="container" id="historySection">
-        <div class="profile-section">
-          <div>
-            <img id="profileImg" class="profile-pic" src=${
-              profile?.profileImage
-            } alt="Profile Picture">
-          </div>
-          <p class="fw-bold fs-4 mb-1" id="userName">${profile?.username}</p>
-          <p class="fs-6 mb-1" id="message">${profile?.message}</p>
-          <button class="btn btn-outline-success btn-sm" id="addFriend">${getTranslation(
-            "addFriend",
-          )}</button>
-          <div class="record-box fw-bold fs-3 my-5">
-            <span class="match-card blue">${
-              profile?.winLossRecord.wins
-            }</span> /
-            <span class="match-card pink">${
-              profile?.winLossRecord.losses
-            }</span>
-          </div>
-        </div>
-      <div class="row gy-4">
-          `;
+      <div class="container">
+        <div id="historySection"></div>
+        <div class="row gy-4">
+      `;
     for (let i = 0; i < matchCount; ++i)
       temp += /* html */ `<div id="historyCard${i}" class="col-md-6"></div>`;
-
     temp +=
       /* html */
       `
@@ -78,6 +70,11 @@ export default class HistoryView extends Component {
     const { history } = this.state;
 
     new ProfileNav(this.$target.querySelector(".nav-section"), this.props);
+
+    new HistoryProfile(this.$target.querySelector("#historySection"), {
+      profile: this.state.profile,
+      is_friend: this.state.is_friend,
+    });
 
     history.forEach((match, index) => {
       new HistoryCard(

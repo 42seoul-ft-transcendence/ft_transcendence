@@ -10,7 +10,7 @@ export default class FriendCard extends Component {
 		<div class="friend-card d-flex align-items-center justify-content-between">
 			<div class="d-flex align-items-center">
 				<div class="friend-profile-pic-wrapper ${status} me-3">
-					<img class="friend-profile-pic" src=${avatar} alt="Profile Picture">
+					<img class="friend-profile-pic" id=${id} src=${avatar} alt="Profile Picture">
 				</div>
 				<div class="message-wrapper">
 					<p class="friend-name mb-1">${username}</p>
@@ -22,5 +22,11 @@ export default class FriendCard extends Component {
 			</button>
 		</div>
 		`;
+  }
+
+  setEvent() {
+    this.addEvent("click", ".friend-profile-pic", () => {
+      window.location.hash = `#/profile/history?id=${this.props.id}`;
+    });
   }
 }

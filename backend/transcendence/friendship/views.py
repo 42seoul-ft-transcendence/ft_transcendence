@@ -4,6 +4,7 @@ from django.views import View
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Friendship
+from django.db import models
 from django.contrib.auth import get_user_model
 from authentication.utils import avatar_url
 
@@ -80,6 +81,7 @@ class RespondFriendRequestView(LoginRequiredMixin, View):
 
         action = json.loads(request.body).get("action")
         print(action)
+        print(friendship_id)
         friendship = get_object_or_404(Friendship, id=friendship_id)
 
         print(friendship.receiver)
@@ -115,13 +117,18 @@ class VerifyFriendshipView(LoginRequiredMixin, View):
         user = request.user
         target = request.GET.get("target")
 
-        received_requests = Friendship.objects.filter(
-            (models.Q(requester=self.user) & models.Q(receiver=(User.objects.get(id=target))) & models.Q(status="accepted")) |
-            (models.Q(requester=(User.objects.get(id=target))) & models.Q(receiver=target) & models.Q(status="accepted"))
-        )
-
-
-        if received_requests:
-            return JsonResponse({"message": "Friend request accepted.", "status": True})
-        return JsonResponse({"message": "Friend request denied.", "status": False})
+        if not target:
+            return JsonResponse({"error": "Target user ID is required"}, status=400)
+        try:
+            target_user = User.objects.get(id=target)
+            is_friend = Friendship.objects.filter(
+                (models.Q(requester=request.user) & models.Q(receiver=target_user) & models.Q(status="accepted")) |
+                (models.Q(requester=target_user) & models.Q(receiver=request.user) & models.Q(status="accepted"))
+            ).exists()
+            
+            return JsonResponse({"is_friend": is_friend})
+        except User.DoesNotExist:
+            return JsonResponse({"error": "User not found"}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
 

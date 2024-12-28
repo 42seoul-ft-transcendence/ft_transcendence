@@ -10,7 +10,7 @@ export function createWebSocketManager() {
     // WebSocket 초기화 함수
   };
 
-  function init(urlParams) {
+  function init(urlParams = "") {
     console.log("Initializing WebSocket...");
     if (
       socket &&
@@ -21,6 +21,7 @@ export function createWebSocketManager() {
       return;
     }
     socket = new WebSocket(url + urlParams);
+    url = url + urlParams;
 
     // WebSocket 이벤트 핸들러 등록
     socket.onopen = () => {
