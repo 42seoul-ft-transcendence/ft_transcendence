@@ -11,14 +11,14 @@ export default class HistoryView extends Component {
       matchCount: test.length,
       history: test,
       profile: null,
-      viewId: this.props?.viewId,
     };
 
-    const url = viewId
-      ? `/api/login/settings/?id=${this.state.viewId}`
-      : "/api/login/settings/";
+    // window.location.search
+    // const url = viewId
+    //   ? `/api/login/settings/?id=${this.state.viewId}`
+    //   : "/api/login/settings/";
 
-    const resData = await apiCall(url, "get");
+    const resData = await apiCall("/api/login/settings/", "get");
 
     const profile = {
       profileImage: resData.avatar,
