@@ -24,6 +24,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             else:
                 print(f"User {self.user.id} is attempting to connect.")
 
+            self.has_game_started = False
             await self.initialize_game()
         except Exception as e:
             print(f"connection refused: {str(e)}")
@@ -92,28 +93,35 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         self.connected = False
 
         players = await self.redis_conn.lrange(f"{self.room_id}_players", 0, -1)
-        if self.user.id.encode() in players:
+        if str(self.user.id).encode("utf-8") in players:
             await self.redis_conn.lrem(f"{self.room_id}_players", 0, self.user.id)
 
         remainders = await self.redis_conn.lrange(f"{self.room_id}_players", 0, -1)
 
-        if not hasattr(self, "winner"):
-            player1_id = getattr(self, "player1_id", None)
-            player2_id = getattr(self, "player2_id", None)
+        if not self.has_game_started:
+            if self.host:
+                await self.redis_conn.delete(self.room_id)
+                await self.redis_conn.delete(f"{self.user.id}_players")
+            if hasattr(self, "valid"):
+                await self.send_message("group", "game_stop", {"user": self.user.id})
+                await self.channel_layer.group_discard(self.room_id, self.channel_name)
+            await self.redis_conn.close()
+            return
 
-            if player2_id is None and self.user.id == player1_id:
-                print("Host left before second player joined. Cleaning up.")
-            else:
-                self.forfeit(self.user.id)
+        if not hasattr(self, "winner"):
+            self.forfeit(self.user.id)
 
         if len(remainders) == 1:
             if not hasattr(self, "winner"):
                 remainder_id = remainders[0].decode()
                 if remainder_id == str(self.player1_id):
                     self.winner = "player1"
+                    self.scores["player1"] = self.win_goal
+                    self.scores["player2"] = 0
                 else:
                     self.winner = "player2"
-
+                    self.scores["player1"] = 0
+                    self.scores["player2"] = self.win_goal
             await self.save_game(self.winner)
 
         if getattr(self, "host", False) is True:
@@ -129,13 +137,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
                 await self.save_game(self.winner)
 
         if hasattr(self, "valid"):
-            await self.send_message(
-                "group",
-                "game_stop",
-                {
-                    "user": self.user.id,
-                }
-            )
+            await self.send_message("group", "game_stop", {"user": self.user.id})
             await self.channel_layer.group_discard(self.room_id, self.channel_name)
 
         await self.redis_conn.close()
@@ -169,6 +171,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
                 self.player_ready = 0
             self.player_ready += 1
             if self.player_ready == 2:
+                self.has_game_started = True
                 await self.send_message("group", "game_start")
 
     async def game_start(self, event):
@@ -226,8 +229,10 @@ class PongGameConsumer(AsyncWebsocketConsumer):
                 self.ball.update(self.board_height, self.player1, self.player2)
                 if self.ball.x <= 0:
                     self.scores["player2"] += 1
+                    self.reset_game()
                 elif self.ball.x >= self.board_width - self.ball.width:
                     self.scores["player1"] += 1
+                    self.reset_game()
 
                 if self.scores["player1"] >= self.win_goal or self.scores["player2"] >= self.win_goal:
                     winner = "player1" if self.scores["player1"] >= self.win_goal else "player2"
