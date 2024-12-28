@@ -172,6 +172,11 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             self.player_ready += 1
             if self.player_ready == 2:
                 self.has_game_started = True
+                try:
+                    await self.redis_conn.srem("rooms_list", self.room_id)
+                    await self.redis_conn.delete(f"{self.room_id}_players")
+                except Exception as e:
+                    print(e)
                 await self.send_message("group", "game_start")
 
     async def game_start(self, event):
@@ -342,7 +347,8 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             self.velocity_y = 0
 
         def move(self):
-            if self.y <= 0 or self.y + self.height >= 500:
+            next_pos = self.y + self.velocity_y
+            if next_pos < 0 or next_pos > 500:
                 return
             self.y += self.velocity_y
 
