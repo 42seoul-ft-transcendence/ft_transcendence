@@ -49,7 +49,7 @@ export default class FriendRequest extends Component {
       }),
     );
     this.$target.remove();
-    this.props.render();
+    this.props.handleFriendRequestFinish();
   }
 
   async rejectFriendRequest(e) {
@@ -62,5 +62,6 @@ export default class FriendRequest extends Component {
       }),
     );
     this.$target.remove();
+    this.props.handleFriendRequestFinish();
   }
 }

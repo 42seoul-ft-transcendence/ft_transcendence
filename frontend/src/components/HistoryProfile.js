@@ -9,6 +9,7 @@ export default class HistoryProfile extends Component {
       is_friend: this.props?.is_friend,
     };
   }
+
   template() {
     const { profile, is_friend } = this.state;
 
@@ -30,5 +31,21 @@ export default class HistoryProfile extends Component {
 				</div>
 			</div>
 		`;
+  }
+
+  setEvent() {
+    this.addEvent("click", "#addFriend", async () => {
+      try {
+        const data = await apiCall(
+          "/api/friendship/send/",
+          "post",
+          JSON.stringify({
+            receiver: this.state.profile.id,
+          }),
+        );
+      } catch (e) {
+        console.error(e);
+      }
+    });
   }
 }

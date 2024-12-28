@@ -103,7 +103,7 @@ export default class Pong extends Component {
     const res = await apiCall("/api/game/start/", "post");
     this.state.finish = true;
 
-    console.log(res);
+    console.log("remoteGameMounted", res);
     loginSocket.on("onMessage", (event) => {
       const data = JSON.parse(event.data);
 
@@ -142,8 +142,8 @@ export default class Pong extends Component {
           this.state.ballY = message.ball.y;
           this.state.player1Y = message.player1.y;
           this.state.player2Y = message.player2.y;
-          this.state.player1Score = message.scores.player1;
-          this.state.player2Score = message.scores.player2;
+          this.state.player1Score = message.scores[0];
+          this.state.player2Score = message.scores[1];
           this.state.ball.remoteUpdate(message.ball.x, message.ball.y);
           break;
         case "game_stop":

@@ -85,7 +85,11 @@ export default class FriendView extends Component {
       requestData.forEach((list, index) => {
         new FriendRequest(
           this.$target.querySelector(`#friendRequest${index}`),
-          { list, render: this.render.bind(this) },
+          {
+            list,
+            handleFriendRequestFinish:
+              this.handleFriendRequestFinish.bind(this),
+          },
         );
       });
 
@@ -121,6 +125,15 @@ export default class FriendView extends Component {
       } catch (e) {
         console.error(e);
       }
+    });
+  }
+
+  handleFriendRequestFinish(target_id) {
+    this.setState({
+      requestList: this.state.requestList.filter(
+        (request) => request.requester_id !== id,
+      ),
+      requestCount: this.state.requestCount - 1,
     });
   }
 }

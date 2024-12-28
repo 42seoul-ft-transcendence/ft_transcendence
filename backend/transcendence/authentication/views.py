@@ -386,6 +386,7 @@ class SettingView(LoginRequiredMixin, View):
         two_factor = user.two_factor
 
         data = {
+            "id": user.id,
             "avatar": avatar_url(avatar),
             "email": email,
             "username": username,

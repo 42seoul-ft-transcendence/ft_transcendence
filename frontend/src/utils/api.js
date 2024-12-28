@@ -45,6 +45,6 @@ export const apiCall = async (url, method, data = null, header = null) => {
     }
     return await res.json();
   } catch (error) {
-    console.error(error);
+    throw new Error("API fail Call " + error);
   }
 };

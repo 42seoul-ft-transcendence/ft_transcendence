@@ -2,7 +2,6 @@ import Component from "../../core/Component.js";
 import ProfileNav from "../../components/ProfileNav.js";
 import HistoryCard from "../../components/HistoryCard.js";
 
-import { getTranslation } from "../../utils/translations.js";
 import { apiCall } from "../../utils/api.js";
 import HistoryProfile from "../../components/HistoryProfile.js";
 
@@ -18,29 +17,52 @@ export default class HistoryView extends Component {
     const [hashPath, queryString] = window.location.hash.split("?");
     const urlParams = new URLSearchParams(queryString || "");
     const viewId = urlParams.get("id");
+    let profile = null;
 
     const url = viewId
       ? `/api/login/settings/?id=${viewId}`
       : "/api/login/settings/";
 
-    const resData = await apiCall(url, "get");
+    try {
+      const resData = await apiCall(url, "get");
 
-    const profile = {
-      profileImage: resData.avatar,
-      message: resData.status_message,
-      username: resData.username,
-      winLossRecord: {
-        wins: 0,
-        losses: 0,
-      },
-    };
+      profile = {
+        id: resData.id,
+        profileImage: resData.avatar,
+        message: resData.status_message,
+        username: resData.username,
+        winLossRecord: {
+          wins: 0,
+          losses: 0,
+        },
+      };
+    } catch (e) {
+      console.error(e);
+      window.location.hash = "#/profile/history";
+      return;
+    }
 
     if (viewId) {
-      const res = await apiCall(
-        `/api/friendship/is-friend//?target=${viewId}`,
-        "get",
-      );
-      this.state.is_friend = res.is_friend;
+      try {
+        const res = await apiCall(
+          `/api/friendship/is-friend//?target=${viewId}`,
+          "get",
+        );
+        this.state.is_friend = res.is_friend;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    try {
+      const url = viewId
+        ? `/api/game/match-history/?target=${viewId}`
+        : "/api/game/match-history/";
+
+      const res = await apiCall(url, "get");
+      this.state.history = res.matches;
+    } catch (e) {
+      console.error(e);
     }
 
     this.setState({ profile });
