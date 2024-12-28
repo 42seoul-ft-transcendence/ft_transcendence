@@ -103,6 +103,7 @@ export default class Pong extends Component {
 
   async remoteGameMounted() {
     const res = await apiCall("/api/game/start/", "post");
+    this.state.finish = true;
 
     loginSocket.on("onMessage", (event) => {
       const data = JSON.parse(event.data);
@@ -124,6 +125,7 @@ export default class Pong extends Component {
       switch (wsData.type) {
         case "game_start":
           console.log("Game started:", wsData);
+          this.state.finish = false;
           this.state.board.init();
           this.state.ball.init();
           this.state.requestAnimationFrameId = requestAnimationFrame(
@@ -132,7 +134,7 @@ export default class Pong extends Component {
           break;
         case "assign_role":
           console.log("Role assigned:", wsData);
-          this.state.myRole = wsData.role;
+          this.state.myRole = wsData.content.role;
           break;
         case "game_state":
           const message = wsData.content;
@@ -222,24 +224,31 @@ export default class Pong extends Component {
 
   setEvent() {
     document.addEventListener("keydown", (e) => {
-      if (this.props.gameMode === "singleMode" && !this.state.finish) {
+      if (this.props.gameMode === "singleMode") {
         if (pongSocket.getStatus() === "OPEN") {
-          if (e.code == "ArrowUp")
+          if (e.code == "ArrowUp") {
+            // const message = {
+            //   type: "game_move",
+            //   content: {
+            //     direction: -3,
+            //     player: this.state.myRole,
+            //   },
+            // };
             pongSocket.sendMessage(
               JSON.stringify({
                 type: "game_move",
                 content: {
-                  direction: -3,
+                  direction: -10,
                   player: this.state.myRole,
                 },
               }),
             );
-          else if (e.code == "ArrowDown")
+          } else if (e.code == "ArrowDown")
             pongSocket.sendMessage(
               JSON.stringify({
                 type: "game_move",
                 content: {
-                  direction: 3,
+                  direction: 10,
                   player: this.state.myRole,
                 },
               }),

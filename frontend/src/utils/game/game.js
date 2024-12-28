@@ -11,7 +11,6 @@ class Player {
   draw() {
     const { context } = this.board;
     context.fillStyle = "skyblue";
-    console.log("Player ", this.x, this.y);
     context.fillRect(this.x, this.y, this.width, this.height);
   }
 

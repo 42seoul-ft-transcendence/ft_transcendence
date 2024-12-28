@@ -94,7 +94,6 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 
         players = await self.redis_conn.lrange(f"{self.room_id}_players", 0, -1)
         if str(self.user.id).encode("utf-8") in players:
-        if str(self.user.id).encode("utf-8") in players:
             await self.redis_conn.lrem(f"{self.room_id}_players", 0, self.user.id)
 
         remainders = await self.redis_conn.lrange(f"{self.room_id}_players", 0, -1)
@@ -190,6 +189,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
                     raise AttributeError("Missing player")
                 if event["content"].get("direction") is None:
                     raise AttributeError("Missing direction")
+                print(event["content"]["player"], event["content"]["direction"])
                 await self.move_pad(event["content"]["player"], event["content"]["direction"])
             except AssertionError as e:
                 print("Invalid game_move received")
@@ -228,6 +228,8 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         while True:
             try:
                 self.ball.update(self.board_height, self.player1, self.player2)
+                self.player1.move()
+                self.player2.move()
                 if self.ball.x < 0:
                     self.scores["player2"] += 1
                     self.reset_game()
