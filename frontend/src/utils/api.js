@@ -14,12 +14,16 @@ function getCSRFToken() {
   return cookieValue;
 }
 
-export const apiCall = async (url, method, data = null) => {
+export const apiCall = async (url, method, data = null, header = null) => {
   const csrfToken = getCSRFToken();
-  const headers = {
-    "Content-Type": "application/json",
+  let headers = {
+    // "Content-Type": "application/json",
     "X-CSRFToken": csrfToken,
   };
+
+  if (header) {
+    headers = { ...headers, ...header };
+  }
 
   const init = {
     method,
@@ -28,16 +32,19 @@ export const apiCall = async (url, method, data = null) => {
   };
 
   if (data) {
-    init.body = JSON.stringify(data);
+    init.body = data;
   }
 
-  const res = await fetch(url, init);
+  try {
+    const res = await fetch(url, init);
 
-  if (!res.ok) {
-    const errorText = await res.text();
-    console.log(errorText);
-    throw new Error("HTTP status " + res.status);
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.warn(errorText);
+      throw new Error("HTTP status " + res.status);
+    }
+    return await res.json();
+  } catch (error) {
+    throw new Error("API fail Call " + error);
   }
-
-  return await res.json();
 };

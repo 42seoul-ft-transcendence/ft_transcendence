@@ -33,6 +33,8 @@ export const translations = {
 		accept: "Accept",
 		reject: "Reject",
 		addFriend: "Add Friend+",
+		login: "Login",
+		nickTooLong: "Nickname is too long",
 	},
 	korean: {
 		player: "플레이어",
@@ -68,6 +70,8 @@ export const translations = {
 		accept: "수락",
 		reject: "거절",
 		addFriend: "친구 추가+",
+		login: "로그인",
+		nickTooLong: "닉네임이 너무 깁니다",
 	},
 	japanese: {
 		player: "プレイヤー",
@@ -103,6 +107,8 @@ export const translations = {
 		accept: "受け入れ",
 		reject: "拒否",
 		addFriend: "友達追加+",
+		login: "ログイン",
+		nickTooLong: "ニックネームが長すぎます",
 	},
 };
 

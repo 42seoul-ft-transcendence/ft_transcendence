@@ -1,7 +1,7 @@
 import Component from "./core/Component.js";
 import TwoFAView from "./pages/TwoFAView.js";
-import { wsConnect } from "./utils/ws.js";
 import { apiCall } from "./utils/api.js";
+import { loginSocket, pongSocket } from "./utils/ws.js";
 
 export default class Router extends Component {
   setup() {
@@ -9,6 +9,7 @@ export default class Router extends Component {
       routes: [],
       authenticated: false,
     };
+    this.alreadyRoute = false;
   }
 
   addRoute(fragment, component) {
@@ -18,11 +19,10 @@ export default class Router extends Component {
   async checkRoutes() {
     const urlParams = new URLSearchParams(window.location.search);
 
-    if (urlParams.has("code")) return;
+    if (urlParams.has("code") || this.alreadyRoute) return;
 
     const data = await apiCall("/api/login/", "get");
 
-    console.log(data);
     if (!data.authenticated) {
       window.location.hash = "#/login";
       this.state.routes[1].component();
@@ -30,16 +30,16 @@ export default class Router extends Component {
     }
 
     this.state.authenticated = true;
+    loginSocket.init("login_status/");
 
     const currentRoute = this.state.routes.find((route) => {
-      return route.fragment === window.location.hash;
+      return route.fragment === window.location.hash.split("?")[0];
     });
     if (
       !currentRoute ||
-      (this.state.authenticated && window.location.hash === "#/login")
+      (this.state.authenticated && window.location.hash === "#/login/")
     ) {
       window.location.hash = "#/";
-      // history.pushState(null, "", "#/");
       this.state.routes[0].component();
       return;
     }
@@ -49,70 +49,55 @@ export default class Router extends Component {
 
   start() {
     window.onhashchange = () => {
+      const $modalElement = document.querySelector(".modal.show");
+      pongSocket.close();
+
+      if ($modalElement) {
+        const modal = bootstrap.Modal.getInstance($modalElement);
+        modal.hide(); // 모달 닫기
+      }
       this.checkRoutes();
     };
 
-    window.onload = () => {
+    window.onload = async () => {
       const urlParams = new URLSearchParams(window.location.search);
 
       if (urlParams.has("code")) {
-        loginCode();
-        return;
+        history.replaceState(null, "", "/");
+        const code = urlParams.get("code");
+
+        try {
+          const res = await fetch(`/api/login/oauth/callback/?code=${code}`, {
+            method: "get",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (!res.ok) throw new Error("HTTP status " + res.status);
+
+          const resJson = await res.json();
+
+          if (resJson.qr_url) {
+            new TwoFAView(document.querySelector("#body"), {
+              qr_url: resJson.qr_image,
+              username: resJson.username,
+            });
+            return;
+          }
+
+          window.location.hash = "/#/";
+        } catch (error) {
+          console.warn(error);
+        }
+      }
+
+      if (!window.location.hash) {
+        window.location.hash = "#/";
       }
 
       this.checkRoutes();
     };
-
-    if (!window.location.hash) {
-      window.location.hash = "#/";
-    }
-
-    // this.checkRoutes();
   }
 }
-
-const loginCode = async () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  console.log(urlParams);
-
-  if (urlParams.has("code")) {
-    history.replaceState(null, "", "/");
-    const code = urlParams.get("code");
-
-    try {
-      const res = await fetch(`/api/login/oauth/callback/?code=${code}`, {
-        method: "get",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!res.ok) throw new Error("HTTP status " + res.status);
-
-      const contentType = res.headers.get("content-type");
-      if (contentType && contentType.includes("image/png")) {
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-
-        console.log(url);
-        new TwoFAView(document.querySelector("#body"), {
-          qrUrl: url,
-        });
-
-        return;
-      }
-
-      const resJson = await res.json();
-
-      wsConnect(resJson.websocket_url, (event) => {
-        console.log(event);
-      });
-      console.log(resJson);
-
-      window.location.hash = "/#/";
-    } catch (error) {
-      console.error(error);
-    }
-  }
-};

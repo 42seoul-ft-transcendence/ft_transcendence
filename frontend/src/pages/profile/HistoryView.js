@@ -1,178 +1,93 @@
 import Component from "../../core/Component.js";
 import ProfileNav from "../../components/ProfileNav.js";
 import HistoryCard from "../../components/HistoryCard.js";
-import { getTranslation } from "../../utils/translations.js";
 
-const test = [
-  {
-    me: {
-      name: "You",
-      score: 3,
-      profileImage: "https://robohash.org/JohnDoe.png?size=150x150",
-    },
-    oppenent: {
-      name: "are",
-      score: 1,
-      profileImage: "https://ui-avatars.com/api/?name=John+Doe&size=150",
-    },
-    date: "2024/12/07",
-  },
-  {
-    me: {
-      name: "good",
-      score: 2,
-      profileImage: "https://robohash.org/JohnDoe.png?size=150x150",
-    },
-    oppenent: {
-      name: "gril",
-      score: 3,
-      profileImage: "https://api.dicebear.com/7.x/pixel-art/svg?seed=JohnDoe",
-    },
-    date: "2024/12/17",
-  },
-  {
-    me: {
-      name: "Youasdf",
-      score: 1,
-      profileImage: "https://robohash.org/JohnDoe.png?size=150x150",
-    },
-    oppenent: {
-      name: "Yosadfdsgu",
-      score: 3,
-      profileImage: "https://picsum.photos/150",
-    },
-    date: "2024/10/17",
-  },
-  {
-    me: {
-      name: "u111",
-      score: 3,
-      profileImage: "https://robohash.org/JohnDoe.png?size=150x150",
-    },
-    oppenent: {
-      name: "You123",
-      score: 0,
-      profileImage: "https://picsum.photos/150",
-    },
-    date: "2024/11/17",
-  },
-  {
-    me: {
-      name: "You",
-      score: 3,
-      profileImage: "https://robohash.org/JohnDoe.png?size=150x150",
-    },
-    oppenent: {
-      name: "are",
-      score: 1,
-      profileImage: "https://ui-avatars.com/api/?name=John+Doe&size=150",
-    },
-    date: "2024/12/07",
-  },
-  {
-    me: {
-      name: "good",
-      score: 2,
-      profileImage: "https://robohash.org/JohnDoe.png?size=150x150",
-    },
-    oppenent: {
-      name: "gril",
-      score: 3,
-      profileImage: "https://api.dicebear.com/7.x/pixel-art/svg?seed=JohnDoe",
-    },
-    date: "2024/12/17",
-  },
-  {
-    me: {
-      name: "Youasdf",
-      score: 1,
-      profileImage: "https://robohash.org/JohnDoe.png?size=150x150",
-    },
-    oppenent: {
-      name: "Yosadfdsgu",
-      score: 3,
-      profileImage: "https://picsum.photos/150",
-    },
-    date: "2024/10/17",
-  },
-  {
-    me: {
-      name: "u111",
-      score: 3,
-      profileImage: "https://robohash.org/JohnDoe.png?size=150x150",
-    },
-    oppenent: {
-      name: "You123",
-      score: 0,
-      profileImage: "https://picsum.photos/150",
-    },
-    date: "2024/11/17",
-  },
-];
-
-const data = {
-  users: [
-    {
-      id: 1,
-      profileImage: "https://robohash.org/JohnDoe.png?size=150x150",
-      message: "hihihiihhi",
-      username: "john_doe",
-      winLossRecord: {
-        wins: 10,
-        losses: 3,
-      },
-    },
-  ],
-};
+import { apiCall } from "../../utils/api.js";
+import HistoryProfile from "../../components/HistoryProfile.js";
 
 export default class HistoryView extends Component {
-  setup() {
+  async setup() {
     this.state = {
-      matchCount: test.length,
-      history: test,
-      profile: data.users[0],
+      history: null,
+      profile: null,
+      is_friend: true,
     };
+
+    const [hashPath, queryString] = window.location.hash.split("?");
+    const urlParams = new URLSearchParams(queryString || "");
+    const viewId = urlParams.get("id");
+    let profile = null;
+
+    const url = viewId
+      ? `/api/login/settings/?id=${viewId}`
+      : "/api/login/settings/";
+
+    try {
+      const resData = await apiCall(url, "get");
+
+      profile = {
+        id: resData.id,
+        profileImage: resData.avatar,
+        message: resData.status_message,
+        username: resData.username,
+        winLossRecord: {
+          wins: 0,
+          losses: 0,
+        },
+      };
+    } catch (e) {
+      console.warn(e);
+      window.location.hash = "#/profile/history";
+      return;
+    }
+
+    if (viewId && profile.id !== viewId) {
+      try {
+        const res = await apiCall(
+          `/api/friendship/is-friend//?target=${viewId}`,
+          "get",
+        );
+        this.state.is_friend = res.is_friend;
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+
+    try {
+      const url = viewId
+        ? `/api/game/match-history/?target=${viewId}`
+        : "/api/game/match-history/";
+
+      const res = await apiCall(url, "get");
+      console.log(res);
+      this.state.history = this.transformMatches(res.matches, profile.id);
+      console.log(this.state.history);
+      profile.winLossRecord = this.calculateStatistics(this.state.history);
+    } catch (e) {
+      console.warn(e);
+    }
+
+    this.setState({ profile });
   }
 
   template() {
-    const { matchCount } = this.state;
-    const { profile } = this.state;
+    const { history } = this.state;
 
     let temp = /* html */ `
-            <div class="container nav-section"></div>
-            <div class="container" id="historySection">
-                <div class="profile-section">
-                    <div>
-                        <img id="profileImg" class="profile-pic" src=${
-                          profile.profileImage
-                        } alt="Profile Picture">
-                    </div>
-                    <p class="fw-bold fs-4 mb-1" id="userName">${
-                      profile.username
-                    }</p>
-                    <p class="fs-6 mb-1" id="message">${profile.message}</p>
-                    <button class="btn btn-outline-success btn-sm" id="addFriend">${getTranslation(
-                      "addFriend",
-                    )}</button>
-                    <div class="record-box fw-bold fs-3 my-5">
-                        <span class="match-card blue">${
-                          profile.winLossRecord.wins
-                        }</span> /
-                        <span class="match-card pink">${
-                          profile.winLossRecord.losses
-                        }</span>
-                    </div>
-                </div>
-                <div class="row gy-4">
-                `;
-    for (let i = 0; i < matchCount; ++i)
-      temp += /* html */ `<div id="historyCard${i}" class="col-md-6"></div>`;
-
+      <div class="container nav-section"></div>
+      <div class="container">
+        <div id="historySection"></div>
+        <div class="row gy-4">
+      `;
+    if (history) {
+      for (let i = 0; i < history.length; ++i)
+        temp += /* html */ `<div id="historyCard${i}" class="col-md-6"></div>`;
+    }
     temp +=
       /* html */
       `
-                </div>
-            </div>`;
+          </div>
+      </div>`;
 
     return temp;
   }
@@ -182,11 +97,61 @@ export default class HistoryView extends Component {
 
     new ProfileNav(this.$target.querySelector(".nav-section"), this.props);
 
-    history.forEach((match, index) => {
-      new HistoryCard(
-        this.$target.querySelector(`#historyCard${index}`),
-        match,
-      );
+    new HistoryProfile(this.$target.querySelector("#historySection"), {
+      profile: this.state.profile,
+      is_friend: this.state.is_friend,
     });
+
+    history &&
+      history.forEach((match, index) => {
+        new HistoryCard(
+          this.$target.querySelector(`#historyCard${index}`),
+          match,
+        );
+      });
+  }
+
+  transformMatches(matches, myId) {
+    return matches.map((match) => {
+      const isHostMe = match.host.id === myId; // host가 me인지 확인
+
+      return {
+        me: {
+          id: isHostMe ? match.host.id : match.guest.id,
+          name: isHostMe ? match.host.username : match.guest.username,
+          score: isHostMe ? match.host.score : match.guest.score,
+          profileImage: isHostMe ? match.host.avatar : match.guest.avatar,
+        },
+        oppenent: {
+          id: isHostMe ? match.guest.id : match.host.id,
+          name: isHostMe ? match.guest.username : match.host.username,
+          score: isHostMe ? match.guest.score : match.host.score,
+          profileImage: isHostMe ? match.guest.avatar : match.host.avatar,
+        },
+        date: new Date(match.date).toISOString().split("T")[0], // 날짜를 YYYY/MM/DD 형식으로 변환
+        result:
+          match.winner ===
+          (isHostMe ? match.host.username : match.guest.username)
+            ? "win"
+            : "loss",
+      };
+    });
+  }
+
+  calculateStatistics(transformedMatches) {
+    const stats = {
+      wins: 0,
+      losses: 0,
+    };
+
+    transformedMatches.forEach((match) => {
+      if (match.result === "win") {
+        stats.wins += 1;
+      } else {
+        stats.losses += 1;
+      }
+    });
+
+    return stats;
   }
 }

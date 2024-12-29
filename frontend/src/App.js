@@ -1,7 +1,7 @@
 import Component from "./core/Component.js";
 import Router from "./Router.js";
-import Login from "./pages/LoginView.js";
 
+import Login from "./pages/LoginView.js";
 import Home from "./pages/HomeView.js";
 import Game from "./pages/GameView.js";
 import Tournament from "./pages/TournamentView.js";
@@ -9,27 +9,16 @@ import Navbar from "./components/Navbar.js";
 import HistoryView from "./pages/profile/HistoryView.js";
 import FriendView from "./pages/profile/FriendView.js";
 import SettingView from "./pages/profile/SettingView.js";
-import Loading from "./pages/LoadingView.js";
 
 import * as brackets from "./utils/tournament.js";
+import { pongSocket } from "./utils/ws.js";
 
 const data = {
-  users: [
-    {
-      id: 1,
-      profileImage: "https://robohash.org/JohnDoe.png?size=150x150",
-      nickname: "Champion01",
-      username: "john_doe",
-      winLossRecord: {
-        wins: 10,
-        losses: 3,
-      },
-    },
-  ],
+  avatar: "https://robohash.org/JohnDoe.png?size=150x150",
 };
 
 export default class App extends Component {
-  setup() {
+  async setup() {
     this.state = {
       gameCnt: 0,
       gameMode: "",
@@ -38,7 +27,7 @@ export default class App extends Component {
       matchGame: null,
       opponent1: null,
       opponent2: null,
-      profile: data.users[0],
+      profile: data,
     };
   }
 
@@ -56,6 +45,7 @@ export default class App extends Component {
     const $nav = this.$target.querySelector("#nav");
     const $body = this.$target.querySelector("#body");
 
+    pongSocket.close();
     router.addRoute("#/", () => {
       new Navbar($nav, profile);
       new Home($body, {
@@ -80,6 +70,7 @@ export default class App extends Component {
         opponent2: this.state.opponent2,
         handlePongNextGameClick: this.handlePongNextGameClick.bind(this),
       });
+      // }
     });
 
     router.addRoute("#/tournament", () => {
@@ -95,31 +86,20 @@ export default class App extends Component {
 
     router.addRoute("#/profile/history", () => {
       new Navbar($nav, profile);
-      new HistoryView($body, {
-        appRender: this.render.bind(this),
-      });
+      new HistoryView($body);
     });
 
     router.addRoute("#/profile/friends", () => {
       new Navbar($nav, profile);
-      new FriendView($body, {
-        appRender: this.render.bind(this),
-      });
+      new FriendView($body);
     });
 
     router.addRoute("#/profile/setting", () => {
       new Navbar($nav, profile);
-      new SettingView($body, {
-        handleLangChange: this.handleLangChange.bind(this),
-        appRender: this.render.bind(this),
-      });
+      new SettingView($body);
     });
 
     router.start();
-  }
-
-  handleLangChange() {
-    this.setState();
   }
 
   handleNickModalClick(playerNames) {

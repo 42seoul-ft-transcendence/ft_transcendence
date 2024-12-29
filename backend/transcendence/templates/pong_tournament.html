@@ -1,254 +1,295 @@
-{#{% extends "./extends/base.html" %}#}
-
-{% load i18n %}
-{% block content %}
+{#{% extends "./extends/base.html" %}#} {% load i18n %} {% block content %}
 <div class="container">
-	<div class="row">
-		<div class="col text-center">
-			<h1 class="fw-bold">{{ name }}</h1>
-		</div>
-	</div>
+  <div class="row">
+    <div class="col text-center">
+      <h1 class="fw-bold">{{ name }}</h1>
+    </div>
+  </div>
 
-	<div class="row">
-		<div class="col">
-			<div class="container-fluid scrollable-tournament-div">
-				<h1 class="text-center fw-bold hidden" id="winner"></h1>
-				<h2 class="text-start fs-4 fw-bold mb-3">{% trans "Players" %}</h2>
-				<table id="players" class="table table-striped table-bordered">
-					<thead>
-						<tr>
-							<th>{% trans "Players" %}</th>
-						</tr>
-					</thead>
-					<tbody></tbody>
-				</table>
+  <div class="row">
+    <div class="col">
+      <div class="container-fluid scrollable-tournament-div">
+        <h1 class="text-center fw-bold hidden" id="winner"></h1>
+        <h2 class="text-start fs-4 fw-bold mb-3">{% trans "Players" %}</h2>
+        <table id="players" class="table table-striped table-bordered">
+          <thead>
+            <tr>
+              <th>{% trans "Players" %}</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
 
-				<h2 class="text-start fs-4 fw-bold mb-3">{% trans "Next Round" %}</h2>
-				<table id="next-round" class="table table-striped table-bordered">
-					<thead>
-						<tr>
-							<th>{% trans "Player 1" %}</th>
-							<th>{% trans "Player 2" %}</th>
-						</tr>
-					</thead>
-					<tbody></tbody>
-				</table>
+        <h2 class="text-start fs-4 fw-bold mb-3">{% trans "Next Round" %}</h2>
+        <table id="next-round" class="table table-striped table-bordered">
+          <thead>
+            <tr>
+              <th>{% trans "Player 1" %}</th>
+              <th>{% trans "Player 2" %}</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
 
-				<h2 class="text-start fs-4 fw-bold mb-3">{% trans "Match history" %}</h2>
-				<table id="history" class="table table-striped table-bordered">
-					<thead>
-						<tr>
-							<th>{% trans "Player 1" %}</th>
-							<th>{% trans "Player 2" %}</th>
-							<th>{% trans "Score 1" %}</th>
-							<th>{% trans "Score 2" %}</th>
-						</tr>
-					</thead>
-					<tbody></tbody>
-				</table>
-			</div>
-		</div>
-	</div>
+        <h2 class="text-start fs-4 fw-bold mb-3">
+          {% trans "Match history" %}
+        </h2>
+        <table id="history" class="table table-striped table-bordered">
+          <thead>
+            <tr>
+              <th>{% trans "Player 1" %}</th>
+              <th>{% trans "Player 2" %}</th>
+              <th>{% trans "Score 1" %}</th>
+              <th>{% trans "Score 2" %}</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
-	<div class="row mt-5 mb-4">
-		<div class="col text-center">
-			<button id="lock-btn" class="btn game-btns game-btns-scnd-clr" disabled>{% trans "Lock" %}</button>
-		</div>
-	</div>
-	<div class="row my-4">
-		<div class="col text-center">
-			<button id="ready-btn" class="btn game-btns" disabled>{% trans "Ready" %}</button>
-		</div>
-	</div>
-	<div class="row my-4">
-		<div class="col text-center">
-			<button id="play-btn" class="btn game-btns game-btns-scnd-clr" disabled>{% trans "Play" %}</button>
-		</div>
-	</div>
-	<div class="row mt-4">
-		<div class="col text-center">
-			<button id="power-btn" class="btn game-btns">{% trans "Power-Up" %}</button>
-		</div>
-	</div>
+  <div class="row mt-5 mb-4">
+    <div class="col text-center">
+      <button id="lock-btn" class="btn game-btns game-btns-scnd-clr" disabled>
+        {% trans "Lock" %}
+      </button>
+    </div>
+  </div>
+  <div class="row my-4">
+    <div class="col text-center">
+      <button id="ready-btn" class="btn game-btns" disabled>
+        {% trans "Ready" %}
+      </button>
+    </div>
+  </div>
+  <div class="row my-4">
+    <div class="col text-center">
+      <button id="play-btn" class="btn game-btns game-btns-scnd-clr" disabled>
+        {% trans "Play" %}
+      </button>
+    </div>
+  </div>
+  <div class="row mt-4">
+    <div class="col text-center">
+      <button id="power-btn" class="btn game-btns">
+        {% trans "Power-Up" %}
+      </button>
+    </div>
+  </div>
 </div>
 
 <script>
-	const lockBtn = document.getElementById("lock-btn");
-	const readyBtn = document.getElementById("ready-btn");
-	const playBtn = document.getElementById("play-btn");
-	const powerBtn = document.getElementById("power-btn");
-	const playersTbl = document.getElementById("players");
-	const resultsOnly = "{{ results_only }}" === "True";
-	let socket = resultsOnly ? undefined : wsConnect(wsCreateUrl("pong_tournament", { "name": "{{ name }}" }), onMessage, exit);
-	let power = 0;
+  const lockBtn = document.getElementById("lock-btn");
+  const readyBtn = document.getElementById("ready-btn");
+  const playBtn = document.getElementById("play-btn");
+  const powerBtn = document.getElementById("power-btn");
+  const playersTbl = document.getElementById("players");
+  const resultsOnly = "{{ results_only }}" === "True";
+  let socket = resultsOnly
+    ? undefined
+    : wsConnect(
+        wsCreateUrl("pong_tournament", { name: "{{ name }}" }),
+        onMessage,
+        exit,
+      );
+  let power = 0;
 
-	function onMessage(data) {
-		if (data?.type === undefined) {
-			console.error("Invalid message from server ignored.");
-			return;
-		}
+  function onMessage(data) {
+    if (data?.type === undefined) {
+      console.warn("Invalid message from server ignored.");
+      return;
+    }
 
-		switch (data.type) {
-			case "unlock_lock": handleUnlockLock(); break;
-			case "unlock_ready": showBtn(readyBtn); break;
-			case "unlock_play": showBtn(playBtn); break;
-			case "join": handleJoin(data.players); break;
-			case "player_pairs": handlePlayerPairs(data.player_pairs); break;
-			case "next_round_id": route(`/pong/online/${data.id}/{{ name }}/${power}`); break;
-			case "bye": displayToast(" {% trans 'You have received a bye for this round. Enjoy the break!' %}", "bg-info"); break;
-			case "history": handleHistory(data.history); break;
-			case "end": handleEnd(data.winner); break;
-			default: console.error("Invalid message from server ignored."); break;
-		}
-	}
+    switch (data.type) {
+      case "unlock_lock":
+        handleUnlockLock();
+        break;
+      case "unlock_ready":
+        showBtn(readyBtn);
+        break;
+      case "unlock_play":
+        showBtn(playBtn);
+        break;
+      case "join":
+        handleJoin(data.players);
+        break;
+      case "player_pairs":
+        handlePlayerPairs(data.player_pairs);
+        break;
+      case "next_round_id":
+        route(`/pong/online/${data.id}/{{ name }}/${power}`);
+        break;
+      case "bye":
+        displayToast(
+          " {% trans 'You have received a bye for this round. Enjoy the break!' %}",
+          "bg-info",
+        );
+        break;
+      case "history":
+        handleHistory(data.history);
+        break;
+      case "end":
+        handleEnd(data.winner);
+        break;
+      default:
+        console.warn("Invalid message from server ignored.");
+        break;
+    }
+  }
 
-	function handleUnlockLock() {
-		showBtn(lockBtn);
-		showBtn(powerBtn);
-	}
+  function handleUnlockLock() {
+    showBtn(lockBtn);
+    showBtn(powerBtn);
+  }
 
-	function handleJoin(players) {
-		const tableBody = document.querySelector("#players tbody");
-		tableBody.innerHTML = '';
+  function handleJoin(players) {
+    const tableBody = document.querySelector("#players tbody");
+    tableBody.innerHTML = "";
 
-		players.forEach(playerName => {
-			const row = document.createElement('tr');
-			const player = document.createElement('td');
-			player.textContent = playerName;
-			row.appendChild(player);
-			tableBody.appendChild(row);
-		});
-	}
+    players.forEach((playerName) => {
+      const row = document.createElement("tr");
+      const player = document.createElement("td");
+      player.textContent = playerName;
+      row.appendChild(player);
+      tableBody.appendChild(row);
+    });
+  }
 
-	function handlePlayerPairs(playerPairs) {
-		const tableBody = document.querySelector("#next-round tbody");
-		tableBody.innerHTML = '';
+  function handlePlayerPairs(playerPairs) {
+    const tableBody = document.querySelector("#next-round tbody");
+    tableBody.innerHTML = "";
 
-		playerPairs.forEach(([player1, player2]) => {
-			const row = document.createElement('tr');
+    playerPairs.forEach(([player1, player2]) => {
+      const row = document.createElement("tr");
 
-			[player1, player2].forEach(player => {
-				const cell = document.createElement('td');
-				cell.textContent = player;
-				row.appendChild(cell);
-			});
+      [player1, player2].forEach((player) => {
+        const cell = document.createElement("td");
+        cell.textContent = player;
+        row.appendChild(cell);
+      });
 
-			tableBody.appendChild(row);
-		});
-	}
+      tableBody.appendChild(row);
+    });
+  }
 
-	function handleHistory(history) {
-		const nextRoundBody = document.querySelector("#next-round tbody");
-		nextRoundBody.innerHTML = '';
-		const tableBody = document.querySelector("#history tbody");
-		tableBody.innerHTML = '';
+  function handleHistory(history) {
+    const nextRoundBody = document.querySelector("#next-round tbody");
+    nextRoundBody.innerHTML = "";
+    const tableBody = document.querySelector("#history tbody");
+    tableBody.innerHTML = "";
 
-		history.forEach(element => {
-			const game = JSON.parse(element);
-			const row = document.createElement('tr');
+    history.forEach((element) => {
+      const game = JSON.parse(element);
+      const row = document.createElement("tr");
 
-			['user1', 'user2', 'score1', 'score2'].forEach(key => {
-				const cell = document.createElement('td');
-				cell.textContent = game[key];
-				row.appendChild(cell);
-			});
+      ["user1", "user2", "score1", "score2"].forEach((key) => {
+        const cell = document.createElement("td");
+        cell.textContent = game[key];
+        row.appendChild(cell);
+      });
 
-			tableBody.appendChild(row);
-		});
-	}
+      tableBody.appendChild(row);
+    });
+  }
 
-	function handleEnd(winner) {
-		if (socket)
-			socket.close();
-		socket = undefined;
-		const title = document.getElementById("winner");
-		const trandCongrat = "{% trans 'Congratulations to' %}"
-		title.innerHTML = `${trandCongrat} ${winner}!`;
-		title.classList.remove("hidden");
-	}
+  function handleEnd(winner) {
+    if (socket) socket.close();
+    socket = undefined;
+    const title = document.getElementById("winner");
+    const trandCongrat = "{% trans 'Congratulations to' %}";
+    title.innerHTML = `${trandCongrat} ${winner}!`;
+    title.classList.remove("hidden");
+  }
 
-	function exit(reroute = true) {
-		if (socket)
-			socket.close();
-		if (reroute)
-			route("/tournament");
-	}
+  function exit(reroute = true) {
+    if (socket) socket.close();
+    if (reroute) route("/tournament");
+  }
 
-	function onPageChange(e) {
-		exit(false);
-		e.srcElement.removeEventListener('pagechange', onPageChange);
-	}
+  function onPageChange(e) {
+    exit(false);
+    e.srcElement.removeEventListener("pagechange", onPageChange);
+  }
 
-	lockBtn.onclick = () => {
-		const tableBody = document.querySelector("#players tbody");
-		const rowCount = tableBody.rows.length;
-		if (rowCount < 2) {
-			displayToast(" {% trans 'You are alone in the tournament...' %}", "bg-warning");
-			return;
-		}
-		hideBtn(lockBtn);
-		hideBtn(powerBtn);
-		socket.send(JSON.stringify({ type: "lock" }));
-	}
+  lockBtn.onclick = () => {
+    const tableBody = document.querySelector("#players tbody");
+    const rowCount = tableBody.rows.length;
+    if (rowCount < 2) {
+      displayToast(
+        " {% trans 'You are alone in the tournament...' %}",
+        "bg-warning",
+      );
+      return;
+    }
+    hideBtn(lockBtn);
+    hideBtn(powerBtn);
+    socket.send(JSON.stringify({ type: "lock" }));
+  };
 
-	readyBtn.onclick = () => {
-		hideBtn(readyBtn);
-		socket.send(JSON.stringify({ type: "ready" }));
-	}
+  readyBtn.onclick = () => {
+    hideBtn(readyBtn);
+    socket.send(JSON.stringify({ type: "ready" }));
+  };
 
-	playBtn.onclick = () => {
-		hideBtn(playBtn);
-		socket.send(JSON.stringify({ type: "play" }));
-	}
+  playBtn.onclick = () => {
+    hideBtn(playBtn);
+    socket.send(JSON.stringify({ type: "play" }));
+  };
 
-	powerBtn.onclick = () => {
-		power = power === 1 ? 0 : 1;
-		powerBtn.classList.toggle("active");
-	}
+  powerBtn.onclick = () => {
+    power = power === 1 ? 0 : 1;
+    powerBtn.classList.toggle("active");
+  };
 
-	if (resultsOnly) {
-		(async () => {
-			fetch(`/api/games/tournaments/json/{{ name }}/`, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-CSRFToken': getCookie('csrftoken')
-				},
-				credentials: 'include'
-			}).then(response => {
-				if (!response.ok) {
-					return response.json().then(errorData => {
-						throw new Error(errorData.error);
-					});
-				}
-				return response.json();
-			}).then(data => {
-				const usernames = [];
-				const games = [];
+  if (resultsOnly) {
+    (async () => {
+      fetch(`/api/games/tournaments/json/{{ name }}/`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
+        credentials: "include",
+      })
+        .then((response) => {
+          if (!response.ok) {
+            return response.json().then((errorData) => {
+              throw new Error(errorData.error);
+            });
+          }
+          return response.json();
+        })
+        .then((data) => {
+          const usernames = [];
+          const games = [];
 
-				data.participants.forEach(participant => {
-					usernames.push(participant.username);
-				});
+          data.participants.forEach((participant) => {
+            usernames.push(participant.username);
+          });
 
-				data.games.forEach(game => {
-					game.user1 = game.user1.username
-					game.user2 = game.user2.username
-					games.push(JSON.stringify(game));
-				});
+          data.games.forEach((game) => {
+            game.user1 = game.user1.username;
+            game.user2 = game.user2.username;
+            games.push(JSON.stringify(game));
+          });
 
-				handleEnd(data.winner.username);
-				handleJoin(usernames);
-				handleHistory(games);
-			}).catch(error => {
-				console.error("Error fetching tournament data:", error.message);
-			});
-		})();
-	}
+          handleEnd(data.winner.username);
+          handleJoin(usernames);
+          handleHistory(games);
+        })
+        .catch((error) => {
+          console.warn("Error fetching tournament data:", error.message);
+        });
+    })();
+  }
 
-	document.getElementById('content').addEventListener('pagechange', onPageChange);
-	hideBtn(lockBtn);
-	hideBtn(readyBtn);
-	hideBtn(playBtn);
-	hideBtn(powerBtn);
+  document
+    .getElementById("content")
+    .addEventListener("pagechange", onPageChange);
+  hideBtn(lockBtn);
+  hideBtn(readyBtn);
+  hideBtn(playBtn);
+  hideBtn(powerBtn);
 </script>
 {% endblock %}

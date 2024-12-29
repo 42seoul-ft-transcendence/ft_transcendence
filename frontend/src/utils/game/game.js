@@ -6,6 +6,7 @@ class Player {
     this.height = 50;
     this.velocityY = 0;
     this.board = board;
+    this.smoothFactor = 0.2;
   }
 
   draw() {
@@ -19,6 +20,10 @@ class Player {
     if (!(nextPlayerY < 0 || nextPlayerY + this.height > this.board.height))
       this.y += this.velocityY;
   }
+
+  remoteUpdate(y) {
+    this.y += Math.round((y - this.y) * this.smoothFactor);
+  }
 }
 
 class Ball {
@@ -28,18 +33,23 @@ class Ball {
     this.width = width;
     this.height = height;
     this.velocity = velocity;
-    this.velocityX = (Math.random() > 0.5 ? 1 : -1) * velocity; // 속도는 동일, 방향만 랜덤
-    this.velocityY = (Math.random() > 0.5 ? 1 : -1) * velocity; // 속도는 동일, 방향만 랜
+    // this.velocityX = (Math.random() > 0.5 ? 1 : -1) * velocity; // 속도는 동일, 방향만 랜덤
+    // this.velocityY = (Math.random() > 0.5 ? 1 : -1) * velocity; // 속도는 동일, 방향만 랜
+    this.velocityX = 1 * velocity; // 속도는 동일, 방향만 랜덤
+    this.velocityY = 1 * velocity; // 속도는 동일, 방향만 랜
     this.board = board;
     this.isResetting = false;
+    this.smoothFactor = 0.2;
   }
 
   init() {
     try {
-      this.x = board.width / 2;
-      this.y = board.height / 2;
-      this.velocityX = (Math.random() > 0.5 ? 1 : -1) * this.velocity; // 속도는 동일, 방향만 랜덤
-      this.velocityY = (Math.random() > 0.5 ? 1 : -1) * this.velocity; // 속도는 동일, 방향만 랜
+      this.x = this.board.width / 2;
+      this.y = this.board.height / 2;
+      this.velocityX = 1 * this.velocity; // 속도는 동일, 방향만 랜덤
+      this.velocityY = 1 * this.velocity; // 속도는 동일, 방향만 랜
+      // this.velocityX = (Math.random() > 0.5 ? 1 : -1) * this.velocity; // 속도는 동일, 방향만 랜덤
+      // this.velocityY = (Math.random() > 0.5 ? 1 : -1) * this.velocity; // 속도는 동일, 방향만 랜
     } catch (err) {
       console.log(err);
     }
@@ -65,6 +75,18 @@ class Ball {
     } else if (detectCollision(this, player2)) {
       if (this.x + this.width >= player2.x) this.velocityX *= -1;
     }
+  }
+
+  remoteUpdate(x, y) {
+    if (x <= 0 || x + this.width >= this.board.width) {
+      this.init();
+      return;
+    }
+
+    this.x += Math.round((x - this.x) * this.smoothFactor);
+    this.y += Math.round((y - this.y) * this.smoothFactor);
+    // this.x = x;
+    // this.y = y;
   }
 }
 

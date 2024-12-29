@@ -19,6 +19,8 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+HOSTNAME = os.environ.get('HOSTNAME', 'localhost')
+BASE_URL = os.environ.get('DJANGO_BASE_URL', f'https://{HOSTNAME}:4443')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -34,12 +36,20 @@ ALLOWED_HOSTS = ['*']
 
 # CORS_ORIGIN_ALLOW_ALL = True  # TEST: 모든 도메인 허용 (보안 취약)
 
-CSRF_TRUSTED_ORIGINS = os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", default="https://localhost:4443").split(" ")
+# CSRF_TRUSTED_ORIGINS = os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", default="https://localhost:4443").split(" ")
+# CSRF_TRUSTED_ORIGINS.append("https://10.19.222.78:4443")
 
-# CORS_ALLOWED_ORIGINS = [
-#     "https://localhost:4443",
-#     "https://localhost:443",
-# ]
+CSRF_TRUSTED_ORIGINS = [
+    "https://localhost:4443",
+    "https://10.19.222.78:4443",  # 추가된 IP
+]
+
+
+CORS_ALLOWED_ORIGINS = [
+    "https://localhost:4443",
+    "https://localhost:443",
+    "https://10.19.222.78:4443"
+]
 
 CORS_ALLOWED_CREDENTIALS = True
 

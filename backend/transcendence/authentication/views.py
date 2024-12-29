@@ -1,4 +1,5 @@
 import base64
+import os
 
 import requests
 import pyotp
@@ -7,14 +8,15 @@ import json
 from io import BytesIO
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.files.base import ContentFile
 from django.views import View
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from .utils import generate_jwt, decode_jwt
+from .utils import generate_jwt, decode_jwt, avatar_url
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
@@ -35,7 +37,7 @@ class LogoutView(View):
             async_to_sync(channel_layer.group_send)(
                 "online",
                 {
-                    "type": "user.disconnect",
+                    "type": "disconnect",
                     "user_id": user.id,
                 }
             )
@@ -56,13 +58,17 @@ class LandingPageView(View):
         사용자의 인증 상태를 반환하는 API.
         """
         token = request.COOKIES.get("access_token")
-        if token:
-            try:
-                payload = decode_jwt(token)
-                return JsonResponse({"authenticated": True, "redirect": "/"})
-            except Exception:
+        if not token:
+            return JsonResponse({"authenticated": False, "redirect": "/login/"})
+        try:
+            payload = decode_jwt(token)
+            user = User.objects.get(id=payload["user_id"])
+
+            if user.two_factor and not request.session.get("2fa_verified", False):
                 return JsonResponse({"authenticated": False, "redirect": "/login/"})
-        else:
+            login(request, user)
+            return JsonResponse({"authenticated": True, "redirect": "/"})
+        except Exception:
             return JsonResponse({"authenticated": False, "redirect": "/login/"})
 
 
@@ -109,7 +115,7 @@ class OauthCallbackView(View):
 
             response = JsonResponse({
                 "message": "Login successful",
-                "websocket_url": "wss://localhost:4443/ws/login_status/",
+                "websocket_url": "wss://django/ws/login_status/",
                 "access_token": response_data["access_token"],
                 "refresh_token": response_data["refresh_token"],
             })
@@ -142,7 +148,6 @@ class OauthCallbackView(View):
         """
         인증 코드를 사용하여 42 API에서 토큰을 가져옵니다.
         """
-        print(f"Code: {code}")
         response = requests.post(
             self.token_url,
             data={
@@ -233,18 +238,13 @@ class Verify2FAView(View):
         return render(request, 'authentication.html')
 
     def post(self, request):
-        print(request.user)
-        print(request.body)
         try:
             data = json.loads(request.body)
-            username = request.user.username
-            otp_code = data.get("otp_code")
+            username = data.get("username")
+            otp_code = int(data.get("otp_code"))
         except json.JSONDecodeError:
             return HttpResponseBadRequest("Invalid JSON.")
-
-        print(otp_code)
-        print(username)
-
+        
         if not username or not otp_code:
             return HttpResponseBadRequest("Username and OTP code are required.")
 
@@ -258,6 +258,8 @@ class Verify2FAView(View):
             return HttpResponseBadRequest("Invalid OTP code.")
 
         response_data = self.generate_jwt_tokens(user)
+
+        request.session["2fa_verified"] = True
 
         response = JsonResponse({"message": "Login successful"})
         response.set_cookie(
@@ -330,17 +332,66 @@ class RefreshTokenView(View):
                 samesite="Strict",
             )
             return response
+
         except Exception:
+            re1sponse = JsonResponse({"error": "Invalid or expired refresh token. Please login again."}, status=401)
+            response.delete_cookie("access_token")
+            response.delete_cookie("refresh_token")
+            # return response
             return JsonResponse(
                 {"error": "Invalid or expired refresh token. Please login again."},
                 status=401
             )
+        # except Exception as e:
+        #     return JsonResponse({"error": str(e)}, status=400)
 
 class UpdateStatusMessageView(LoginRequiredMixin, View):
     def post(self, request):
-        status_message = request.POST.get("status_message", "").strip()
+        status_message = json.loads(request.body).get("status_message", "").strip()
         user = request.user
         user.status_message = status_message
         user.save()
 
         return JsonResponse({"message": "status message updated.", "status_message": status_message})
+
+class UploadAvatarView(LoginRequiredMixin, View):
+    def post(self, request):
+        avatar = request.FILES.get("avatar")
+        user = request.user
+
+        if avatar is None:
+            return JsonResponse({"error": "Avatar not found."}, status=400)
+        file_name = f"{user.username}{os.path.splitext(avatar.name)[1]}"
+        
+        # 전체 경로 대신 파일명만 전달
+        user.avatar.save(file_name, ContentFile(avatar.read()), save=True)
+
+        return JsonResponse({"message": "Avatar uploaded"}, status=200)
+
+class SettingView(LoginRequiredMixin, View):
+    def get(self, request):
+        user_id = request.GET.get('id')
+
+        print(user_id)
+        if user_id:
+            # id로 특정 유저 조회
+            user = get_object_or_404(User, id=user_id)
+        else:
+            # id가 없으면 현재 로그인한 유저
+            user = request.user
+        avatar = user.avatar
+        email = user.email
+        username = user.username
+        status_message = user.status_message
+        two_factor = user.two_factor
+
+        data = {
+            "id": user.id,
+            "avatar": avatar_url(avatar),
+            "email": email,
+            "username": username,
+            "status_message": status_message,
+            "two_factor": two_factor,
+        }
+
+        return JsonResponse(data, status=200)

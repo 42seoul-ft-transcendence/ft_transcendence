@@ -4,7 +4,9 @@ from django.views import View
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Friendship
+from django.db import models
 from django.contrib.auth import get_user_model
+from authentication.utils import avatar_url
 
 User = get_user_model()
 
@@ -59,8 +61,10 @@ class ReceivedFriendRequestsView(LoginRequiredMixin, View):
             {
                 "id": request.id,
                 "requester_id": request.requester.id,
+                "requester_username": request.requester.username,
+                "requester_avatar": avatar_url(request.requester.avatar),
+                "requester_state_message": request.requester.status_message,
                 "created_at": request.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-                # requester_id 의 username, avatar, state_message
             }
             for request in received_requests
         ]
@@ -73,11 +77,13 @@ class RespondFriendRequestView(LoginRequiredMixin, View):
     친구 요청에 응답 (accept, deny, delete)
     """
     def post(self, request, friendship_id):
-        action = request.POST.get("action")
+        # action = request.POST.get("action")
+
+        action = json.loads(request.body).get("action")
         friendship = get_object_or_404(Friendship, id=friendship_id)
 
         # 요청자가 receiver일 때만 상태 변경 가능
-        if friendship.receiver != request.user:
+        if friendship.receiver.id != request.user.id:
             return HttpResponseBadRequest("You are not authorized to respond to this request.")
 
         # 상태 전이 로직
@@ -101,3 +107,28 @@ class RespondFriendRequestView(LoginRequiredMixin, View):
             "message": f"Friend request {action}",
             "status": friendship.status,
         })
+
+class VerifyFriendshipView(LoginRequiredMixin, View):
+    def get(self, request):
+        user = request.user
+        target = request.GET.get("target")
+
+        if not target:
+            return JsonResponse({"error": "Target user ID is required"}, status=400)
+
+        if str(user.id) == target:
+            return JsonResponse({"is_friend": True})
+
+        try:
+            target_user = User.objects.get(id=target)
+            is_friend = Friendship.objects.filter(
+                (models.Q(requester=request.user) & models.Q(receiver=target_user) & models.Q(status="accepted")) |
+                (models.Q(requester=target_user) & models.Q(receiver=request.user) & models.Q(status="accepted"))
+            ).exists()
+            
+            return JsonResponse({"is_friend": is_friend})
+        except User.DoesNotExist:
+            return JsonResponse({"error": "User not found"}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+

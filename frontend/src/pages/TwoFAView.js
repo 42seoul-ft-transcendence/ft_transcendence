@@ -4,7 +4,8 @@ import { apiCall } from "../utils/api.js";
 export default class TwoFAView extends Component {
   setup() {
     this.state = {
-      qrUrl: this.props.qrUrl,
+      qrUrl: this.props.qr_url,
+      username: this.props.username,
     };
 
     console.log("??");
@@ -24,7 +25,7 @@ export default class TwoFAView extends Component {
               <div class="card-body text-center">
                 ${
                   qrUrl
-                    ? `<img src="${qrUrl}" alt="QR Code" style="max-width: 200px; margin-bottom: 20px;">`
+                    ? `<img src="data:image/png;base64,${qrUrl}" alt="QR Code" style="max-width: 200px; margin-bottom: 20px;">`
                     : `<p>Loading QR code...</p>`
                 }
                 <div class="mb-3">
@@ -44,21 +45,25 @@ export default class TwoFAView extends Component {
     this.addEvent("click", "#twoFABtn", async () => {
       const twoFA = this.$target.querySelector("#twoFA").value;
 
-      console.log(twoFA);
       if (twoFA.length !== 6) {
         alert("Please enter 2FA code");
         return;
       }
 
-      try {
-        const data = await apiCall("/api/login/verify-2fa/", "post", {
-          otp_code: twoFA,
-        });
-      } catch (e) {
-        console.error(e);
-      }
-
+      console.log(this.state.username);
       console.log(twoFA);
+      try {
+        const data = await apiCall(
+          "/api/login/verify-2fa/",
+          "post",
+          JSON.stringify({
+            username: this.state.username,
+            otp_code: twoFA,
+          }),
+        );
+
+        window.location.hash = "/";
+      } catch (e) {}
     });
   }
 }

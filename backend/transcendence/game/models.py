@@ -4,21 +4,18 @@ from django.contrib.auth import get_user_model
 
 
 class Pong(models.Model):
+    STATUS_CHOICES = [
+        ("ONGOING", "Ongoing"),
+        ("COMPLETED", "Completed"),
+    ]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    host = models.ForeignKey(
-        get_user_model(),
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name="user1",
-    )
-    guest = models.ForeignKey(
-        get_user_model(),
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name="user2",
-    )
-    host_score = models.PositiveSmallIntegerField()
-    guest_score = models.PositiveSmallIntegerField()
+    host = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, null=True, related_name="host")
+    guest = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, null=True, related_name="guest")
+    host_score = models.PositiveSmallIntegerField(default=0)
+    guest_score = models.PositiveSmallIntegerField(default=0)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="ONGOING")
+    winner = models.CharField(max_length=50, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -27,6 +24,7 @@ class Pong(models.Model):
 
     def serialize(self):
         return {
+            "id": str(self.id),
             "host": (
                 {"id": self.host.id, "username": self.host.username}
                 if self.host
@@ -39,7 +37,6 @@ class Pong(models.Model):
             ),
             "host_score": self.host_score,
             "guest_score": self.guest_score,
-            "uuid": self.id,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }

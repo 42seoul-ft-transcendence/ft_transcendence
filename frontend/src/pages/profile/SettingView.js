@@ -2,43 +2,42 @@ import Component from "../../core/Component.js";
 import ProfileNav from "../../components/ProfileNav.js";
 import UserInfo from "../../components/UserInfo.js";
 import SettingInfo from "../../components/SettingInfo.js";
-import { getTranslation } from "../../utils/translations.js";
+import Avatar from "../../components/Avatar.js";
+
 import { apiCall } from "../../utils/api.js";
 
-const data = {
-  users: [
-    {
-      profileImage: "https://robohash.org/JohnDoe.png?size=150x150",
-      message: "Champion01",
-      username: "john_doe",
-      email: "abc@abc.com",
-    },
-  ],
-};
-
 export default class SettingView extends Component {
-  setup() {
+  async setup() {
     this.state = {
-      profile: data.users[0],
+      profile: {
+        profileImage: "",
+        message: "",
+        username: "",
+        email: "",
+        two_factor: false,
+      },
     };
+
+    const resData = await apiCall("/api/login/settings/", "get");
+
+    const profile = {
+      profileImage: resData.avatar,
+      message: resData.status_message,
+      username: resData.username,
+      email: resData.email,
+      two_factor: resData.two_factor,
+    };
+
+    this.setState({
+      profile,
+    });
   }
 
   template() {
-    const { profile } = this.state;
-    const lang = localStorage.getItem("lang");
-
     return /* html */ `
 		<div class="container nav-section"></div>
 		<!-- Profile Section -->
-    <div class="setting-profile-section" id="settingSection">
-    <div>
-      <img class="setting-profile-pic mb-1" src=${
-        profile.profileImage
-      } alt="Profile Picture">
-      <input type="file" id="fileInput" style="display: none;">
-    </div>
-      <button class="edit-button">${getTranslation("edit", lang)}</button>
-    </div>
+    <div class="setting-profile-section" id="settingSection"></div>
     <div id="userInfo" class="container settings-section"></div>
     <div id="settingInfo" class="container settings-section"></div>
 		`;
@@ -48,35 +47,11 @@ export default class SettingView extends Component {
     const { profile } = this.state;
 
     new ProfileNav(this.$target.querySelector(".nav-section"), this.props);
+    new Avatar(this.$target.querySelector("#settingSection"), profile);
     new UserInfo(this.$target.querySelector("#userInfo"), profile);
     new SettingInfo(this.$target.querySelector("#settingInfo"), {
-      handleLangChange: this.props.handleLangChange,
-    });
-  }
-
-  setEvent() {
-    this.addEvent("click", ".edit-button", () => {
-      const fileInput = document.getElementById("fileInput");
-
-      fileInput.click();
-    });
-
-    this.addEvent("change", "#fileInput", (e) => {
-      const file = e.target.files[0];
-      const reader = new FileReader();
-
-      reader.onload = (e) => {
-        const profileImage = e.target.result;
-
-        this.setState({
-          profile: {
-            ...this.state.profile,
-            profileImage,
-          },
-        });
-      };
-
-      reader.readAsDataURL(file);
+      handleLangChange: this.setState.bind(this),
+      two_factor: profile.two_factor,
     });
   }
 }

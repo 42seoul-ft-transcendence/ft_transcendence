@@ -29,7 +29,7 @@ export default class SettingInfo extends Component {
             )}</th>
             <td class="d-flex justify-content-end align-items-center">
               <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" role="switch" id="2faSwitch"
+                <input class="form-check-input" type="checkbox" role="switch" id="twoFaSwitch"
                     style="transform: scale(1.8);">
               </div>
             </td>
@@ -49,6 +49,8 @@ export default class SettingInfo extends Component {
     const language = localStorage.getItem("lang") || "english";
 
     this.$target.querySelector(".form-select").value = language;
+    this.$target.querySelector("#twoFaSwitch").checked =
+      this.props?.two_factor | false;
   }
 
   setEvent() {
@@ -59,7 +61,7 @@ export default class SettingInfo extends Component {
         const data = await apiCall("/api/login/toggle-2fa/", "post");
         console.log(data);
       } catch (e) {
-        console.error(e);
+        console.warn(e);
       }
     });
 
@@ -69,7 +71,7 @@ export default class SettingInfo extends Component {
         console.log(data);
         window.location.href = "#/login";
       } catch (e) {
-        console.error(e);
+        console.warn(e);
       }
     });
   }
@@ -79,6 +81,8 @@ export default class SettingInfo extends Component {
     console.log(e);
 
     localStorage.setItem("lang", lang);
+    window.location.hash = "";
+    window.location.hash = "#/profile/setting";
     this.props.handleLangChange();
   }
 }

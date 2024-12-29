@@ -1,7 +1,9 @@
 import Component from "../core/Component.js";
 import * as game from "../utils/game/game.js";
+
 import { getTranslation } from "../utils/translations.js";
-import { wsConnect } from "../utils/ws.js";
+import { pongSocket } from "../utils/ws.js";
+import { apiCall } from "../utils/api.js";
 
 export default class Pong extends Component {
   setup() {
@@ -18,10 +20,24 @@ export default class Pong extends Component {
       opponent1: this.props.opponent1,
       opponent2: this.props.opponent2,
       finish: false,
+      player1Y: null,
+      player2Y: null,
+      ballX: null,
+      ballY: null,
+      myRole: null,
     };
 
-    // if (!this.props.opponent1 && !this.props.opponent2)
-    //   window.location.hash = "#/";
+    if (
+      this.props.gameMode === "" &&
+      !this.props.opponent1 &&
+      !this.props.opponent2
+    )
+      window.location.hash = "#/";
+
+    if (!this.state.opponent1)
+      this.state.opponent1 = { id: null, name: null, position: 1 };
+    if (!this.state.opponent2)
+      this.state.opponent2 = { id: null, name: null, position: 2 };
   }
 
   template() {
@@ -63,36 +79,85 @@ export default class Pong extends Component {
 
     board.draw(player1Score, player2Score);
 
-    if (this.props.gameMode == "singleMode" && !finish) {
-      const ws = wsConnect(
-        "wss://localhost:4443/ws/pong",
-        (event) => {
-          const data = JSON.parse(event.data);
-
-          switch (data.type) {
-            case "game_state":
-              updateGameState(data.content);
-              break;
-            case "game_stop":
-              displayWinner(data.content.winner);
-              break;
-            case "game_error":
-              console.error("게임 오류:", data.content.error);
-              break;
-            default:
-              console.log("알 수 없는 메시지 타입:", data.type);
-          }
-        },
-        (error) => {
-          console.error("WebSocket 오류:", error);
-        },
-      );
-    } else if (this.props.gameMode != "" && !finish) {
+    if (this.props.gameMode === "singleMode" && !finish) {
+      await this.remoteGameMounted();
+    } else if (this.props.gameMode !== "" && !finish) {
       if (this.props.opponent2.id == null) this.state.player1Score = 3;
       this.state.animationFrameId = requestAnimationFrame(
         this.update.bind(this),
       );
     }
+  }
+
+  async remoteGameMounted() {
+    const res = await apiCall("/api/game/start/", "post");
+    this.state.finish = true;
+
+    pongSocket.init(`pong/${res.room_id}/`);
+    pongSocket.on("onMessage", (event) => {
+      const wsData = JSON.parse(event.data);
+
+      switch (wsData.type) {
+        case "game_start":
+          console.log("Game started:", wsData);
+          this.state.finish = false;
+          this.state.board.init();
+          this.state.ball.init();
+          this.state.requestAnimationFrameId = requestAnimationFrame(
+            this.remoteUpdate.bind(this),
+          );
+          break;
+        case "assign_role":
+          console.log("Role assigned:", wsData);
+          this.state.myRole = wsData.content.role;
+          if (this.state.myRole === "player1") {
+            this.state.opponent1.name = "You";
+          } else {
+            this.state.opponent2.name = "You";
+          }
+          this.render();
+          break;
+        case "game_state":
+          const message = wsData.content;
+          this.state.ballX = message.ball.x;
+          this.state.ballY = message.ball.y;
+          this.state.player1Y = message.player1.y;
+          this.state.player2Y = message.player2.y;
+          this.state.player1Score = message.scores[0];
+          this.state.player2Score = message.scores[1];
+          this.state.ball.remoteUpdate(message.ball.x, message.ball.y);
+          break;
+        case "game_stop":
+          pongSocket.close();
+          break;
+        default:
+          console.warn("Unknown message type:", wsData.type);
+      }
+    });
+  }
+
+  remoteUpdate() {
+    const { board, player1, player2, ball, player1Y, player2Y, ballX, ballY } =
+      this.state;
+
+    board.clear();
+    board.draw(this.state.player1Score, this.state.player2Score);
+    player1.remoteUpdate(player1Y);
+    player1.draw();
+
+    player2.remoteUpdate(player2Y);
+    player2.draw();
+
+    if (this.state.player1Score == 3 || this.state.player2Score == 3) {
+      this.finishGame();
+      return;
+    }
+
+    ball.remoteUpdate(ballX, ballY);
+    ball.draw();
+    this.state.animationFrameId = requestAnimationFrame(
+      this.remoteUpdate.bind(this),
+    );
   }
 
   update() {
@@ -109,29 +174,30 @@ export default class Pong extends Component {
     player2.draw();
 
     if (this.state.player1Score == 3 || this.state.player2Score == 3) {
-      let winWidth;
+      // let winWidth;
 
-      if (this.state.animationFrameId) {
-        this.state.finish = true;
-        if (this.state.player1Score == 3) winWidth = board.width / 5 - 20;
-        else winWidth = (board.width * 4) / 5 - 60;
+      // if (this.state.animationFrameId) {
+      //   this.state.finish = true;
+      //   if (this.state.player1Score == 3) winWidth = board.width / 5 - 20;
+      //   else winWidth = (board.width * 4) / 5 - 60;
 
-        board.context.fillStyle = "White";
-        board.context.fillText("WIN", winWidth, 125);
+      //   board.context.fillStyle = "White";
+      //   board.context.fillText("WIN", winWidth, 125);
 
-        cancelAnimationFrame(this.state.animationFrameId);
+      //   cancelAnimationFrame(this.state.animationFrameId);
 
-        this.$target.querySelector("#nextBtn").classList.remove("d-none");
-        return;
-      }
+      //   this.$target.querySelector("#nextBtn").classList.remove("d-none");
+      this.finishGame();
+      return;
+      // }
     }
     ball.update(player1, player2);
     ball.draw();
 
-    if (ball.x < 0) {
+    if (ball.x <= 0) {
       ball.init();
       this.state.player2Score++;
-    } else if (ball.x + ball.width > board.width) {
+    } else if (ball.x + ball.width >= board.width) {
       ball.init();
       this.state.player1Score++;
     }
@@ -140,13 +206,39 @@ export default class Pong extends Component {
   }
 
   setEvent() {
-    document.addEventListener("keydown", (e) => {
-      if (e.code == "KeyW") this.state.player1.velocityY = -3;
-      else if (e.code == "KeyS") this.state.player1.velocityY = 3;
+    document.onkeydown = (e) => {
+      if (this.props.gameMode === "singleMode") {
+        if (pongSocket.getStatus() === "OPEN") {
+          const test = JSON.stringify({
+            type: "game_move",
+            content: {
+              direction: -10,
+              player: this.state.myRole,
+            },
+          });
 
-      if (e.code == "ArrowUp") this.state.player2.velocityY = -3;
-      else if (e.code == "ArrowDown") this.state.player2.velocityY = 3;
-    });
+          console.log(test);
+          if (e.code == "ArrowUp") {
+            pongSocket.sendMessage(test);
+          } else if (e.code == "ArrowDown")
+            pongSocket.sendMessage(
+              JSON.stringify({
+                type: "game_move",
+                content: {
+                  direction: 10,
+                  player: this.state.myRole,
+                },
+              }),
+            );
+        }
+      } else {
+        if (e.code == "KeyW") this.state.player1.velocityY = -3;
+        else if (e.code == "KeyS") this.state.player1.velocityY = 3;
+
+        if (e.code == "ArrowUp") this.state.player2.velocityY = -3;
+        else if (e.code == "ArrowDown") this.state.player2.velocityY = 3;
+      }
+    };
 
     this.addEvent("click", "#nextBtn", () => {
       const { opponent1, opponent2, player1Score, player2Score } = this.state;
@@ -165,5 +257,19 @@ export default class Pong extends Component {
       this.props.handlePongNextGameClick(opponent1, opponent2);
       window.location.hash = "#/tournament";
     });
+  }
+
+  finishGame() {
+    let winWidth;
+    const { board, player1Score } = this.state;
+    this.state.finish = true;
+
+    if (player1Score == 3) winWidth = board.width / 5 - 20;
+    else winWidth = (board.width * 4) / 5 - 60;
+
+    board.context.fillStyle = "White";
+    board.context.fillText("WIN", winWidth, 125);
+
+    cancelAnimationFrame(this.state.animationFrameId);
   }
 }

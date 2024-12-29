@@ -37,11 +37,12 @@ export default class ProfileNav extends Component {
   }
 
   setEvent() {
-    this.addEvent("click", ".nav-item", (event) => {
-      event.preventDefault();
+    this.$target.querySelectorAll(".nav-item").forEach((item) => {
+      item.onclick = (event) => {
+        event.preventDefault();
 
-      window.location.hash = "#/profile/" + event.target.dataset.name;
-      this.props.appRender();
+        window.location.hash = "#/profile/" + event.target.dataset.name;
+      };
     });
   }
 }
