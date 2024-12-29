@@ -44,6 +44,8 @@ export default class HistoryProfile extends Component {
             receiver: this.state.profile.id,
           }),
         );
+
+        this.$target.querySelector("#addFriend").classList.add("d-none");
       } catch (e) {
         console.warn(e);
       }

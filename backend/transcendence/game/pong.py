@@ -100,7 +100,6 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             if len(players) == 2:
                 if not hasattr(self, "winner"):
                     self.forfeit(self.info.creator)
-                    await self.send_game_state()
                 await self.save_game(self.winner)
 
         if hasattr(self, "valid"):
@@ -180,11 +179,9 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         if not target:
             return
         if target is self.info.players_ids[0]:
-            self.info.score[0] = 0
             self.info.score[1] = self.win_goal
         else:
             self.info.score[0] = self.win_goal
-            self.info.score[1] = 0
         self.winner = self.get_winner()
 
     async def loop(self):
@@ -288,13 +285,13 @@ class PongGameConsumer(AsyncWebsocketConsumer):
                         and self.y < player.y + player.height
                         and self.y + self.height > player.y
                 )
-            # else:
-            #     return (
-            #             self.x + self.width >= player.x
-            #             and self.x <= player.x + player.width
-            #             and self.y < player.y + player.height
-            #             and self.y + self.height > player.y
-            #     )
+            else:
+                return (
+                        self.x + self.width >= player.x
+                        and self.x <= player.x + player.width
+                        and self.y < player.y + player.height
+                        and self.y + self.height > player.y
+                )
 
         def reset(self):
             self.x = 350

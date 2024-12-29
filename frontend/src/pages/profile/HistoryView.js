@@ -44,7 +44,7 @@ export default class HistoryView extends Component {
     if (viewId && profile.id !== viewId) {
       try {
         const res = await apiCall(
-          `/api/friendship/is-friend//?target=${viewId}`,
+          `/api/friendship/is-friend/?target=${viewId}`,
           "get",
         );
         this.state.is_friend = res.is_friend;
@@ -58,6 +58,7 @@ export default class HistoryView extends Component {
         ? `/api/game/match-history/?target=${viewId}`
         : "/api/game/match-history/";
 
+      console.log(url);
       const res = await apiCall(url, "get");
       this.state.history = this.transformMatches(res.matches, profile.id);
       profile.winLossRecord = this.calculateStatistics(this.state.history);

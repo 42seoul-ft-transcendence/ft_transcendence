@@ -13,6 +13,10 @@ class MatchHistoryView(View):
     def get(self, request):
         target = request.GET.get('target')
         matches = Pong.objects.order_by('-created_at')
+        user = request.user
+
+        if not target:
+            target = user.id
 
         if target:
             matches = matches.filter(
