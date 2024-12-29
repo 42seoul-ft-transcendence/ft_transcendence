@@ -100,7 +100,6 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             if len(players) == 2:
                 if not hasattr(self, "winner"):
                     self.forfeit(self.info.creator)
-                    await self.send_game_state()
                 await self.save_game(self.winner)
 
         if hasattr(self, "valid"):

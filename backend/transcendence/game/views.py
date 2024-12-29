@@ -13,6 +13,10 @@ class MatchHistoryView(View):
     def get(self, request):
         target = request.GET.get('target')
         matches = Pong.objects.order_by('-created_at')
+        user = request.user
+
+        if not target:
+            target = user.id
 
         if target:
             matches = matches.filter(
@@ -64,7 +68,7 @@ class GameStartView(LoginRequiredMixin, View):
             players_key = f"{room_id.decode('utf-8')}_players"
             players = redis_conn.lrange(players_key, 0, -1)
             if user_id.encode('utf-8') in players:
-                redis_conn.lrem(players_key, 0, user_id)
+                redis_conn.lrem(players_key, 1, user_id)
                 if redis_conn.llen(players_key) == 0:
                     redis_conn.srem("rooms_list", room_id)
                     redis_conn.delete(players_key)
@@ -74,6 +78,10 @@ class GameStartView(LoginRequiredMixin, View):
             if redis_conn.llen(players_key) < 2:
                 redis_conn.rpush(players_key, user_id)
                 players = redis_conn.lrange(players_key, 0, -1)
+                for player in players:
+                    redis_conn.lrem(players_key, 1, player)
+                redis_conn.srem("rooms_list", room_id)
+                redis_conn.delete(players_key)
                 return JsonResponse({
                     "status": "joined",
                     "room_id": room_id.decode('utf-8'),
