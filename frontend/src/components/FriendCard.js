@@ -31,7 +31,7 @@ export default class FriendCard extends Component {
       window.location.hash = `#/profile/history?id=${this.props.list.id}`;
     });
 
-    this.addEvent("click", "#deleteBtn", (e) => this.deleteFriendRequest(e));
+    // this.addEvent("click", "#deleteBtn", (e) => this.deleteFriendRequest(e));
   }
 
   async deleteFriendRequest(e) {
