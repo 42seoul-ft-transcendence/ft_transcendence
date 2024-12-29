@@ -128,8 +128,6 @@ export default class App extends Component {
   handlePongNextGameClick(opponent1, opponent2) {
     let { matches, matchGame, gameCnt, participants } = this.state;
 
-    console.log(matches);
-
     const nextMatchIdx = matches.findIndex(
       (match) =>
         matchGame.round_id + 1 === match.round_id &&

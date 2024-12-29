@@ -59,7 +59,6 @@ export default class SettingInfo extends Component {
     this.addEvent("click", ".form-check-input", async (e) => {
       try {
         const data = await apiCall("/api/login/toggle-2fa/", "post");
-        console.log(data);
       } catch (e) {
         console.warn(e);
       }
@@ -68,7 +67,6 @@ export default class SettingInfo extends Component {
     this.addEvent("click", "#logoutBtn", async (e) => {
       try {
         const data = await apiCall("/api/login/logout/", "get");
-        console.log(data);
         window.location.href = "#/login";
       } catch (e) {
         console.warn(e);
@@ -78,7 +76,6 @@ export default class SettingInfo extends Component {
 
   changeLanguage(e) {
     const lang = e.target.value;
-    console.log(e);
 
     localStorage.setItem("lang", lang);
     window.location.hash = "";

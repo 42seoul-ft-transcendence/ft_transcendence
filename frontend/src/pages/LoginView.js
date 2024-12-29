@@ -23,7 +23,6 @@ export default class Login extends Component {
 
   setEvent() {
     this.addEvent("click", "#loginButton", async () => {
-      console.log("42 login button clicked");
       window.location.href = "/api/login/oauth/redirect/";
       new Loading(this.$target);
     });

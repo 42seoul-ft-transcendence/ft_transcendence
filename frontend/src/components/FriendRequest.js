@@ -6,6 +6,7 @@ import { loginSocket } from "../utils/ws.js";
 export default class FriendRequest extends Component {
   template() {
     const {
+      id,
       requester_id,
       requester_avatar,
       requester_state_message,
@@ -23,10 +24,10 @@ export default class FriendRequest extends Component {
 				</div>
 			</div>
 			<div class="d-flex justify-content-end w-100">
-				<button class="btn btn-success btn-sm me-2 accept-btn" data-id="${requester_id}" data-name="${requester_username}">${getTranslation(
+				<button class="btn btn-success btn-sm me-2 accept-btn" data-id="${id}" data-name="${requester_username}">${getTranslation(
       "accept",
     )}</button>
-				<button class="btn btn-danger btn-sm reject-btn" data-id="${requester_id}" data-name="${requester_username}">${getTranslation(
+				<button class="btn btn-danger btn-sm reject-btn" data-id="${id}" data-name="${requester_username}">${getTranslation(
       "reject",
     )}</button>
 			</div>

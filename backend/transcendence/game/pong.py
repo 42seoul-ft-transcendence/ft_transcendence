@@ -285,13 +285,13 @@ class PongGameConsumer(AsyncWebsocketConsumer):
                         and self.y < player.y + player.height
                         and self.y + self.height > player.y
                 )
-            else:
-                return (
-                        self.x + self.width >= player.x
-                        and self.x <= player.x + player.width
-                        and self.y < player.y + player.height
-                        and self.y + self.height > player.y
-                )
+            # else:
+            #     return (
+            #             self.x + self.width >= player.x
+            #             and self.x <= player.x + player.width
+            #             and self.y < player.y + player.height
+            #             and self.y + self.height > player.y
+            #     )
 
         def reset(self):
             self.x = 350

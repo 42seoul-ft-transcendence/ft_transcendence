@@ -70,7 +70,6 @@ export default class UserInfo extends Component {
       } else {
         // 메시지가 적절한 경우
         errorMessage.style.display = "none"; // 에러 메시지 숨김
-        console.log("메시지가 저장되었습니다:", messageInput.value); // 메시지 저장 로직 추가
 
         try {
           const data = await apiCall(
@@ -80,8 +79,6 @@ export default class UserInfo extends Component {
               status_message: messageInput.value,
             }),
           );
-
-          console.log(data);
         } catch (e) {
           console.warn(e);
         }

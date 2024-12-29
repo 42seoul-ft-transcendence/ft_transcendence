@@ -19,7 +19,6 @@ export default class FriendView extends Component {
     const requestData = await apiCall("/api/friendship/received/", "get");
     const requestCount = requestData.received_requests.length;
 
-    console.log(requestData);
     loginSocket.on("onOpen", () => {
       loginSocket.sendMessage(
         JSON.stringify({ action: "fetch_friend_statuses" }),
@@ -120,7 +119,6 @@ export default class FriendView extends Component {
             receiver: username,
           }),
         );
-        console.log(data);
       } catch (e) {
         console.warn(e);
       }

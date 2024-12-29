@@ -14,7 +14,6 @@ export default class Tournament extends Component {
       currentMatch: 0,
     };
 
-    console.log(this.props.matches);
     if (this.props.matches.length === 0) window.location.hash = "#/";
   }
 
@@ -42,13 +41,12 @@ export default class Tournament extends Component {
         participants: participants,
       });
     } catch (e) {
-      console.log(e);
+      console.warn(e);
     }
   }
 
   setEvent() {
     this.addEvent("click", "#gameStartBtn", () => {
-      console.log("??");
       const startMatchIdx = this.state.matches.findIndex(
         (match) =>
           (!("result" in match.opponent1) || !("result" in match.opponent2)) &&

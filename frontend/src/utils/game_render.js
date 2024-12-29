@@ -1,7 +1,6 @@
 export default class GameRenderer {
   constructor(canvasId) {
     this.canvas = document.getElementById(canvasId);
-    console.log(this.canvas);
     this.ctx = this.canvas.getContext("2d");
   }
 

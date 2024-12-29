@@ -7,8 +7,6 @@ export default class TwoFAView extends Component {
       qrUrl: this.props.qr_url,
       username: this.props.username,
     };
-
-    console.log("??");
   }
 
   template() {
@@ -50,8 +48,6 @@ export default class TwoFAView extends Component {
         return;
       }
 
-      console.log(this.state.username);
-      console.log(twoFA);
       try {
         const data = await apiCall(
           "/api/login/verify-2fa/",

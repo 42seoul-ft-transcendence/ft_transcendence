@@ -31,6 +31,8 @@ class SendFriendRequestView(LoginRequiredMixin, View):
         if receiver == request.user:
             return HttpResponseBadRequest("You cannot send a friend request to yourself.")
 
+        print(receiver)
+        print(request.user)
         friendship, created = Friendship.objects.get_or_create(
             requester=request.user, receiver=receiver
         )
@@ -90,7 +92,7 @@ class RespondFriendRequestView(LoginRequiredMixin, View):
         if friendship.receiver.id != request.user.id:
             return HttpResponseBadRequest("You are not authorized to respond to this request.")
 
-        print( friendship.status)
+        print(friendship.status)
         # 상태 전이 로직
         if friendship.status == "pending":
             if action == "accept":

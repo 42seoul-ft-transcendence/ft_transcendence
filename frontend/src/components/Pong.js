@@ -99,7 +99,6 @@ export default class Pong extends Component {
 
       switch (wsData.type) {
         case "game_start":
-          console.log("Game started:", wsData);
           this.state.finish = false;
           this.state.board.init();
           this.state.ball.init();
@@ -108,7 +107,6 @@ export default class Pong extends Component {
           );
           break;
         case "assign_role":
-          console.log("Role assigned:", wsData);
           this.state.myRole = wsData.content.role;
           if (this.state.myRole === "player1") {
             this.state.opponent1.name = "You";
@@ -217,7 +215,6 @@ export default class Pong extends Component {
             },
           });
 
-          console.log(test);
           if (e.code == "ArrowUp") {
             pongSocket.sendMessage(test);
           } else if (e.code == "ArrowDown")

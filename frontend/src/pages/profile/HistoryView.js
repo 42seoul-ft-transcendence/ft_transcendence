@@ -59,9 +59,7 @@ export default class HistoryView extends Component {
         : "/api/game/match-history/";
 
       const res = await apiCall(url, "get");
-      console.log(res);
       this.state.history = this.transformMatches(res.matches, profile.id);
-      console.log(this.state.history);
       profile.winLossRecord = this.calculateStatistics(this.state.history);
     } catch (e) {
       console.warn(e);
