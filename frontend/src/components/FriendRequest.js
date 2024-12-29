@@ -6,6 +6,7 @@ import { loginSocket } from "../utils/ws.js";
 export default class FriendRequest extends Component {
   template() {
     const {
+      id,
       requester_id,
       requester_avatar,
       requester_state_message,

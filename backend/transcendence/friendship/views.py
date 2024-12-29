@@ -82,23 +82,25 @@ class RespondFriendRequestView(LoginRequiredMixin, View):
         action = json.loads(request.body).get("action")
         friendship = get_object_or_404(Friendship, id=friendship_id)
 
-        # 요청자가 receiver일 때만 상태 변경 가능
-        if friendship.receiver.id != request.user.id:
-            return HttpResponseBadRequest("You are not authorized to respond to this request.")
-
-        # 상태 전이 로직
-        if friendship.status == "pending":
-            if action == "accept":
-                friendship.status = "accepted"
-            elif action == "deny":
-                friendship.status = "denied"
+        if action == "accept" or action == "deny":
+            if friendship.receiver.id != request.user.id:
+                return HttpResponseBadRequest("You are not authorized to respond to this request.")
+            if friendship.status == "pending":
+                if action == "accept":
+                    friendship.status = "accepted"
+                elif action == "deny":
+                    friendship.status = "denied"
+                else:
+                    return HttpResponseBadRequest("Invalid action for pending state.")
+        elif action == "delete":
+            if friendship.receiver.id == request.user.id or friendship.requester.id == request.user.id:
+                if friendship.status == "accepted":
+                    if action == "delete":
+                        friendship.status = "deleted"
+                    else:
+                        return HttpResponseBadRequest("Invalid action for accepted state.")
             else:
-                return HttpResponseBadRequest("Invalid action for pending state.")
-        elif friendship.status == "accepted":
-            if action == "delete":
-                friendship.status = "deleted"
-            else:
-                return HttpResponseBadRequest("Invalid action for accepted state.")
+                return HttpResponseBadRequest("You are not authorized to respond to this request.")
         else:
             return HttpResponseBadRequest("No action allowed for this state.")
 
